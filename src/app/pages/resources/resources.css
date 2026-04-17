@@ -1,0 +1,281 @@
+/* ═══════════════════════════════════════════════════════
+   RESOURCES — scoped styles
+═══════════════════════════════════════════════════════ */
+@import '../backoffice/backoffice.css';
+
+/* ── Page ────────────────────────────────────────────── */
+.res-page {
+  min-height: 100vh;
+  background: #f8f7f4;
+  padding: 2rem 2.5rem;
+  font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+}
+
+.res-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.res-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.res-subtitle {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.res-header-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* ── Selector ────────────────────────────────────────── */
+.selector-card {
+  background: #fff;
+  border: 1px solid #e8e5df;
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.selector-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.selector-select {
+  flex: 1;
+  min-width: 260px;
+}
+
+.assess-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8f7f4;
+  border: 1px solid #e8e5df;
+  border-radius: 20px;
+  padding: 6px 14px;
+}
+
+.pill-count {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* ── Upload card ─────────────────────────────────────── */
+.upload-card {
+  background: #fff;
+  border: 1px solid #e8e5df;
+  border-radius: 16px;
+  padding: 1.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.form-subtitle {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-bottom: 1.25rem;
+}
+
+.upload-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 600px) {
+  .upload-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.span-2 {
+  grid-column: 1 / -1;
+}
+
+/* ── File drop ───────────────────────────────────────── */
+.file-drop {
+  border: 2px dashed #e2e0da;
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  background: #faf9f7;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  display: block;
+  position: relative;
+}
+
+  .file-drop:hover {
+    border-color: #1e293b;
+  }
+
+.file-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+.file-drop-inner {
+  pointer-events: none;
+}
+
+.file-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.file-text {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #475569;
+}
+
+.file-hint {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
+/* ── Search bar ──────────────────────────────────────── */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.res-count {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+/* ── Table ───────────────────────────────────────────── */
+.res-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+  .res-table thead tr {
+    background: #faf9f7;
+    border-bottom: 1px solid #e8e5df;
+  }
+
+  .res-table th {
+    padding: 0.875rem 1.25rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  .res-table tbody tr {
+    border-bottom: 1px solid #f8f7f4;
+    transition: background 0.1s;
+  }
+
+    .res-table tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    .res-table tbody tr:hover {
+      background: #faf9f7;
+    }
+
+  .res-table td {
+    padding: 0.875rem 1.25rem;
+    color: #475569;
+    vertical-align: middle;
+  }
+
+.file-cell-icon {
+  font-size: 1.5rem;
+}
+
+.td-url {
+  font-family: monospace;
+  font-size: 0.78rem;
+  color: #94a3b8;
+  word-break: break-all;
+}
+
+/* ── Badges (extends backoffice) ─────────────────────── */
+.badge-type {
+  background: #f1f0ec;
+  color: #64748b;
+}
+
+.badge-published {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.badge-draft {
+  background: #fef9c3;
+  color: #ca8a04;
+}
+
+.badge-exam {
+  background: #ede9fe;
+  color: #7c3aed;
+}
+
+.badge-quiz {
+  background: #fce7f3;
+  color: #be185d;
+}
+
+.badge-project {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.badge-status-published {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.badge-status-draft {
+  background: #fef9c3;
+  color: #ca8a04;
+}
+
+.badge-status-closed {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+/* ── Empty state ─────────────────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 5rem 2rem;
+  color: #94a3b8;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}

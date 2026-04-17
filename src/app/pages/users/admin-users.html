@@ -1,0 +1,460 @@
+<!-- src/app/pages/admin/admin-users.html -->
+<section class="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
+  <div class="flex items-center justify-between mb-4">
+    <div>
+      <h3 class="text-lg font-semibold text-gray-900 mb-1">Users</h3>
+      <p class="text-sm text-gray-600">
+        Manage all users of the platform. Filter, create and update user accounts.
+      </p>
+    </div>
+    <button
+      type="button"
+      (click)="openCreateModal()"
+      class="inline-flex items-center px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700"
+    >
+      + New User
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <form [formGroup]="filterForm" (ngSubmit)="applyFilters()" class="mb-4 grid grid-cols-1 md:grid-cols-5 gap-3">
+    <div>
+      <label class="block text-xs font-medium text-gray-600 mb-1">Email</label>
+      <input type="text" formControlName="email"
+        class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+        placeholder="Search email" />
+    </div>
+    <div>
+      <label class="block text-xs font-medium text-gray-600 mb-1">First Name</label>
+      <input type="text" formControlName="firstName"
+        class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+        placeholder="First name" />
+    </div>
+    <div>
+      <label class="block text-xs font-medium text-gray-600 mb-1">Last Name</label>
+      <input type="text" formControlName="lastName"
+        class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+        placeholder="Last name" />
+    </div>
+    <div>
+      <label class="block text-xs font-medium text-gray-600 mb-1">CIN</label>
+      <input type="text" formControlName="cin"
+        class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+        placeholder="CIN (8 digits)" />
+    </div>
+    <div>
+      <label class="block text-xs font-medium text-gray-600 mb-1">Phone</label>
+      <input type="text" formControlName="phoneNumber"
+        class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+        placeholder="Phone number" />
+    </div>
+    <div class="md:col-span-5 flex justify-end gap-2 mt-2">
+      <button type="button" (click)="clearFilters()"
+        class="px-3 py-1.5 rounded-lg border border-gray-300 text-xs text-gray-700 hover:bg-gray-50">
+        Clear
+      </button>
+      <button type="submit"
+        class="px-3 py-1.5 rounded-lg bg-blue-600 text-xs text-white hover:bg-blue-700">
+        Apply Filters
+      </button>
+    </div>
+  </form>
+
+  <!-- Error -->
+  <div *ngIf="errorMessage" class="mb-3 text-sm text-red-600">{{ errorMessage }}</div>
+
+  <!-- Table -->
+  <div class="overflow-x-auto border border-gray-200 rounded-xl">
+    <table class="min-w-full text-sm">
+      <thead class="bg-gray-50 text-xs uppercase text-gray-500">
+        <tr>
+          <th class="px-3 py-2 text-left">Email</th>
+          <th class="px-3 py-2 text-left">Full Name</th>
+          <th class="px-3 py-2 text-left">CIN</th>
+          <th class="px-3 py-2 text-left">Phone</th>
+          <th class="px-3 py-2 text-left">Role</th>
+          <th class="px-3 py-2 text-left">Status</th>
+          <th class="px-3 py-2 text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="loading">
+          <td colspan="7" class="px-3 py-4 text-center text-gray-500">Loading users...</td>
+        </tr>
+
+        <ng-container *ngIf="!loading">
+          <tr *ngIf="users.length === 0">
+            <td colspan="7" class="px-3 py-4 text-center text-gray-500">No users found.</td>
+          </tr>
+
+          <tr *ngFor="let user of users" class="border-t border-gray-100 hover:bg-gray-50">
+            <td class="px-3 py-2">{{ user.email }}</td>
+            <td class="px-3 py-2">{{ user.firstName || '' }} {{ user.lastName || '' }}</td>
+            <td class="px-3 py-2">{{ user.cin || '-' }}</td>
+            <td class="px-3 py-2">{{ user.phoneNumber || '-' }}</td>
+            <td class="px-3 py-2">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
+                {{ user.role }}
+              </span>
+            </td>
+            <td class="px-3 py-2">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                [ngClass]="{
+                  'bg-green-50 text-green-700': user.status === 'ACTIVE',
+                  'bg-yellow-50 text-yellow-700': user.status === 'PENDING',
+                  'bg-red-50 text-red-700': user.status === 'SUSPENDED'
+                }">
+                {{ user.status || 'N/A' }}
+              </span>
+            </td>
+            <td class="px-3 py-2 text-right space-x-2">
+              <button type="button" (click)="openEditModal(user)"
+                class="px-2 py-1 text-xs rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">
+                Edit
+              </button>
+              <button type="button" (click)="deleteUser(user)"
+                class="px-2 py-1 text-xs rounded-md border border-red-300 text-red-600 hover:bg-red-50">
+                Delete
+              </button>
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="flex items-center justify-between mt-4 text-xs text-gray-600" *ngIf="totalElements > 0">
+    <div>Page {{ pageIndex + 1 }} of {{ totalPages }} – {{ totalElements }} users</div>
+    <div class="space-x-2">
+      <button type="button" (click)="prevPage()" [disabled]="pageIndex === 0"
+        class="px-3 py-1 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+        Previous
+      </button>
+      <button type="button" (click)="nextPage()" [disabled]="(pageIndex + 1) >= totalPages"
+        class="px-3 py-1 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+        Next
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- Create User Modal -->
+<div *ngIf="showCreateModal" class="fixed inset-0 bg-black/30 bg-opacity-30 flex items-center justify-center z-50">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold text-gray-900">Create User</h2>
+      <button type="button" (click)="closeCreateModal()" class="text-gray-500 hover:text-gray-700">✕</button>
+    </div>
+    <!-- Create User Modal (replace only inside form) -->
+<form [formGroup]="createForm" (ngSubmit)="submitCreate()" class="space-y-3">
+  <div>
+    <label class="block text-xs font-medium text-gray-600 mb-1">Email</label>
+    <input
+      type="email"
+      formControlName="email"
+      class="w-full border rounded-lg px-3 py-1.5 text-sm"
+      [class.border-red-500]="hasError(createForm, 'email', 'required') || hasError(createForm, 'email', 'email')"
+    />
+    <p *ngIf="hasError(createForm, 'email', 'required')" class="text-xs text-red-600 mt-1">
+      Email is required.
+    </p>
+    <p *ngIf="hasError(createForm, 'email', 'email')" class="text-xs text-red-600 mt-1">
+      Enter a valid email.
+    </p>
+  </div>
+
+  <div>
+    <label class="block text-xs font-medium text-gray-600 mb-1">Password</label>
+    <input
+      type="password"
+      formControlName="password"
+      class="w-full border rounded-lg px-3 py-1.5 text-sm"
+      [class.border-red-500]="hasError(createForm, 'password', 'required') || hasError(createForm, 'password', 'minlength')"
+    />
+    <p *ngIf="hasError(createForm, 'password', 'required')" class="text-xs text-red-600 mt-1">
+      Password is required.
+    </p>
+    <p *ngIf="hasError(createForm, 'password', 'minlength')" class="text-xs text-red-600 mt-1">
+      Minimum 6 characters.
+    </p>
+  </div>
+
+  <div>
+    <label class="block text-xs font-medium text-gray-600 mb-1">CIN</label>
+    <input
+      type="text"
+      formControlName="cin"
+      placeholder="8 digits"
+      class="w-full border rounded-lg px-3 py-1.5 text-sm"
+      [class.border-red-500]="hasError(createForm, 'cin', 'pattern')"
+    />
+    <p *ngIf="hasError(createForm, 'cin', 'pattern')" class="text-xs text-red-600 mt-1">
+      CIN must be exactly 8 digits.
+    </p>
+  </div>
+
+  <div class="grid grid-cols-2 gap-3">
+    <div>
+      <label class="block text-xs font-medium text-gray-600 mb-1">First Name</label>
+      <input
+        type="text"
+        formControlName="firstName"
+        class="w-full border rounded-lg px-3 py-1.5 text-sm"
+        [class.border-red-500]="hasError(createForm, 'firstName', 'required') || hasError(createForm, 'firstName', 'minlength')"
+      />
+      <p *ngIf="hasError(createForm, 'firstName', 'required')" class="text-xs text-red-600 mt-1">
+        First name is required.
+      </p>
+      <p *ngIf="hasError(createForm, 'firstName', 'minlength')" class="text-xs text-red-600 mt-1">
+        First name is too short.
+      </p>
+    </div>
+    <div>
+      <label class="block text-xs font-medium text-gray-600 mb-1">Last Name</label>
+      <input
+        type="text"
+        formControlName="lastName"
+        class="w-full border rounded-lg px-3 py-1.5 text-sm"
+        [class.border-red-500]="hasError(createForm, 'lastName', 'required') || hasError(createForm, 'lastName', 'minlength')"
+      />
+      <p *ngIf="hasError(createForm, 'lastName', 'required')" class="text-xs text-red-600 mt-1">
+        Last name is required.
+      </p>
+      <p *ngIf="hasError(createForm, 'lastName', 'minlength')" class="text-xs text-red-600 mt-1">
+        Last name is too short.
+      </p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-3">
+    <div>
+      <label class="block text-xs font-medium text-gray-600 mb-1">Role</label>
+      <select
+        formControlName="role"
+        class="w-full border rounded-lg px-3 py-1.5 text-sm"
+        [class.border-red-500]="hasError(createForm, 'role', 'required')"
+      >
+        <option value="ADMIN">ADMIN</option>
+        <option value="TUTOR">TUTOR</option>
+        <option value="STUDENT">STUDENT</option>
+        <option value="PARENT">PARENT</option>
+        <option value="USER">USER</option>
+      </select>
+      <p *ngIf="hasError(createForm, 'role', 'required')" class="text-xs text-red-600 mt-1">
+        Role is required.
+      </p>
+    </div>
+    <div>
+      <label class="block text-xs font-medium text-gray-600 mb-1">Status</label>
+      <select formControlName="status" class="w-full border rounded-lg px-3 py-1.5 text-sm">
+        <option value="ACTIVE">ACTIVE</option>
+        <option value="PENDING">PENDING</option>
+        <option value="SUSPENDED">SUSPENDED</option>
+      </select>
+    </div>
+  </div>
+
+  <div>
+    <label class="block text-xs font-medium text-gray-600 mb-1">Phone</label>
+    <input
+      type="text"
+      formControlName="phoneNumber"
+      class="w-full border rounded-lg px-3 py-1.5 text-sm"
+      [class.border-red-500]="hasError(createForm, 'phoneNumber', 'required') || hasError(createForm, 'phoneNumber', 'minlength')"
+    />
+    <p *ngIf="hasError(createForm, 'phoneNumber', 'required')" class="text-xs text-red-600 mt-1">
+      Phone is required.
+    </p>
+    <p *ngIf="hasError(createForm, 'phoneNumber', 'minlength')" class="text-xs text-red-600 mt-1">
+      Phone is too short.
+    </p>
+  </div>
+
+  <div>
+    <label class="block text-xs font-medium text-gray-600 mb-1">Address</label>
+    <input
+      type="text"
+      formControlName="address"
+      class="w-full border rounded-lg px-3 py-1.5 text-sm"
+      [class.border-red-500]="hasError(createForm, 'address', 'required') || hasError(createForm, 'address', 'minlength')"
+    />
+    <p *ngIf="hasError(createForm, 'address', 'required')" class="text-xs text-red-600 mt-1">
+      Address is required.
+    </p>
+    <p *ngIf="hasError(createForm, 'address', 'minlength')" class="text-xs text-red-600 mt-1">
+      Address is too short.
+    </p>
+  </div>
+
+  <div class="flex justify-end gap-2 pt-2">
+    <button
+      type="button"
+      (click)="closeCreateModal()"
+      class="px-4 py-1.5 text-sm rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
+    >
+      Cancel
+    </button>
+    <button
+      type="submit"
+      class="px-4 py-1.5 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+    >
+      Create
+    </button>
+  </div>
+</form>
+
+  </div>
+</div>
+
+<!-- Edit User Modal -->
+<div *ngIf="showEditModal" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold text-gray-900">Edit User</h2>
+      <button type="button" (click)="closeEditModal()" class="text-gray-500 hover:text-gray-700">✕</button>
+    </div>
+    <!-- Edit User Modal (replace only inside form) -->
+    <form [formGroup]="editForm" (ngSubmit)="submitEdit()" class="space-y-3">
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">Email</label>
+        <input
+          type="email"
+          formControlName="email"
+          class="w-full border rounded-lg px-3 py-1.5 text-sm"
+          [class.border-red-500]="hasError(editForm, 'email', 'required') || hasError(editForm, 'email', 'email')"
+        />
+        <p *ngIf="hasError(editForm, 'email', 'required')" class="text-xs text-red-600 mt-1">
+          Email is required.
+        </p>
+        <p *ngIf="hasError(editForm, 'email', 'email')" class="text-xs text-red-600 mt-1">
+          Enter a valid email.
+        </p>
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">CIN</label>
+        <input
+          type="text"
+          formControlName="cin"
+          placeholder="8 digits"
+          class="w-full border rounded-lg px-3 py-1.5 text-sm"
+          [class.border-red-500]="hasError(editForm, 'cin', 'pattern')"
+        />
+        <p *ngIf="hasError(editForm, 'cin', 'pattern')" class="text-xs text-red-600 mt-1">
+          CIN must be exactly 8 digits.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">First Name</label>
+          <input
+            type="text"
+            formControlName="firstName"
+            class="w-full border rounded-lg px-3 py-1.5 text-sm"
+            [class.border-red-500]="hasError(editForm, 'firstName', 'required') || hasError(editForm, 'firstName', 'minlength')"
+          />
+          <p *ngIf="hasError(editForm, 'firstName', 'required')" class="text-xs text-red-600 mt-1">
+            First name is required.
+          </p>
+          <p *ngIf="hasError(editForm, 'firstName', 'minlength')" class="text-xs text-red-600 mt-1">
+            First name is too short.
+          </p>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Last Name</label>
+          <input
+            type="text"
+            formControlName="lastName"
+            class="w-full border rounded-lg px-3 py-1.5 text-sm"
+            [class.border-red-500]="hasError(editForm, 'lastName', 'required') || hasError(editForm, 'lastName', 'minlength')"
+          />
+          <p *ngIf="hasError(editForm, 'lastName', 'required')" class="text-xs text-red-600 mt-1">
+            Last name is required.
+          </p>
+          <p *ngIf="hasError(editForm, 'lastName', 'minlength')" class="text-xs text-red-600 mt-1">
+            Last name is too short.
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Role</label>
+          <select
+            formControlName="role"
+            class="w-full border rounded-lg px-3 py-1.5 text-sm"
+            [class.border-red-500]="hasError(editForm, 'role', 'required')"
+          >
+            <option value="ADMIN">ADMIN</option>
+            <option value="TUTOR">TUTOR</option>
+            <option value="STUDENT">STUDENT</option>
+            <option value="PARENT">PARENT</option>
+            <option value="USER">USER</option>
+          </select>
+          <p *ngIf="hasError(editForm, 'role', 'required')" class="text-xs text-red-600 mt-1">
+            Role is required.
+          </p>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Status</label>
+          <select formControlName="status" class="w-full border rounded-lg px-3 py-1.5 text-sm">
+            <option value="ACTIVE">ACTIVE</option>
+            <option value="PENDING">PENDING</option>
+            <option value="SUSPENDED">SUSPENDED</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">Phone</label>
+        <input
+          type="text"
+          formControlName="phoneNumber"
+          class="w-full border rounded-lg px-3 py-1.5 text-sm"
+          [class.border-red-500]="hasError(editForm, 'phoneNumber', 'required') || hasError(editForm, 'phoneNumber', 'minlength')"
+        />
+        <p *ngIf="hasError(editForm, 'phoneNumber', 'required')" class="text-xs text-red-600 mt-1">
+          Phone is required.
+        </p>
+        <p *ngIf="hasError(editForm, 'phoneNumber', 'minlength')" class="text-xs text-red-600 mt-1">
+          Phone is too short.
+        </p>
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">Address</label>
+        <input
+          type="text"
+          formControlName="address"
+          class="w-full border rounded-lg px-3 py-1.5 text-sm"
+          [class.border-red-500]="hasError(editForm, 'address', 'required') || hasError(editForm, 'address', 'minlength')"
+        />
+        <p *ngIf="hasError(editForm, 'address', 'required')" class="text-xs text-red-600 mt-1">
+          Address is required.
+        </p>
+        <p *ngIf="hasError(editForm, 'address', 'minlength')" class="text-xs text-red-600 mt-1">
+          Address is too short.
+        </p>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button
+          type="button"
+          (click)="closeEditModal()"
+          class="px-4 py-1.5 text-sm rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="px-4 py-1.5 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+        >
+          Save
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>

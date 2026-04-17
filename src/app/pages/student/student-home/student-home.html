@@ -1,0 +1,264 @@
+<div class="sh-page">
+
+  <!-- ── Top bar ────────────────────────────────────────────────────────── -->
+  <header class="sh-topbar">
+    <img src="assets/images/logo.png" alt="Fluencity" class="sh-logo-img" />
+    <button routerLink="/signin" class="sh-logout-btn">🚪 Log Out</button>
+  </header>
+
+  <!-- ── Upcoming Alerts ────────────────────────────────────────────────── -->
+  <div *ngIf="upcomingAlerts.length > 0" class="sh-alerts">
+    <div *ngFor="let alert of upcomingAlerts; let i = index"
+         class="sh-alert"
+         [class.sh-alert-urgent]="alert.urgency === 'urgent'"
+         [class.sh-alert-soon]="alert.urgency === 'soon'">
+      <div class="sh-alert-left">
+        <span class="sh-alert-icon">
+          {{ alert.urgency === 'urgent' ? '🚨' : '🔔' }}
+        </span>
+        <div class="sh-alert-body">
+          <strong>{{ alert.title }}</strong>
+          <span class="sh-alert-meta">
+            {{ alert.courseName }} · {{ typeIcon(alert.type) }} {{ alert.type }}
+          </span>
+        </div>
+      </div>
+      <div class="sh-alert-right">
+        <span class="sh-alert-time">
+          {{ alert.urgency === 'urgent' ? '⚠️ In ' : '⏰ In ' }}
+          <strong>{{ alert.hoursLeft }}h</strong>
+        </span>
+        <button class="sh-alert-dismiss" (click)="dismissAlert(i)" title="Dismiss">✕</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Hero ──────────────────────────────────────────────────────────── -->
+  <div class="sh-hero">
+    <div class="sh-hero-text">
+      <h1>Welcome back, <span class="sh-highlight">{{ studentName.split(' ')[0] }}</span> 👋</h1>
+      <p>What would you like to do today?</p>
+    </div>
+    <div *ngIf="myRank" class="sh-rank-pill">
+      🏆 Global Rank <strong>#{{ myRank }}</strong>
+    </div>
+  </div>
+
+  <!-- ── 4 Action Cards ─────────────────────────────────────────────────── -->
+  <div class="sh-cards">
+
+    <div class="sh-card sh-card-gold"
+         [class.active]="activePanel === 'leaderboard'"
+         (click)="openPanel('leaderboard')">
+      <div class="sh-card-icon">🏆</div>
+      <div class="sh-card-label">Leaderboard</div>
+      <div class="sh-card-sub">See your global ranking</div>
+      <div class="sh-card-arrow">{{ activePanel === 'leaderboard' ? '▲' : '▼' }}</div>
+    </div>
+
+    <div class="sh-card sh-card-blue"
+         [class.active]="activePanel === 'grades'"
+         (click)="openPanel('grades')">
+      <div class="sh-card-icon">📊</div>
+      <div class="sh-card-label">My Grades</div>
+      <div class="sh-card-sub">Average: {{ averagePct }}%</div>
+      <div class="sh-card-arrow">{{ activePanel === 'grades' ? '▲' : '▼' }}</div>
+    </div>
+
+    <div class="sh-card sh-card-purple"
+         [class.active]="activePanel === 'assessments'"
+         (click)="openPanel('assessments')">
+      <div class="sh-card-icon">📝</div>
+      <div class="sh-card-label">My Assessments</div>
+      <div class="sh-card-sub">{{ assessments.length }} published</div>
+      <div class="sh-card-arrow">{{ activePanel === 'assessments' ? '▲' : '▼' }}</div>
+    </div>
+
+    <!-- 🆕 Carte Certificates -->
+    <div class="sh-card sh-card-green"
+         [class.active]="activePanel === 'certificates'"
+         (click)="openPanel('certificates')">
+      <div class="sh-card-icon">📄</div>
+      <div class="sh-card-label">My Certificates</div>
+      <div class="sh-card-sub">{{ passingGrades.length }} available</div>
+      <div class="sh-card-arrow">{{ activePanel === 'certificates' ? '▲' : '▼' }}</div>
+    </div>
+
+  </div>
+
+  <!-- ── Panels ─────────────────────────────────────────────────────────── -->
+  <!-- LEADERBOARD panel -->
+  <div class="sh-panel" *ngIf="activePanel === 'leaderboard'">
+    <div class="sh-panel-header">
+      <h2>🏆 Global Leaderboard</h2>
+      <button class="sh-close" (click)="closePanel()">✕</button>
+    </div>
+    <div *ngIf="loadingLb" class="sh-loader"><div class="spinner"></div> Loading...</div>
+    <div *ngIf="!loadingLb && leaderboard.length === 0" class="sh-empty">No grades recorded yet</div>
+    <table *ngIf="!loadingLb && leaderboard.length > 0" class="sh-table">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Student</th>
+          <th>Average</th>
+          <th>Progress</th>
+          <th>Mention</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let e of leaderboard" [class.sh-me]="isMe(e.studentEmail)">
+          <td class="td-rank">{{ medalEmoji(e.rank) }}</td>
+          <td class="td-name">
+            <div class="sh-av" [class.sh-av-me]="isMe(e.studentEmail)">
+              {{ e.studentName.charAt(0) }}
+            </div>
+            {{ e.studentName }}
+            <span *ngIf="isMe(e.studentEmail)" class="you-tag">You</span>
+          </td>
+          <td>{{ e.averagePercentage }}%</td>
+          <td>
+            <div class="sh-bar">
+              <div class="sh-bar-fill"
+                   [style.width]="(e.averagePercentage || 0) + '%'"
+                   [style.background]="barColor(e.averagePercentage || 0)">
+              </div>
+            </div>
+          </td>
+          <td><span class="badge" [ngClass]="mentionClass(e.mention)">{{ e.mention }}</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- GRADES panel -->
+  <div class="sh-panel" *ngIf="activePanel === 'grades'">
+    <div class="sh-panel-header">
+      <h2>📊 My Grades</h2>
+      <button class="sh-close" (click)="closePanel()">✕</button>
+    </div>
+    <div *ngIf="loadingGrades" class="sh-loader"><div class="spinner"></div> Loading...</div>
+    <div *ngIf="!loadingGrades && grades.length === 0" class="sh-empty">No grades yet</div>
+    <div *ngIf="!loadingGrades && grades.length > 0">
+      <div class="sh-grades-summary">
+        <div class="sh-sum-card">
+          <div class="sh-sum-val">{{ grades.length }}</div>
+          <div class="sh-sum-lbl">Total Grades</div>
+        </div>
+        <div class="sh-sum-card sh-sum-blue">
+          <div class="sh-sum-val">{{ averagePct }}%</div>
+          <div class="sh-sum-lbl">Average</div>
+        </div>
+        <div class="sh-sum-card sh-sum-gold">
+          <div class="sh-sum-val">{{ myRank ? '#' + myRank : '—' }}</div>
+          <div class="sh-sum-lbl">My Rank</div>
+        </div>
+      </div>
+      <div class="sh-grade-list">
+        <div *ngFor="let g of grades" class="sh-grade-row">
+          <div class="sh-grade-left">
+            <div class="sh-grade-name">Assessment #{{ g.assessmentId }}</div>
+            <div class="sh-grade-date">{{ g.gradedAt | date:'dd/MM/yyyy' }}</div>
+            <div *ngIf="g.comments" class="sh-grade-comment">💬 {{ g.comments }}</div>
+          </div>
+          <div class="sh-grade-right">
+            <div class="sh-grade-score">{{ g.score }}<span class="sh-max">/{{ g.maxScore }}</span></div>
+            <div class="sh-bar" style="width:140px">
+              <div class="sh-bar-fill"
+                   [style.width]="getPercentage(g) + '%'"
+                   [style.background]="barColor(getPercentage(g))"></div>
+            </div>
+            <span class="badge" [ngClass]="mentionClass(getMention(g))">{{ getMention(g) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASSESSMENTS panel -->
+  <div class="sh-panel" *ngIf="activePanel === 'assessments'">
+    <div class="sh-panel-header">
+      <h2>📝 My Assessments</h2>
+      <button class="sh-close" (click)="closePanel()">✕</button>
+    </div>
+    <div class="sh-filter-tabs">
+      <button (click)="filterType=''" [class.active]="filterType===''">All</button>
+      <button (click)="filterType='QUIZ'" [class.active]="filterType==='QUIZ'">⚡ Quiz</button>
+      <button (click)="filterType='EXAM'" [class.active]="filterType==='EXAM'">📝 Exam</button>
+      <button (click)="filterType='PROJECT'" [class.active]="filterType==='PROJECT'">🏗️ Project</button>
+    </div>
+    <div *ngIf="loadingAssessments" class="sh-loader"><div class="spinner"></div> Loading...</div>
+    <div *ngIf="!loadingAssessments && filteredAssessments.length === 0" class="sh-empty">No assessments found</div>
+    <div *ngIf="!loadingAssessments" class="sh-assess-list">
+      <div *ngFor="let a of filteredAssessments" class="sh-assess-card">
+        <div class="sh-assess-left">
+          <div class="sh-assess-icon">{{ typeIcon(a.type) }}</div>
+          <div class="sh-assess-info">
+            <div class="sh-assess-title">{{ a.title }}</div>
+            <div class="sh-assess-meta">
+              📚 {{ a.courseName }}
+              <span *ngIf="a.startDate"> · 📅 {{ a.startDate | date:'dd/MM/yyyy HH:mm' }}</span>
+              <span *ngIf="a.duration"> · ⏱ {{ a.duration }}min</span>
+            </div>
+            <div *ngIf="!isQuiz(a)" class="sh-assess-info-tag">
+              {{ a.type === 'EXAM' ? '✏️ Written exam — not taken on platform' : '🏗️ Submit your project to the teacher' }}
+            </div>
+          </div>
+        </div>
+        <div class="sh-assess-right">
+          <span class="sh-type-badge" [class.quiz]="isQuiz(a)">{{ a.type }}</span>
+          <div *ngIf="a.startDate" class="sh-countdown">{{ getCountdown(a.startDate) }}</div>
+          <a *ngIf="isQuiz(a)" [routerLink]="['/student/quiz', a.id]" class="sh-btn-start">▶ Start Quiz</a>
+          <div *ngIf="!isQuiz(a)" class="sh-btn-info">ℹ️ Info only</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🆕 CERTIFICATES panel -->
+  <div class="sh-panel" *ngIf="activePanel === 'certificates'">
+    <div class="sh-panel-header">
+      <h2>📄 My Certificates</h2>
+      <button class="sh-close" (click)="closePanel()">✕</button>
+    </div>
+
+    <!-- Generating spinner -->
+    <div *ngIf="generatingCertificate" class="sh-loader">
+      <div class="spinner"></div> Generating certificate...
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="!loadingGrades && passingGrades.length === 0" class="sh-empty">
+      <div style="font-size:2.5rem">🎓</div>
+      <div>No certificates yet — pass an assessment to earn one!</div>
+    </div>
+
+    <!-- Certificate list -->
+    <div *ngIf="!loadingGrades && passingGrades.length > 0" class="sh-cert-list">
+      <div *ngFor="let g of passingGrades" class="sh-cert-card">
+
+        <div class="sh-cert-left">
+          <div class="sh-cert-icon">🏅</div>
+          <div class="sh-cert-info">
+            <div class="sh-cert-title">Assessment #{{ g.assessmentId }}</div>
+            <div class="sh-cert-meta">
+              Score: <strong>{{ g.score }}/{{ g.maxScore }}</strong>
+              ({{ getPercentage(g) }}%)
+              · {{ g.gradedAt | date:'dd/MM/yyyy' }}
+            </div>
+            <span class="badge" [ngClass]="mentionClass(getMention(g))">
+              {{ getMention(g) }}
+            </span>
+          </div>
+        </div>
+
+        <button (click)="downloadCertificate(g)"
+                [disabled]="generatingCertificate"
+                class="sh-btn-cert">
+          📥 Download PDF
+        </button>
+
+      </div>
+    </div>
+  </div>
+
+</div>

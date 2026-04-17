@@ -1,0 +1,152 @@
+<div class="lb-page">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <div class="lb-header">
+    <div>
+      <h1 class="lb-title">🏆 Leaderboard</h1>
+      <p class="lb-subtitle">Top performing students</p>
+    </div>
+    <div class="header-actions">
+      <a routerLink="/backoffice/grades" class="btn-secondary">📊 Grades</a>
+    </div>
+  </div>
+
+  <!-- ── Mode Tabs ──────────────────────────────────────────────────────── -->
+  <div class="mode-tabs">
+    <button (click)="setMode('global')"
+            [class.active]="mode === 'global'"
+            class="tab-btn">
+      🌍 Global Ranking
+    </button>
+    <button (click)="setMode('assessment')"
+            [class.active]="mode === 'assessment'"
+            class="tab-btn">
+      📝 By Assessment
+    </button>
+  </div>
+
+  <!-- ── Assessment selector (mode assessment) ──────────────────────────── -->
+  <div *ngIf="mode === 'assessment'" class="selector-card">
+    <label class="form-label">Select Assessment</label>
+    <select [(ngModel)]="selectedAssessmentId"
+            (ngModelChange)="onAssessmentChange()"
+            class="form-input">
+      <option [ngValue]="null">— Choose an assessment —</option>
+      <option *ngFor="let a of assessments" [ngValue]="a.id">
+        {{ a.title }} ({{ a.courseName }}) — {{ a.type }}
+      </option>
+    </select>
+  </div>
+
+  <!-- ── Search ─────────────────────────────────────────────────────────── -->
+  <div class="search-bar" *ngIf="currentEntries.length > 0">
+    <div class="search-wrap">
+      <span>🔍</span>
+      <input [(ngModel)]="searchQuery"
+             placeholder="Search by name or email..."
+             class="search-input" />
+    </div>
+    <span class="count-badge">{{ currentEntries.length }} student(s)</span>
+  </div>
+
+  <!-- ── Empty state ────────────────────────────────────────────────────── -->
+  <div *ngIf="mode === 'assessment' && !selectedAssessmentId" class="empty-state">
+    <div class="empty-icon">📝</div>
+    <p>Select an assessment to see its ranking</p>
+  </div>
+
+  <div *ngIf="currentEntries.length === 0 && (mode === 'global' || selectedAssessmentId) && !loadingGlobal && !loadingAssessment"
+       class="empty-state">
+    <div class="empty-icon">🏆</div>
+    <p>No grades recorded yet</p>
+  </div>
+
+  <!-- ── Loading ────────────────────────────────────────────────────────── -->
+  <div *ngIf="(mode === 'global' && loadingGlobal) || (mode === 'assessment' && loadingAssessment)"
+       class="loader-wrap">
+    <div class="loader-spinner"></div>
+    <span>Loading leaderboard...</span>
+  </div>
+
+  <!-- ── Podium Top 3 ───────────────────────────────────────────────────── -->
+  <div *ngIf="top3.length > 0" class="podium">
+    <!-- 2nd place -->
+    <div *ngIf="top3[1]" class="podium-item podium-2">
+      <div class="podium-avatar">{{ top3[1].studentName.charAt(0) }}</div>
+      <div class="podium-name">{{ top3[1].studentName }}</div>
+      <div class="podium-pct">{{ getPct(top3[1]) }}%</div>
+      <div class="podium-base p2">🥈</div>
+    </div>
+
+    <!-- 1st place -->
+    <div *ngIf="top3[0]" class="podium-item podium-1">
+      <div class="crown">👑</div>
+      <div class="podium-avatar gold">{{ top3[0].studentName.charAt(0) }}</div>
+      <div class="podium-name">{{ top3[0].studentName }}</div>
+      <div class="podium-pct">{{ getPct(top3[0]) }}%</div>
+      <div class="podium-base p1">🥇</div>
+    </div>
+
+    <!-- 3rd place -->
+    <div *ngIf="top3[2]" class="podium-item podium-3">
+      <div class="podium-avatar">{{ top3[2].studentName.charAt(0) }}</div>
+      <div class="podium-name">{{ top3[2].studentName }}</div>
+      <div class="podium-pct">{{ getPct(top3[2]) }}%</div>
+      <div class="podium-base p3">🥉</div>
+    </div>
+  </div>
+
+  <!-- ── Full Rankings Table ────────────────────────────────────────────── -->
+  <div *ngIf="currentEntries.length > 0" class="table-card">
+    <table class="lb-table">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Student</th>
+          <th>Email</th>
+          <th *ngIf="mode === 'global'">Assessments</th>
+          <th>Score</th>
+          <th>Progress</th>
+          <th>Mention</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let e of currentEntries"
+            [class.top1]="e.rank === 1"
+            [class.top2]="e.rank === 2"
+            [class.top3]="e.rank === 3">
+          <td class="td-rank">
+            <span class="rank-badge">{{ medalEmoji(e.rank) }}</span>
+          </td>
+          <td class="td-name">
+            <div class="student-avatar">{{ e.studentName.charAt(0) }}</div>
+            <span>{{ e.studentName }}</span>
+          </td>
+          <td class="td-email">{{ e.studentEmail }}</td>
+          <td *ngIf="mode === 'global'" class="td-center">
+            {{ e.totalAssessments }}
+          </td>
+          <td class="td-score">
+            <span *ngIf="mode === 'global'">{{ e.averageScore }}/20</span>
+            <span *ngIf="mode === 'assessment'">{{ e.score }}/{{ e.maxScore }}</span>
+          </td>
+          <td class="td-bar">
+            <div class="score-bar">
+              <div class="score-fill"
+                   [style.width]="getPct(e) + '%'"
+                   [style.background]="barColor(getPct(e))">
+              </div>
+            </div>
+            <span class="pct-label">{{ getPct(e) }}%</span>
+          </td>
+          <td>
+            <span class="badge" [ngClass]="mentionClass(e.mention)">
+              {{ e.mention }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>

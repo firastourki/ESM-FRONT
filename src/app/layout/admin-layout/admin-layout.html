@@ -1,0 +1,19 @@
+<div class="admin-container">
+  <aside class="sidebar">
+    <div class="logo">
+      <img src="assets/images/logo.png" alt="Fluencity" class="sidebar-logo" />
+    </div>
+    <nav>
+      <a routerLink="/backoffice/dashboard" routerLinkActive="active">📊 Dashboard</a>
+    </nav>
+  </aside>
+  <div class="main-content">
+    <header class="header">
+      <div class="title">Admin Panel</div>
+      <div class="user">👤 Admin</div>
+    </header>
+    <div class="content">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>

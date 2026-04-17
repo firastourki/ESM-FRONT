@@ -1,0 +1,95 @@
+/* =====================================
+   TAILWIND IMPORT
+===================================== */
+@import "tailwindcss";
+
+/* =====================================
+   THEME TOKENS
+===================================== */
+@theme {
+  --color-body: #222222;
+  --color-body-bg: #fbfbfb;
+  --color-body-bg-1: #F7F7F7;
+  --color-white: #ffffff;
+  --color-heading: #222222;
+  --color-content: #5F6C76;
+  --color-primary: #5F2DED;
+  --color-secondary: #F2277E;
+  --color-black: #000000;
+  --color-darkblack: #0C0E2B;
+  --color-border: #eeeeee;
+  --color-indigo: #B13BFF;
+  --color-deepgreen: #133344;
+  --color-deepblue: #505975;
+  --color-deepred: #DC164D;
+  --color-sky: #03A9F4;
+  --color-yellow: #FF912C;
+  --color-blue: #2864FF;
+  --color-darkindigo: #170F2F;
+  --radius-sm: 4px;
+  --radius-md: 10px;
+  --radius-lg: 20px;
+}
+
+/* =====================================
+   GLOBAL SMOOTH UI
+===================================== */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-body-bg);
+  color: var(--color-body);
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+}
+
+/* =====================================
+   MODERN CENTER POPUP ANIMATION
+===================================== */
+
+@keyframes popupScale {
+  0% {
+    transform: scale(0.85) translateY(10px);
+    opacity: 0;
+  }
+
+  60% {
+    transform: scale(1.03) translateY(0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-popupScale {
+  animation: popupScale 0.25s ease-out;
+}
+
+/* =====================================
+   OPTIONAL: SUBTLE SHADOW IMPROVEMENT
+===================================== */
+
+.shadow-2xl {
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.08);
+}
+
+/* =====================================
+   OPTIONAL: SMOOTH BUTTON TRANSITIONS
+===================================== */
+
+button {
+  transition: all 0.2s ease;
+}
+
+/* =====================================
+   OPTIONAL: GLASS EFFECT (if needed later)
+===================================== */
+
+.glass-effect {
+  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.85);
+}

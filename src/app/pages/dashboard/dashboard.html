@@ -1,0 +1,222 @@
+<div class="dashboard">
+  <h1>📊 School Overview</h1>
+
+  <!-- ── UPCOMING ALERTS ─────────────────────────────────────────────────── -->
+  <div *ngIf="upcomingAlerts.length > 0" class="alerts-section">
+    <div *ngFor="let alert of upcomingAlerts; let i = index"
+         class="alert-banner"
+         [ngClass]="alert.urgency === 'urgent' ? 'alert-urgent' : 'alert-soon'">
+      <div class="alert-left">
+        <span class="alert-icon">{{ alert.urgency === 'urgent' ? '🚨' : '🔔' }}</span>
+        <div class="alert-text">
+          <strong>{{ alert.title }}</strong>
+          <span class="alert-course">{{ alert.courseName }}</span>
+        </div>
+      </div>
+      <div class="alert-right">
+        <span class="alert-time">
+          {{ alert.urgency === 'urgent' ? '⚠️ In ' : '⏰ In ' }}
+          <strong>{{ alert.hoursLeft }}h</strong>
+        </span>
+        <button class="alert-dismiss" (click)="dismissAlert(i)" title="Dismiss">✕</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STATS CARDS ─────────────────────────────────────────────────────── -->
+  <div class="stats-grid">
+    <div class="card"><h3>👨‍🎓 Students</h3><p>{{ totalStudents }}</p></div>
+    <div class="card"><h3>🎓 Classes</h3><p>{{ totalClasses }}</p></div>
+    <div class="card"><h3>📚 Courses</h3><p>{{ totalCourses }}</p></div>
+    <div class="card"><h3>📝 Assessments</h3><p>{{ totalAssessments }}</p></div>
+    <div class="card"><h3>📁 Resources</h3><p>{{ totalResources }}</p></div>
+  </div>
+
+  <!-- ── ASSESSMENTS & RESOURCES ────────────────────────────────────────── -->
+  <div class="services-section">
+    <h2>📝 Assessments & Resources</h2>
+    <div class="services-grid">
+      <a routerLink="/backoffice/planning" class="service-card service-purple">
+        <div class="service-icon">📋</div>
+        <div class="service-info">
+          <div class="service-name">Assessment Planning</div>
+          <div class="service-desc">Schedule exams & quiz dates</div>
+        </div>
+        <span class="service-arrow">→</span>
+      </a>
+      <a routerLink="/backoffice/assessments" class="service-card service-blue">
+        <div class="service-icon">📝</div>
+        <div class="service-info">
+          <div class="service-name">Assessments</div>
+          <div class="service-desc">Create & manage exams, quizzes, projects</div>
+        </div>
+        <span class="service-arrow">→</span>
+      </a>
+      <a routerLink="/backoffice/grades" class="service-card service-green">
+        <div class="service-icon">🏆</div>
+        <div class="service-info">
+          <div class="service-name">Grades</div>
+          <div class="service-desc">Grade students & generate certificates</div>
+        </div>
+        <span class="service-arrow">→</span>
+      </a>
+      <a routerLink="/backoffice/leaderboard" class="service-card service-gold">
+        <div class="service-icon">🥇</div>
+        <div class="service-info">
+          <div class="service-name">Leaderboard</div>
+          <div class="service-desc">View student rankings & performance</div>
+        </div>
+        <span class="service-arrow">→</span>
+      </a>
+      <a routerLink="/backoffice/resources" class="service-card service-orange">
+        <div class="service-icon">📚</div>
+        <div class="service-info">
+          <div class="service-name">Resources</div>
+          <div class="service-desc">Upload & manage learning materials</div>
+        </div>
+        <span class="service-arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- ── ATTENDANCE & TIMETABLE ─────────────────────────────────────────── -->
+  <div class="services-section">
+    <h2>📅 Attendance & Timetable</h2>
+    <div class="services-grid">
+      <a routerLink="/backoffice/schedule" class="service-card service-indigo">
+        <div class="service-icon">🗓️</div>
+        <div class="service-info">
+          <div class="service-name">Timetable</div>
+          <div class="service-desc">Manage class schedules & timetables</div>
+        </div>
+        <span class="service-arrow">→</span>
+      </a>
+      <a routerLink="/backoffice/attendance" class="service-card service-cyan">
+        <div class="service-icon">✅</div>
+        <div class="service-info">
+          <div class="service-name">Attendance</div>
+          <div class="service-desc">Track student presence & absences</div>
+        </div>
+        <span class="service-arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- ── COURSES & ENROLLMENT ───────────────────────────────────────────── -->
+  <div class="services-section">
+    <h2>📖 Courses & Enrollment</h2>
+    <div class="services-grid">
+      <a routerLink="/backoffice/courses" class="service-card service-emerald">
+        <div class="service-icon">📖</div>
+        <div class="service-info">
+          <div class="service-name">Courses</div>
+          <div class="service-desc">Create & manage course catalog</div>
+        </div>
+        <span class="service-arrow">→</span>
+      </a>
+      <a routerLink="/backoffice/enrollment" class="service-card service-blue">
+        <div class="service-icon">🎒</div>
+        <div class="service-info">
+          <div class="service-name">Enrollment</div>
+          <div class="service-desc">Manage student course registrations</div>
+        </div>
+        <span class="service-arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- ── FINANCE & REPORTS ──────────────────────────────────────────────── -->
+  <div class="services-section">
+    <h2>💰 Finance & Reports</h2>
+    <div class="services-grid">
+      <a routerLink="/backoffice/payments" class="service-card service-rose">
+        <div class="service-icon">💳</div>
+        <div class="service-info">
+          <div class="service-name">Payments</div>
+          <div class="service-desc">Manage tuition fees & transactions</div>
+        </div>
+        <span class="service-arrow">→</span>
+      </a>
+      <a routerLink="/backoffice/reports" class="service-card service-slate">
+        <div class="service-icon">📊</div>
+        <div class="service-info">
+          <div class="service-name">Reports</div>
+          <div class="service-desc">Generate & view school analytics</div>
+        </div>
+        <span class="service-arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- ── USERS & CLASSES ────────────────────────────────────────────────── -->
+  <div class="services-section">
+    <h2>👥 Users & Classes</h2>
+    <div class="services-grid">
+      <a routerLink="/backoffice/users" class="service-card service-violet">
+        <div class="service-icon">👤</div>
+        <div class="service-info">
+          <div class="service-name">Users</div>
+          <div class="service-desc">Manage students & staff accounts</div>
+        </div>
+        <span class="service-arrow">→</span>
+      </a>
+      <div class="service-card service-teal" (click)="showClassForm = !showClassForm" style="cursor:pointer">
+        <div class="service-icon">🎓</div>
+        <div class="service-info">
+          <div class="service-name">Classes</div>
+          <div class="service-desc">{{ totalClasses }} class(es) — click to manage</div>
+        </div>
+        <span class="service-arrow">{{ showClassForm ? '▲' : '▼' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CLASS MANAGEMENT PANEL ─────────────────────────────────────────── -->
+  <div *ngIf="showClassForm" class="class-panel">
+    <div class="class-panel-header">
+      <h3>🎓 Class Management</h3>
+    </div>
+    <div *ngIf="classSuccess" class="class-success">✅ {{ classSuccess }}</div>
+    <div *ngIf="classError" class="class-error">⚠️ {{ classError }}</div>
+    <div class="class-form">
+      <h4>➕ New Class</h4>
+      <div class="class-form-grid">
+        <input [(ngModel)]="newClass.name" placeholder="Name * (e.g. TWIN1)" class="class-input" [ngModelOptions]="{standalone: true}" />
+        <input [(ngModel)]="newClass.level" placeholder="Level (e.g. 3ème année)" class="class-input" [ngModelOptions]="{standalone: true}" />
+        <input [(ngModel)]="newClass.specialty" placeholder="Specialty (e.g. Informatique)" class="class-input" [ngModelOptions]="{standalone: true}" />
+        <input [(ngModel)]="newClass.description" placeholder="Description (optional)" class="class-input" [ngModelOptions]="{standalone: true}" />
+      </div>
+      <button (click)="createClass()" class="class-btn-create">Create Class</button>
+    </div>
+    <div *ngIf="classes.length > 0" class="class-list">
+      <h4>📋 Existing Classes</h4>
+      <div class="class-table">
+        <div class="class-table-header">
+          <span>Name</span><span>Level</span><span>Specialty</span><span>Students</span><span>Del</span>
+        </div>
+        <div *ngFor="let c of classes" class="class-table-row">
+          <span class="class-badge">{{ c.name }}</span>
+          <span>{{ c.level || '—' }}</span>
+          <span>{{ c.specialty || '—' }}</span>
+          <span>{{ c.studentCount || 0 }}</span>
+          <button (click)="deleteClass(c.id)" class="class-btn-delete">🗑️</button>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="classes.length === 0" class="class-empty">No classes yet — create one above.</div>
+  </div>
+
+  <!-- ── RECENT ACTIVITY ─────────────────────────────────────────────────── -->
+  <div class="recent-activity">
+    <h2>🕒 Recent Activity</h2>
+    <div *ngIf="recentActivity.length === 0" class="no-activity">No recent activity</div>
+    <ul *ngIf="recentActivity.length > 0">
+      <li *ngFor="let item of recentActivity" class="activity-item">
+        <span class="activity-icon">{{ item.icon }}</span>
+        <span class="activity-msg">{{ item.message }}</span>
+        <span class="activity-time">{{ item.time }}</span>
+      </li>
+    </ul>
+  </div>
+
+</div>

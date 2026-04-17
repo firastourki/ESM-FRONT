@@ -1,0 +1,187 @@
+.report-wrapper {
+  background: white;
+  padding: 25px;
+  border-radius: 14px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+  margin-top: 20px;
+}
+
+/* TITLE */
+.reports-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #5b3cc4;
+  margin-bottom: 20px;
+}
+
+/* FILTERS */
+.filters {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.filters input,
+.filters select {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  outline: none;
+  transition: 0.3s;
+}
+
+.filters input:focus {
+  border-color: #6a5acd;
+  box-shadow: 0 0 0 2px rgba(106,90,205,0.2);
+}
+
+.secondary-btn {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #d7d7d7;
+  background: #f8f8f8;
+  cursor: pointer;
+}
+
+.error-banner {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #f3c5c5;
+  background: #fff1f1;
+  color: #a42828;
+  font-size: 13px;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.kpi-card {
+  border: 1px solid #eceaf8;
+  border-radius: 10px;
+  background: #faf9ff;
+  padding: 12px;
+}
+
+.kpi-card p {
+  margin: 0;
+  font-size: 12px;
+  color: #666;
+}
+
+.kpi-card h3 {
+  margin: 6px 0 0;
+  color: #5b3cc4;
+}
+
+.table-wrap {
+  border: 1px solid #edeaf7;
+  border-radius: 12px;
+  overflow: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.qr-cell {
+  width: 84px;
+}
+
+.qr-img {
+  width: 56px;
+  height: 56px;
+  border-radius: 6px;
+  border: 1px solid #eee;
+}
+
+/* TABLE HEADER */
+thead {
+  background: linear-gradient(135deg, #6a5acd, #7b68ee);
+  color: white;
+}
+
+th {
+  padding: 14px;
+  text-align: left;
+  font-weight: 500;
+}
+
+/* TABLE BODY */
+td {
+  padding: 14px;
+  border-bottom: 1px solid #f1f1f1;
+  color: #555;
+}
+
+tbody tr:hover {
+  background-color: #f5f3ff;
+  transition: 0.2s;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.delete-btn {
+  background: #ff4d6d;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.delete-btn:hover {
+  background: #e63950;
+}
+
+.status-pill {
+  display: inline-block;
+  background: #f4f4f4;
+  color: #333;
+  border: 1px solid #e3e3e3;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+.status-open {
+  background: #eef2ff;
+  color: #3741a0;
+  border-color: #d5dcff;
+}
+
+.status-in-progress {
+  background: #fff7e6;
+  color: #8a4b00;
+  border-color: #ffe2b5;
+}
+
+.status-resolved {
+  background: #e9f9ee;
+  color: #0a6f39;
+  border-color: #c8f0d6;
+}
+
+.status-rejected {
+  background: #fff0f0;
+  color: #b42318;
+  border-color: #ffd2d0;
+}
+
+.empty-state {
+  text-align: center;
+  color: #777;
+  padding: 20px 0;
+}

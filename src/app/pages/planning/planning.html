@@ -1,0 +1,193 @@
+<div class="planning-wrapper">
+
+  <!-- ── Header ──────────────────────────────────────────────────────────── -->
+  <div class="planning-header">
+    <div>
+      <h1 class="planning-title">Assessment Planning</h1>
+      <p class="planning-sub">Calendar & chronological view</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-secondary" (click)="goToToday()">Today</button>
+      <button class="btn-primary" (click)="openForm()">+ Schedule</button>
+    </div>
+  </div>
+
+  <!-- ── Ongoing bar ─────────────────────────────────────────────────────── -->
+  <div class="ongoing-bar" *ngIf="ongoingAssessments.length > 0">
+    <span class="ongoing-dot"></span>
+    <strong>Ongoing:</strong>
+    <span *ngFor="let a of ongoingAssessments; let last = last">
+      {{ a.title }}<span *ngIf="!last">, </span>
+    </span>
+  </div>
+
+  <div class="planning-grid">
+
+    <!-- ── Calendar ──────────────────────────────────────────────────────── -->
+    <div class="calendar-section">
+      <div class="calendar-nav">
+        <button class="nav-btn" (click)="prevMonth()">‹</button>
+        <h2 class="month-label">{{ monthLabel }}</h2>
+        <button class="nav-btn" (click)="nextMonth()">›</button>
+      </div>
+
+      <div class="calendar-grid">
+        <div class="day-header" *ngFor="let d of DAYS">{{ d }}</div>
+
+        <div *ngFor="let day of calendarDays"
+             class="calendar-day"
+             [class.other-month]="!day.isCurrentMonth"
+             [class.today]="day.isToday"
+             [class.selected]="selectedDay?.date?.toDateString() === day.date.toDateString()"
+             [class.has-events]="day.assessments.length > 0"
+             (click)="selectDay(day)">
+          <span class="day-number">{{ day.date.getDate() }}</span>
+          <div class="day-events">
+            <div *ngFor="let a of day.assessments.slice(0, 2)"
+                 class="day-event"
+                 [style.background]="statusColor(a.status)">
+              {{ typeIcon(a.type) }} {{ a.title | slice:0:12 }}{{ a.title.length > 12 ? '…' : '' }}
+            </div>
+            <div class="day-event-more" *ngIf="day.assessments.length > 2">
+              +{{ day.assessments.length - 2 }} more
+            </div>
+          </div>
+          <button class="quick-add"
+                  *ngIf="day.isCurrentMonth"
+                  (click)="$event.stopPropagation(); openForm(day)"
+                  title="Schedule an assessment on this day">
+            +
+          </button>
+        </div>
+      </div>
+
+      <!-- Selected day detail -->
+      <div class="day-detail" *ngIf="selectedDay">
+        <div class="day-detail-header">
+          <strong>{{ selectedDay.date.toLocaleDateString('en-US', { weekday:'long', day:'numeric', month:'long' }) }}</strong>
+          <button class="btn-sm" (click)="openForm(selectedDay)">+ Add</button>
+        </div>
+        <div *ngIf="selectedDay.assessments.length === 0" class="no-events">
+          No assessments on this day
+        </div>
+        <div *ngFor="let a of selectedDay.assessments"
+             class="detail-event"
+             [style.border-left-color]="statusColor(a.status)">
+          <div class="detail-event-title">{{ typeIcon(a.type) }} {{ a.title }}</div>
+          <div class="detail-event-meta">
+            <span>{{ a.courseName }}</span>
+            <span *ngIf="a.startDate">🕐 {{ formatTime(a.startDate) }}</span>
+            <span *ngIf="a.duration">⏱ {{ a.duration }}min</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Timeline ───────────────────────────────────────────────────────── -->
+    <div class="timeline-section">
+
+      <div class="timeline-group" *ngIf="ongoingAssessments.length > 0">
+        <div class="timeline-group-title ongoing">🟢 Ongoing ({{ ongoingAssessments.length }})</div>
+        <div *ngFor="let a of ongoingAssessments" class="timeline-card ongoing-card">
+          <div class="timeline-icon">{{ typeIcon(a.type) }}</div>
+          <div class="timeline-info">
+            <div class="timeline-title">{{ a.title }}</div>
+            <div class="timeline-meta">{{ a.courseName }}</div>
+            <div class="timeline-dates" *ngIf="a.startDate">
+              {{ formatDate(a.startDate) }} → {{ formatDate(a.endDate) }}
+            </div>
+          </div>
+          <div class="timeline-badge" [style.background]="statusColor(a.status)">{{ a.status }}</div>
+        </div>
+      </div>
+
+      <div class="timeline-group">
+        <div class="timeline-group-title">📅 Upcoming ({{ upcomingAssessments.length }})</div>
+        <div *ngIf="upcomingAssessments.length === 0" class="no-events">No scheduled assessments</div>
+        <div *ngFor="let a of upcomingAssessments"
+             class="timeline-card"
+             [style.border-left-color]="statusColor(a.status)">
+          <div class="timeline-icon">{{ typeIcon(a.type) }}</div>
+          <div class="timeline-info">
+            <div class="timeline-title">{{ a.title }}</div>
+            <div class="timeline-meta">{{ a.courseName }}</div>
+            <div class="timeline-dates" *ngIf="a.startDate">
+              📅 {{ formatDate(a.startDate) }}
+              <span *ngIf="a.startDate">🕐 {{ formatTime(a.startDate) }}</span>
+            </div>
+            <div class="timeline-duration" *ngIf="a.duration">⏱ {{ a.duration }} minutes</div>
+          </div>
+          <div class="timeline-right">
+            <div class="timeline-badge" [style.background]="statusColor(a.status)">{{ a.status }}</div>
+            <div class="countdown" *ngIf="a.startDate">{{ formatCountdown(a.startDate) }}</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Schedule modal ────────────────────────────────────────────────────── -->
+  <div class="modal-overlay" *ngIf="showForm" (click)="cancelForm()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>📅 Schedule an Assessment</h3>
+        <button class="close-btn" (click)="cancelForm()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-error" *ngIf="formError">{{ formError }}</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Title *</label>
+            <input [(ngModel)]="form.title" placeholder="e.g. Midterm Grammar" />
+          </div>
+          <div class="form-group">
+            <label>Course *</label>
+            <input [(ngModel)]="form.courseName" placeholder="e.g. English B2" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Type</label>
+            <select [(ngModel)]="form.type">
+              <option *ngFor="let t of assessmentTypes" [value]="t">{{ t }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select [(ngModel)]="form.status">
+              <option *ngFor="let s of assessmentStatuses" [value]="s">{{ s }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Start Date</label>
+            <input type="datetime-local" [(ngModel)]="form.startDate" />
+          </div>
+          <div class="form-group">
+            <label>End Date</label>
+            <input type="datetime-local" [(ngModel)]="form.endDate" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Duration (minutes)</label>
+          <input type="number" [(ngModel)]="form.duration" min="1" placeholder="e.g. 60" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary" (click)="submitForm()">Schedule</button>
+        <button class="btn-secondary" (click)="cancelForm()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Notification ───────────────────────────────────────────────────── -->
+  <div class="notification"
+       *ngIf="notification"
+       [class.success]="notification.type === 'success'"
+       [class.error]="notification.type === 'error'">
+    {{ notification.message }}
+  </div>
+
+</div>

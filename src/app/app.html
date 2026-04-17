@@ -1,0 +1,9 @@
+<ng-container *ngIf="!hideShell">
+  <app-header></app-header>
+</ng-container>
+
+<router-outlet></router-outlet>
+
+<ng-container *ngIf="!hideShell">
+  <app-footer></app-footer>
+</ng-container>

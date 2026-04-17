@@ -1,0 +1,65 @@
+<div class="bo-page">
+
+  <!-- Back -->
+  <a routerLink="/backoffice/assessments" class="back-link">← Retour aux assessments</a>
+
+  <!-- Loader -->
+  <div *ngIf="loading" class="loader-wrap">
+    <div class="loader-spinner"></div><span>Chargement...</span>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error" class="form-error">⚠️ {{ error }}</div>
+
+  <ng-container *ngIf="!loading && assessment">
+
+    <!-- ── Assessment info card ──────────────────────────────────────── -->
+    <div class="detail-card">
+      <div class="detail-header">
+        <div>
+          <h1 class="bo-title">{{ assessment.title }}</h1>
+          <p class="bo-subtitle">{{ assessment.courseName }}</p>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center">
+          <span class="badge" [ngClass]="typeClass(assessment.type)">{{ assessment.type }}</span>
+          <span class="badge" [ngClass]="statusClass(assessment.status)">{{ assessment.status }}</span>
+        </div>
+      </div>
+      <div class="detail-meta">
+        <div class="meta-item"><span class="meta-label">ID</span><span class="meta-value">#{{ assessment.id }}</span></div>
+        <div class="meta-item"><span class="meta-label">Cours</span><span class="meta-value">{{ assessment.courseName }}</span></div>
+        <div class="meta-item"><span class="meta-label">Type</span><span class="meta-value">{{ assessment.type }}</span></div>
+        <div class="meta-item"><span class="meta-label">Statut</span><span class="meta-value">{{ assessment.status }}</span></div>
+        <div class="meta-item"><span class="meta-label">Ressources</span><span class="meta-value">{{ resources.length }} fichier(s)</span></div>
+      </div>
+    </div>
+
+    <!-- ── Resources ────────────────────────────────────────────────── -->
+    <h2 class="section-heading">📁 Ressources associées</h2>
+
+    <div *ngIf="resources.length === 0" class="empty-state">
+      <div class="empty-icon">📭</div>
+      <p>Aucune ressource attachée à cet assessment</p>
+    </div>
+
+    <div class="res-cards">
+      <div *ngFor="let r of resources" class="res-card">
+        <div class="res-card-icon">{{ fileIcon(r.type) }}</div>
+        <div class="res-card-body">
+          <p class="res-card-title">{{ r.title }}</p>
+          <p class="res-card-url">{{ r.fileUrl }}</p>
+          <div style="display:flex; gap:6px; margin-top:6px; flex-wrap:wrap">
+            <span class="badge badge-type">{{ r.type }}</span>
+            <span class="badge" [ngClass]="r.published ? 'badge-published' : 'badge-draft'">
+              {{ r.published ? 'Publié' : 'Privé' }}
+            </span>
+          </div>
+        </div>
+        <button *ngIf="r.fileUrl" (click)="openFile(r.fileUrl!)" class="btn-secondary">
+          👁️ Voir
+        </button>
+      </div>
+    </div>
+
+  </ng-container>
+</div>

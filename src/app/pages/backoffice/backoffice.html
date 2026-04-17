@@ -1,0 +1,295 @@
+<div class="bo-page">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <div class="bo-header">
+    <div>
+      <h1 class="bo-title">English School Admin Panel</h1>
+      <p class="bo-subtitle">Assessment management</p>
+    </div>
+    <div class="bo-header-actions">
+      <button (click)="loadAssessments()" class="btn-icon" title="Refresh">🔄</button>
+      <a routerLink="/backoffice/resources" class="btn-secondary">📁 Resources</a>
+      <button (click)="openCreateForm()" class="btn-primary">+ New Assessment</button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loader-wrap">
+    <div class="loader-spinner"></div>
+    <span>Loading...</span>
+  </div>
+
+  <ng-container *ngIf="!loading">
+
+    <!-- ── Stats ──────────────────────────────────────────────────────── -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#6366f115; color:#6366f1">📋</div>
+        <div><p class="stat-label">Total</p><p class="stat-value" style="color:#6366f1">{{ totalCount }}</p></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#22c55e15; color:#22c55e">✅</div>
+        <div><p class="stat-label">Published</p><p class="stat-value" style="color:#22c55e">{{ publishedCount }}</p></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#f59e0b15; color:#f59e0b">✏️</div>
+        <div><p class="stat-label">Drafts</p><p class="stat-value" style="color:#f59e0b">{{ draftCount }}</p></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#94a3b815; color:#94a3b8">🔒</div>
+        <div><p class="stat-label">Closed</p><p class="stat-value" style="color:#94a3b8">{{ closedCount }}</p></div>
+      </div>
+    </div>
+
+    <!-- ── Form ───────────────────────────────────────────────────────── -->
+    <div *ngIf="showForm" class="form-card">
+      <h3 class="form-title">{{ editMode ? '✏️ Edit Assessment' : '➕ New Assessment' }}</h3>
+      <p *ngIf="formError" class="form-error">⚠️ {{ formError }}</p>
+
+      <form (ngSubmit)="saveAssessment()">
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label class="form-label">Title *</label>
+            <input [(ngModel)]="selectedAssessment.title" name="title"
+                   placeholder="e.g. Midterm English Grammar" class="form-input" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Course Name *</label>
+            <select [(ngModel)]="selectedAssessment.courseName" name="courseName" class="form-input">
+              <option value="">— Select Course —</option>
+              <option *ngFor="let c of courses" [value]="c.name">{{ c.name }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Type *</label>
+            <select [(ngModel)]="selectedAssessment.type" name="type" class="form-input">
+              <option value="">— Select —</option>
+              <option *ngFor="let t of assessmentTypes" [value]="t">{{ t }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Status *</label>
+            <select [(ngModel)]="selectedAssessment.status" name="status" class="form-input">
+              <option value="">— Select —</option>
+              <option *ngFor="let s of assessmentStatuses" [value]="s">{{ s }}</option>
+            </select>
+          </div>
+
+          <!-- 🆕 ── Class (groupe d'étudiants) ──────────────────────────── -->
+          <div class="form-group span-2">
+            <label class="form-label">🎓 Target Class (optional)</label>
+            <select [(ngModel)]="selectedAssessment.className" name="className" class="form-input">
+              <option value="">— All students —</option>
+              <option *ngFor="let c of availableClasses" [value]="c.name">
+                {{ c.name }}
+                <span *ngIf="c.level"> — {{ c.level }}</span>
+                <span *ngIf="c.specialty"> ({{ c.specialty }})</span>
+              </option>
+            </select>
+            <small class="form-hint">
+              Leave empty to make visible to all students.
+              Select a class to restrict to a specific group.
+            </small>
+          </div>
+
+          <!-- ── Start Date + Time ─────────────────────────────────────── -->
+          <div class="form-group">
+            <label class="form-label">📅 Start Date</label>
+            <input type="date" [(ngModel)]="startDatePart" name="startDatePart" class="form-input" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">🕐 Start Time</label>
+            <div class="time-picker-wrap">
+              <button type="button" class="time-picker-btn" (click)="toggleStartTimePicker()">
+                {{ startTimeLabel }}
+                <span class="time-caret">▾</span>
+              </button>
+              <div class="time-picker-dropdown" *ngIf="showStartTimePicker">
+                <div class="time-cols">
+                  <div class="time-col">
+                    <div class="time-col-label">HH</div>
+                    <div class="time-scroll">
+                      <div *ngFor="let h of hours"
+                           class="time-item"
+                           [class.selected]="h === startHour"
+                           (click)="selectStartHour(h)">{{ h }}</div>
+                    </div>
+                  </div>
+                  <div class="time-sep">:</div>
+                  <div class="time-col">
+                    <div class="time-col-label">MM</div>
+                    <div class="time-scroll">
+                      <div *ngFor="let m of minutes"
+                           class="time-item"
+                           [class.selected]="m === startMinute"
+                           (click)="selectStartMinute(m)">{{ m }}</div>
+                    </div>
+                  </div>
+                </div>
+                <button type="button" class="time-confirm-btn" (click)="confirmStartTime()">OK</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── End Date + Time ───────────────────────────────────────── -->
+          <div class="form-group">
+            <label class="form-label">📅 End Date</label>
+            <input type="date" [(ngModel)]="endDatePart" name="endDatePart" class="form-input" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">🕐 End Time</label>
+            <div class="time-picker-wrap">
+              <button type="button" class="time-picker-btn" (click)="toggleEndTimePicker()">
+                {{ endTimeLabel }}
+                <span class="time-caret">▾</span>
+              </button>
+              <div class="time-picker-dropdown" *ngIf="showEndTimePicker">
+                <div class="time-cols">
+                  <div class="time-col">
+                    <div class="time-col-label">HH</div>
+                    <div class="time-scroll">
+                      <div *ngFor="let h of hours"
+                           class="time-item"
+                           [class.selected]="h === endHour"
+                           (click)="selectEndHour(h)">{{ h }}</div>
+                    </div>
+                  </div>
+                  <div class="time-sep">:</div>
+                  <div class="time-col">
+                    <div class="time-col-label">MM</div>
+                    <div class="time-scroll">
+                      <div *ngFor="let m of minutes"
+                           class="time-item"
+                           [class.selected]="m === endMinute"
+                           (click)="selectEndMinute(m)">{{ m }}</div>
+                    </div>
+                  </div>
+                </div>
+                <button type="button" class="time-confirm-btn" (click)="confirmEndTime()">OK</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Duration ──────────────────────────────────────────────── -->
+          <div class="form-group">
+            <label class="form-label">⏱ Duration (minutes)</label>
+            <input type="number" [(ngModel)]="selectedAssessment.duration" name="duration"
+                   placeholder="e.g. 60" min="1" class="form-input" />
+          </div>
+
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">{{ editMode ? 'Save' : 'Create' }}</button>
+          <button type="button" (click)="cancel()" class="btn-ghost">Cancel</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- ── Filters ─────────────────────────────────────────────────────── -->
+    <div class="filters-bar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input [(ngModel)]="searchQuery" (ngModelChange)="onFilterChange()"
+               placeholder="Search by title or course..." class="search-input" />
+      </div>
+      <div class="filter-chips">
+        <button *ngFor="let s of ['ALL', 'PUBLISHED', 'DRAFT', 'CLOSED']"
+                (click)="filterStatus = s; onFilterChange()"
+                [class.active]="filterStatus === s" class="chip">
+          {{ s === 'ALL' ? 'All' : s }}
+        </button>
+      </div>
+      <select [(ngModel)]="filterType" (ngModelChange)="onFilterChange()"
+              class="form-input" style="width:auto; min-width:130px">
+        <option value="ALL">All types</option>
+        <option *ngFor="let t of assessmentTypes" [value]="t">{{ t }}</option>
+      </select>
+    </div>
+
+    <!-- ── Table ───────────────────────────────────────────────────────── -->
+    <div class="table-card">
+      <table class="bo-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Course</th>
+            <th>Class</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Start Date</th>
+            <th>Duration</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let a of pagedAssessments; trackBy: trackById">
+            <td class="td-id">#{{ a.id }}</td>
+            <td class="td-title">{{ a.title }}</td>
+            <td class="td-course">{{ a.courseName }}</td>
+            <!-- 🆕 Colonne classe -->
+            <td>
+              <span *ngIf="a.className" class="badge badge-class">{{ a.className }}</span>
+              <span *ngIf="!a.className" class="no-date">All</span>
+            </td>
+            <td><span class="badge" [ngClass]="typeClass(a.type)">{{ a.type }}</span></td>
+            <td><span class="badge" [ngClass]="statusClass(a.status)">{{ a.status }}</span></td>
+            <td class="td-date">
+              <span *ngIf="a.startDate">{{ a.startDate | date:'dd/MM/yyyy HH:mm' }}</span>
+              <span *ngIf="!a.startDate" class="no-date">—</span>
+            </td>
+            <td class="td-duration">
+              <span *ngIf="a.duration">{{ a.duration }} min</span>
+              <span *ngIf="!a.duration" class="no-date">—</span>
+            </td>
+            <td>
+              <div class="action-btns">
+                <button (click)="editAssessment(a)" class="btn-action btn-edit" title="Edit">✏️</button>
+                <button (click)="deleteAssessment(a.id!)" class="btn-action btn-delete" title="Delete">🗑️</button>
+                <a [routerLink]="['/backoffice/assessment', a.id]" class="btn-action btn-view" title="View">👁️</a>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="filteredAssessments.length === 0">
+            <td colspan="9" class="empty-row"><div>📭</div><div>No assessments found</div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ── Pagination ──────────────────────────────────────────────────── -->
+    <div *ngIf="totalPages > 1" class="pagination-bar">
+      <span class="pagination-info">{{ paginationFrom }}–{{ paginationTo }} of {{ filteredAssessments.length }}</span>
+      <div class="pagination-btns">
+        <button class="pg-btn" [disabled]="currentPage === 1" (click)="goToPage(1)">«</button>
+        <button class="pg-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">‹</button>
+        <button *ngFor="let p of pageNumbers" class="pg-btn"
+                [class.pg-active]="currentPage === p" (click)="goToPage(p)">
+          {{ p }}
+        </button>
+        <button class="pg-btn" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">›</button>
+        <button class="pg-btn" [disabled]="currentPage === totalPages" (click)="goToPage(totalPages)">»</button>
+      </div>
+    </div>
+
+  </ng-container>
+</div>
+
+<!-- ── Notification ──────────────────────────────────────────────────────── -->
+<div *ngIf="notification" class="notif-overlay">
+  <div class="notif-box" [ngClass]="'notif-' + notification.type">
+    <div class="notif-dot" [ngClass]="'dot-' + notification.type"></div>
+    <p class="notif-msg">{{ notification.message }}</p>
+    <div *ngIf="notification.type === 'confirm'" class="notif-actions">
+      <button (click)="confirmAction()" class="btn-danger">Confirm</button>
+      <button (click)="closeNotification()" class="btn-ghost">Cancel</button>
+    </div>
+    <button *ngIf="notification.type === 'error'" (click)="closeNotification()" class="notif-close">✕</button>
+  </div>
+</div>

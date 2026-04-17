@@ -1,0 +1,220 @@
+<div class="res-page">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <div class="res-header">
+    <div>
+      <h1 class="res-title">Resources Management</h1>
+      <p class="res-subtitle">Files linked to assessments</p>
+    </div>
+    <div class="res-header-actions">
+      <a routerLink="/backoffice/assessments" class="btn-secondary">
+        📋 Assessments
+      </a>
+      <button (click)="openUploadForm()"
+              [disabled]="!selectedAssessmentId"
+              class="btn-primary">
+        + Upload File
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Assessment selector ─────────────────────────────────────────────── -->
+  <div class="selector-card">
+    <label class="form-label">Assessment</label>
+    <div class="selector-row">
+      <select [(ngModel)]="selectedAssessmentId"
+              (ngModelChange)="onAssessmentChange()"
+              class="form-input selector-select">
+        <option [ngValue]="null">— Select an assessment —</option>
+        <option *ngFor="let a of assessments" [ngValue]="a.id">
+          {{ a.title }} ({{ a.courseName }})
+        </option>
+      </select>
+
+      <div *ngIf="selectedAssessment" class="assess-pill">
+        <span class="badge badge-{{ selectedAssessment.type.toLowerCase() }}">{{ selectedAssessment.type }}</span>
+        <span class="badge badge-status-{{ selectedAssessment.status.toLowerCase() }}">{{ selectedAssessment.status }}</span>
+        <span class="pill-count">{{ resources.length }} file(s)</span>
+      </div>
+    </div>
+  </div>
+
+  <ng-container *ngIf="selectedAssessmentId">
+
+    <!-- ── Upload form ──────────────────────────────────────────────────── -->
+    <div *ngIf="showUploadForm" class="upload-card">
+      <h3 class="form-title">📤 Upload a Resource</h3>
+      <p class="form-subtitle">
+        Linked to: <strong>{{ selectedAssessment?.title }}</strong>
+      </p>
+
+      <p *ngIf="uploadError" class="form-error">⚠️ {{ uploadError }}</p>
+
+      <div class="upload-grid">
+        <div class="form-group span-2">
+          <label class="form-label">Title *</label>
+          <input [(ngModel)]="uploadTitle"
+                 placeholder="e.g. Grammar Reference Sheet"
+                 class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">File Type</label>
+          <select [(ngModel)]="uploadType" class="form-input">
+            <option *ngFor="let t of fileTypes" [value]="t">{{ t }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Visibility</label>
+          <select [(ngModel)]="uploadPublished" class="form-input">
+            <option [ngValue]="true">Published</option>
+            <option [ngValue]="false">Private (Draft)</option>
+          </select>
+        </div>
+
+        <div class="form-group span-2">
+          <label class="form-label">File *</label>
+          <label class="file-drop">
+            <input type="file" (change)="onFileChange($event)" class="file-input" />
+            <div class="file-drop-inner">
+              <div class="file-icon">{{ uploadFileName ? '✅' : '📂' }}</div>
+              <div class="file-text">
+                {{ uploadFileName || 'Click or drag your file here' }}
+              </div>
+              <div class="file-hint" *ngIf="!uploadFileName">PDF, DOCX, MP3, PNG accepted — max 20 MB</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button (click)="submitUpload()" [disabled]="uploading" class="btn-primary">
+          <span *ngIf="uploading">⏳ Uploading...</span>
+          <span *ngIf="!uploading">Upload & Link</span>
+        </button>
+        <button (click)="cancelUpload()" class="btn-ghost">Cancel</button>
+      </div>
+    </div>
+
+    <!-- ── Search ───────────────────────────────────────────────────────── -->
+    <div class="search-bar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input [(ngModel)]="searchQuery"
+               placeholder="Search a resource..."
+               class="search-input" />
+      </div>
+      <span class="res-count">{{ filteredResources.length }} resource(s) found</span>
+    </div>
+
+    <!-- ── Loading ──────────────────────────────────────────────────────── -->
+    <div *ngIf="loadingResources" class="loader-wrap">
+      <div class="loader-spinner"></div>
+      <span>Loading resources...</span>
+    </div>
+
+    <!-- ── Table ────────────────────────────────────────────────────────── -->
+    <div *ngIf="!loadingResources" class="table-card">
+      <table class="res-table">
+        <thead>
+          <tr>
+            <th>File</th>
+            <th>Title</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>URL</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of pagedResources; trackBy: trackById">
+            <td><div class="file-cell-icon">{{ fileIcon(r.type) }}</div></td>
+            <td class="td-title">{{ r.title }}</td>
+            <td><span class="badge badge-type">{{ r.type }}</span></td>
+            <td>
+              <span class="badge" [ngClass]="r.published ? 'badge-published' : 'badge-draft'">
+                {{ r.published ? 'Published' : 'Private' }}
+              </span>
+            </td>
+            <td><span class="td-url">{{ r.fileUrl }}</span></td>
+            <td>
+              <div class="action-btns">
+                <!-- View -->
+                <button *ngIf="r.fileUrl"
+                        (click)="openFile(r.fileUrl!)"
+                        class="btn-action btn-view"
+                        title="View file">
+                  👁️
+                </button>
+                <!-- Download -->
+                <button *ngIf="r.fileUrl"
+                        (click)="downloadFile(r.fileUrl!, r.title)"
+                        class="btn-action btn-download"
+                        title="Download file">
+                  ⬇️
+                </button>
+                <!-- Delete -->
+                <button (click)="deleteResource(r.id!)"
+                        class="btn-action btn-delete"
+                        title="Delete">
+                  🗑️
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="filteredResources.length === 0">
+            <td colspan="6" class="empty-row">
+              <div>📭</div>
+              <div>No resources for this assessment</div>
+              <button (click)="openUploadForm()" class="btn-primary" style="margin-top:1rem">
+                + Upload first resource
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ── Pagination ────────────────────────────────────────────────────── -->
+    <div *ngIf="totalPages > 1" class="pagination-bar">
+      <span class="pagination-info">
+        {{ paginationFrom }}–{{ paginationTo }} of {{ filteredResources.length }}
+      </span>
+      <div class="pagination-btns">
+        <button class="pg-btn" [disabled]="currentPage === 1" (click)="goToPage(1)">«</button>
+        <button class="pg-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">‹</button>
+        <button *ngFor="let p of pageNumbers"
+                class="pg-btn"
+                [class.pg-active]="currentPage === p"
+                (click)="goToPage(p)">
+          {{ p }}
+        </button>
+        <button class="pg-btn" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">›</button>
+        <button class="pg-btn" [disabled]="currentPage === totalPages" (click)="goToPage(totalPages)">»</button>
+      </div>
+    </div>
+
+  </ng-container>
+
+  <!-- Empty state -->
+  <div *ngIf="!selectedAssessmentId && !loadingAssessments" class="empty-state">
+    <div class="empty-icon">📋</div>
+    <p>Select an assessment to view its resources</p>
+  </div>
+
+</div>
+
+<!-- ── Notification ──────────────────────────────────────────────────────── -->
+<div *ngIf="notification" class="notif-overlay">
+  <div class="notif-box" [ngClass]="'notif-' + notification.type">
+    <div class="notif-dot" [ngClass]="'dot-' + notification.type"></div>
+    <p class="notif-msg">{{ notification.message }}</p>
+    <div *ngIf="notification.type === 'confirm'" class="notif-actions">
+      <button (click)="confirmAction()" class="btn-danger">Confirm</button>
+      <button (click)="closeNotification()" class="btn-ghost">Cancel</button>
+    </div>
+    <button *ngIf="notification.type === 'error'" (click)="closeNotification()" class="notif-close">✕</button>
+  </div>
+</div>

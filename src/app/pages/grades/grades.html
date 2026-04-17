@@ -1,0 +1,256 @@
+<div class="grades-page">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <div class="grades-header">
+    <div>
+      <h1 class="grades-title">📊 Grades Management</h1>
+      <p class="grades-subtitle">Manage and track student scores by assessment</p>
+    </div>
+    <div class="header-actions">
+      <a routerLink="/backoffice/assessments" class="btn-secondary">📋 Assessments</a>
+      <button (click)="openCreateForm()"
+              [disabled]="!selectedAssessmentId"
+              class="btn-primary">
+        + Add Grade
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Assessment Selector ────────────────────────────────────────────── -->
+  <div class="selector-card">
+    <label class="form-label">Assessment</label>
+    <select [(ngModel)]="selectedAssessmentId"
+            (ngModelChange)="onAssessmentChange()"
+            class="form-input">
+      <option [ngValue]="null">— Select an assessment —</option>
+      <option *ngFor="let a of assessments" [ngValue]="a.id">
+        {{ a.title }} ({{ a.courseName }}) — {{ a.type }}
+      </option>
+    </select>
+  </div>
+
+  <ng-container *ngIf="selectedAssessmentId">
+
+    <!-- ── Stats Cards ─────────────────────────────────────────────────── -->
+    <div *ngIf="stats" class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-value">{{ stats.total }}</div>
+        <div class="stat-label">Total Students</div>
+      </div>
+      <div class="stat-card stat-blue">
+        <div class="stat-icon">📈</div>
+        <div class="stat-value">{{ stats.average | number:'1.1-1' }}</div>
+        <div class="stat-label">Average Score</div>
+      </div>
+      <div class="stat-card stat-green">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value">{{ stats.passing }}</div>
+        <div class="stat-label">Passing ({{ stats.passRate }}%)</div>
+      </div>
+      <div class="stat-card stat-red">
+        <div class="stat-icon">❌</div>
+        <div class="stat-value">{{ stats.failing }}</div>
+        <div class="stat-label">Failing</div>
+      </div>
+      <div class="stat-card stat-purple">
+        <div class="stat-icon">🏆</div>
+        <div class="stat-value">{{ stats.max }}</div>
+        <div class="stat-label">Highest Score</div>
+      </div>
+      <div class="stat-card stat-orange">
+        <div class="stat-icon">📉</div>
+        <div class="stat-value">{{ stats.min }}</div>
+        <div class="stat-label">Lowest Score</div>
+      </div>
+    </div>
+
+    <!-- ── Form ───────────────────────────────────────────────────────────── -->
+    <div *ngIf="showForm" class="form-card">
+      <h3 class="form-title">{{ editMode ? '✏️ Edit Grade' : '➕ Add Grade' }}</h3>
+
+      <p *ngIf="formError" class="form-error">⚠️ {{ formError }}</p>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Student Name *</label>
+          <input [(ngModel)]="selectedGrade.studentName"
+                 placeholder="e.g. John Doe"
+                 class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Student Email *</label>
+          <input [(ngModel)]="selectedGrade.studentEmail"
+                 placeholder="e.g. john@mail.com"
+                 type="email"
+                 class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Score *</label>
+          <input [(ngModel)]="selectedGrade.score"
+                 type="number" min="0"
+                 [max]="selectedGrade.maxScore"
+                 class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Max Score *</label>
+          <input [(ngModel)]="selectedGrade.maxScore"
+                 type="number" min="1"
+                 class="form-input" />
+        </div>
+
+        <div class="form-group span-2">
+          <label class="form-label">Comments</label>
+          <textarea [(ngModel)]="selectedGrade.comments"
+                    placeholder="Optional feedback..."
+                    rows="2"
+                    class="form-input"></textarea>
+        </div>
+      </div>
+
+      <!-- Live preview -->
+      <div class="score-preview" *ngIf="selectedGrade.score != null && selectedGrade.maxScore">
+        <span>Preview:</span>
+        <strong>{{ selectedGrade.score }}/{{ selectedGrade.maxScore }}</strong>
+        <span class="badge" [ngClass]="mentionClass(selectedGrade)">
+          {{ getMention(selectedGrade) }}
+        </span>
+        <div class="preview-bar">
+          <div class="preview-fill"
+               [style.width]="scoreBarWidth(selectedGrade)"
+               [style.background]="scoreBarColor(selectedGrade)">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button (click)="saveGrade()" class="btn-primary">
+          {{ editMode ? 'Update Grade' : 'Save Grade' }}
+        </button>
+        <button (click)="cancel()" class="btn-ghost">Cancel</button>
+      </div>
+    </div>
+
+    <!-- ── Search ─────────────────────────────────────────────────────────── -->
+    <div class="search-bar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input [(ngModel)]="searchQuery"
+               placeholder="Search by student name or email..."
+               class="search-input" />
+      </div>
+      <span class="count-badge">{{ filteredGrades.length }} grade(s)</span>
+    </div>
+
+    <!-- ── Loading ────────────────────────────────────────────────────────── -->
+    <div *ngIf="loadingGrades" class="loader-wrap">
+      <div class="loader-spinner"></div>
+      <span>Loading grades...</span>
+    </div>
+
+    <!-- ── Certificate generating overlay ────────────────────────────────── -->
+    <div *ngIf="generatingCertificate" class="loader-wrap">
+      <div class="loader-spinner"></div>
+      <span>Generating certificate...</span>
+    </div>
+
+    <!-- ── Table ──────────────────────────────────────────────────────────── -->
+    <div *ngIf="!loadingGrades" class="table-card">
+      <table class="grades-table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Email</th>
+            <th>Score</th>
+            <th>Progress</th>
+            <th>Mention</th>
+            <th>Comments</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let g of filteredGrades; trackBy: trackById">
+            <td class="td-name">{{ g.studentName }}</td>
+            <td class="td-email">{{ g.studentEmail }}</td>
+            <td class="td-score">
+              <strong>{{ g.score }}</strong>/{{ g.maxScore }}
+            </td>
+            <td class="td-bar">
+              <div class="score-bar">
+                <div class="score-fill"
+                     [style.width]="scoreBarWidth(g)"
+                     [style.background]="scoreBarColor(g)">
+                </div>
+              </div>
+              <span class="pct-label">{{ getPercentage(g) }}%</span>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="mentionClass(g)">
+                {{ getMention(g) }}
+              </span>
+            </td>
+            <td class="td-comments">{{ g.comments || '—' }}</td>
+            <td class="td-date">{{ g.gradedAt | date:'dd/MM/yyyy' }}</td>
+            <td>
+              <div class="action-btns">
+                <button (click)="editGrade(g)"
+                        class="btn-action btn-edit"
+                        title="Edit">
+                  ✏️
+                </button>
+                <button (click)="deleteGrade(g.id!)"
+                        class="btn-action btn-delete"
+                        title="Delete">
+                  🗑️
+                </button>
+                <!-- 🆕 Bouton certificat — visible uniquement si l'étudiant a réussi (>= 50%) -->
+                <button *ngIf="isPassing(g)"
+                        (click)="downloadCertificate(g)"
+                        [disabled]="generatingCertificate"
+                        class="btn-action btn-certificate"
+                        title="Download Certificate">
+                  📄
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="filteredGrades.length === 0">
+            <td colspan="8" class="empty-row">
+              <div>📭</div>
+              <div>No grades yet for this assessment</div>
+              <button (click)="openCreateForm()" class="btn-primary" style="margin-top:1rem">
+                + Add first grade
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </ng-container>
+
+  <!-- ── Empty state ────────────────────────────────────────────────────── -->
+  <div *ngIf="!selectedAssessmentId && !loadingAssessments" class="empty-state">
+    <div class="empty-icon">📊</div>
+    <p>Select an assessment to view and manage grades</p>
+  </div>
+
+</div>
+
+<!-- ── Notification ───────────────────────────────────────────────────────── -->
+<div *ngIf="notification" class="notif-overlay">
+  <div class="notif-box" [ngClass]="'notif-' + notification.type">
+    <div class="notif-dot" [ngClass]="'dot-' + notification.type"></div>
+    <p class="notif-msg">{{ notification.message }}</p>
+    <div *ngIf="notification.type === 'confirm'" class="notif-actions">
+      <button (click)="confirmAction()" class="btn-danger">Confirm</button>
+      <button (click)="closeNotification()" class="btn-ghost">Cancel</button>
+    </div>
+    <button *ngIf="notification.type === 'error'" (click)="closeNotification()" class="notif-close">✕</button>
+  </div>
+</div>

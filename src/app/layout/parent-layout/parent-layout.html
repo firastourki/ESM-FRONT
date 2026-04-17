@@ -1,0 +1,21 @@
+﻿<div class="parent-shell">
+  <aside class="sidebar">
+    <div class="logo">&#128106; Parent</div>
+    <nav>
+      <a routerLink="/parent/dashboard" routerLinkActive="active">&#127968; Dashboard</a>
+      <a routerLink="/parent/grades" routerLinkActive="active">&#127942; Child Grades</a>
+      <a routerLink="/parent/planning" routerLinkActive="active">&#128197; Planning</a>
+      <a routerLink="/parent/payments" routerLinkActive="active">&#128179; Payments</a>
+    </nav>
+    <a routerLink="/" class="back-link">&#8592; Home</a>
+  </aside>
+  <div class="main">
+    <header class="header">
+      <span>Parent Portal</span>
+      <span>&#128100; Parent</span>
+    </header>
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

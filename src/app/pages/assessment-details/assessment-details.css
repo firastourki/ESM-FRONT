@@ -1,0 +1,150 @@
+@import '../backoffice/backoffice.css';
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #64748b;
+  font-size: 0.875rem;
+  text-decoration: none;
+  margin-bottom: 1.5rem;
+  transition: color 0.15s;
+}
+
+  .back-link:hover {
+    color: #1e293b;
+  }
+
+.detail-card {
+  background: #fff;
+  border: 1px solid #e8e5df;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.detail-meta {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  border-top: 1px solid #f1f0ec;
+  padding-top: 1.25rem;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.meta-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.meta-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.section-heading {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 1rem;
+}
+
+.res-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.res-card {
+  background: #fff;
+  border: 1px solid #e8e5df;
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: transform 0.15s;
+}
+
+  .res-card:hover {
+    transform: translateY(-1px);
+  }
+
+.res-card-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.res-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.res-card-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #1e293b;
+}
+
+.res-card-url {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 2px;
+}
+
+.badge-type {
+  background: #f1f0ec;
+  color: #64748b;
+}
+
+.badge-published {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.badge-draft {
+  background: #fef9c3;
+  color: #ca8a04;
+}
+
+.badge-exam {
+  background: #ede9fe;
+  color: #7c3aed;
+}
+
+.badge-quiz {
+  background: #fce7f3;
+  color: #be185d;
+}
+
+.badge-project {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.badge-closed {
+  background: #f1f5f9;
+  color: #64748b;
+}
