@@ -24,6 +24,7 @@ export interface UserResponseDto {
   deletedAt: string | null;
   walletBalance?: number;
   parentEmail?: string | null;
+  className?: string | null;
 }
 
 export interface PageResponse<T> {

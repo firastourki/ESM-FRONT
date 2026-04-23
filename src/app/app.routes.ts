@@ -34,6 +34,10 @@ import { EnrollmentComponent } from './pages/enrollment/enrollment.component';
 import { Reports } from './pages/reports/reports';
 import { Payments } from './pages/payments/payments';
 
+// ── Guards ────────────────────────────────────────────────────────────────────
+import { authGuard } from './core/guards/auth.guard';
+import { roleGuard } from './core/guards/role.guard';
+
 // ── AKREM ─────────────────────────────────────────────────────────────────────
 import { AdminUsers } from './pages/users/users';
 import { AdminClasses } from './pages/admin-classes/admin-classes';
@@ -67,6 +71,8 @@ export const routes: Routes = [
   {
     path: 'backoffice',
     component: AdminLayout,
+    canActivate: [authGuard, roleGuard],
+    data: { allowedRoles: ['ADMIN'] },
     children: [
       { path: 'dashboard', component: Dashboard },
       { path: 'assessments', component: Backoffice },
@@ -97,6 +103,8 @@ export const routes: Routes = [
   {
     path: 'tutor',
     component: TutorLayout,
+    canActivate: [authGuard, roleGuard],
+    data: { allowedRoles: ['TUTOR'] },
     children: [
       { path: 'dashboard', component: TutorDashboard },
       { path: 'grades', component: GradesComponent },
@@ -111,6 +119,8 @@ export const routes: Routes = [
   {
     path: 'student',
     component: StudentLayout,
+    canActivate: [authGuard, roleGuard],
+    data: { allowedRoles: ['STUDENT'] },
     children: [
       { path: 'home', component: StudentHome },
       { path: 'courses', component: StudentCoursesPage },
@@ -129,6 +139,8 @@ export const routes: Routes = [
   {
     path: 'parent',
     component: ParentLayout,
+    canActivate: [authGuard, roleGuard],
+    data: { allowedRoles: ['PARENT'] },
     children: [
       { path: 'dashboard', component: ParentDashboard },
       { path: 'grades', component: ParentGradesPage },

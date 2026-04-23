@@ -1,11 +1,5 @@
 <div class="sh-page">
 
-  <!-- ── Top bar ────────────────────────────────────────────────────────── -->
-  <header class="sh-topbar">
-    <img src="assets/images/logo.png" alt="Fluencity" class="sh-logo-img" />
-    <button routerLink="/signin" class="sh-logout-btn">🚪 Log Out</button>
-  </header>
-
   <!-- ── Upcoming Alerts ────────────────────────────────────────────────── -->
   <div *ngIf="upcomingAlerts.length > 0" class="sh-alerts">
     <div *ngFor="let alert of upcomingAlerts; let i = index"
@@ -38,14 +32,26 @@
     <div class="sh-hero-text">
       <h1>Welcome back, <span class="sh-highlight">{{ studentName.split(' ')[0] }}</span> 👋</h1>
       <p>What would you like to do today?</p>
+      <div *ngIf="studentClass" class="sh-class-info">
+        📍 Current Class: <strong>{{ studentClass }}</strong>
+      </div>
     </div>
     <div *ngIf="myRank" class="sh-rank-pill">
       🏆 Global Rank <strong>#{{ myRank }}</strong>
     </div>
   </div>
 
-  <!-- ── 4 Action Cards ─────────────────────────────────────────────────── -->
+  <!-- ── 5 Action Cards ─────────────────────────────────────────────────── -->
   <div class="sh-cards">
+
+    <div class="sh-card sh-card-orange"
+         [class.active]="activePanel === 'class'"
+         (click)="openPanel('class')">
+      <div class="sh-card-icon">🏫</div>
+      <div class="sh-card-label">My Class</div>
+      <div class="sh-card-sub">{{ studentClass || 'Not Assigned' }}</div>
+      <div class="sh-card-arrow">{{ activePanel === 'class' ? '▲' : '▼' }}</div>
+    </div>
 
     <div class="sh-card sh-card-gold"
          [class.active]="activePanel === 'leaderboard'"
@@ -87,6 +93,68 @@
   </div>
 
   <!-- ── Panels ─────────────────────────────────────────────────────────── -->
+  <!-- MY CLASS panel -->
+  <div class="sh-panel" *ngIf="activePanel === 'class'">
+    <div class="sh-panel-header">
+      <h2>🏫 My Class Details</h2>
+      <button class="sh-close" (click)="closePanel()">✕</button>
+    </div>
+    
+    <div *ngIf="loadingClass" class="sh-loader"><div class="spinner"></div> Loading class info...</div>
+    
+    <div *ngIf="!loadingClass && !classDetails" class="sh-empty">
+      No class information found for "{{ studentClass }}".
+    </div>
+
+    <div *ngIf="!loadingClass && classDetails">
+      <div class="sh-class-header">
+        <div class="sh-class-main">
+          <h3>{{ classDetails.name }}</h3>
+          <div class="sh-class-tags">
+            <span class="badge badge-good" *ngIf="classDetails.level">{{ classDetails.level }}</span>
+            <span class="badge badge-excellent" *ngIf="classDetails.specialty">{{ classDetails.specialty }}</span>
+          </div>
+          <p class="sh-class-desc" *ngIf="classDetails.description">{{ classDetails.description }}</p>
+        </div>
+        <div class="sh-tutor-card" *ngIf="classDetails.tutorEmail">
+          <div class="sh-tutor-label">Main Tutor</div>
+          <div class="sh-tutor-info">
+            <div class="sh-av">{{ classDetails.tutorFirstName?.charAt(0) || 'T' }}</div>
+            <div>
+              <div class="sh-tutor-name">{{ classDetails.tutorFirstName }} {{ classDetails.tutorLastName }}</div>
+              <div class="sh-tutor-email">{{ classDetails.tutorEmail }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sh-classmates-section">
+        <div class="sh-section-title">
+          <span>Classmates</span>
+          <span class="count-badge">{{ classDetails.students.length }} students</span>
+        </div>
+        <div class="sh-classmates-grid">
+          <div *ngFor="let s of classDetails.students" class="sh-classmate-item" [class.sh-is-me]="isMe(s.email)">
+            <div class="sh-av" [class.sh-av-me]="isMe(s.email)">
+              <img *ngIf="s.avatarUrl" [src]="s.avatarUrl" class="sh-av-img">
+              <span *ngIf="!s.avatarUrl">{{ s.firstName?.charAt(0) || 'S' }}</span>
+            </div>
+            <div class="sh-classmate-name">
+              {{ s.firstName }} {{ s.lastName }}
+              <span *ngIf="isMe(s.email)" class="you-tag">You</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sh-class-actions">
+        <a routerLink="/student/schedule" class="sh-btn-action">
+          📅 View My Class Schedule
+        </a>
+      </div>
+    </div>
+  </div>
+
   <!-- LEADERBOARD panel -->
   <div class="sh-panel" *ngIf="activePanel === 'leaderboard'">
     <div class="sh-panel-header">

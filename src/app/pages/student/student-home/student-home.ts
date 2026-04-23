@@ -5,10 +5,11 @@ import { RouterModule } from '@angular/router';
 import { GradeService, Grade, LeaderboardEntry } from '../../../services/grade.service';
 import { AssessmentService, Assessment } from '../../../services/assessment.service';
 import { CertificateService } from '../../../services/certificate.service';
-import { UserService } from '../../../core/services/user.service';
+import { UserService, UserResponseDto } from '../../../core/services/user.service';
+import { ClassService, ClassResponse } from '../../../core/services/class.service';
 import { catchError, of } from 'rxjs';
 
-type ActivePanel = null | 'leaderboard' | 'grades' | 'assessments' | 'certificates';
+type ActivePanel = null | 'leaderboard' | 'grades' | 'assessments' | 'certificates' | 'class';
 
 interface UpcomingAlert {
   title: string;
@@ -33,6 +34,8 @@ export class StudentHome implements OnInit {
   studentName = '';
   studentEmail = '';
   studentClass = '';
+  classDetails: ClassResponse | null = null;
+  loadingClass = false;
 
   upcomingAlerts: UpcomingAlert[] = [];
   leaderboard: LeaderboardEntry[] = [];
@@ -53,21 +56,39 @@ export class StudentHome implements OnInit {
     private assessmentService: AssessmentService,
     private certificateService: CertificateService,
     private userService: UserService,
+    private classService: ClassService,
     private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
     this.userService.getCurrentUser()
       .pipe(catchError(() => of(null)))
-      .subscribe((profile: any) => {
+      .subscribe((profile: UserResponseDto | null) => {
         if (profile) {
           this.studentEmail = profile.email;
           this.studentName = `${profile.firstName ?? ''} ${profile.lastName ?? ''}`.trim() || profile.email;
           this.studentClass = profile.className ?? '';
+          if (this.studentClass) {
+            this.fetchClassDetails();
+          }
         }
         this.fetchLeaderboard();
         this.fetchGrades();
         this.fetchAssessments();
+        this.cdr.detectChanges();
+      });
+  }
+
+  fetchClassDetails(): void {
+    this.loadingClass = true;
+    this.classService.listClasses()
+      .pipe(catchError(() => of([])))
+      .subscribe((classes: ClassResponse[]) => {
+        const found = classes.find(c => c.name === this.studentClass);
+        if (found) {
+          this.classDetails = found;
+        }
+        this.loadingClass = false;
         this.cdr.detectChanges();
       });
   }

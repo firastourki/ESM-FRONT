@@ -7,37 +7,6 @@
   flex-direction: column;
 }
 
-/* ── Topbar ──────────────────────────────────────────────────────────────── */
-.sh-topbar {
-  height: 60px;
-  background: #111827;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 32px;
-  flex-shrink: 0;
-}
-
-.sh-logo-img {
-  height: 36px;
-  width: auto;
-}
-
-.sh-logout-btn {
-  background: #ef4444;
-  color: white;
-  border: none;
-  padding: 8px 18px;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-  .sh-logout-btn:hover {
-    background: #dc2626;
-  }
 
 /* ── Alerts ──────────────────────────────────────────────────────────────── */
 .sh-alerts {
@@ -157,6 +126,24 @@
   font-size: 0.95rem;
 }
 
+.sh-class-info {
+  margin-top: 12px;
+  background: rgba(129, 140, 248, 0.1);
+  border: 1px solid rgba(129, 140, 248, 0.3);
+  color: #a5b4fc;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sh-class-info strong {
+  color: white;
+  font-weight: 700;
+}
+
 .sh-highlight {
   color: #818cf8;
 }
@@ -171,10 +158,10 @@
   font-weight: 600;
 }
 
-/* ── 4 Cards ─────────────────────────────────────────────────────────────── */
+/* ── 5 Cards ─────────────────────────────────────────────────────────────── */
 .sh-cards {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 20px;
   padding: 28px 40px 0;
   flex-shrink: 0;
@@ -183,7 +170,7 @@
 .sh-card {
   background: white;
   border-radius: 14px;
-  padding: 24px 20px;
+  padding: 20px 16px;
   cursor: pointer;
   border: 2px solid transparent;
   box-shadow: 0 2px 10px rgba(0,0,0,0.06);
@@ -203,6 +190,10 @@
     transform: translateY(-2px);
   }
 
+.sh-card-orange {
+  border-top: 4px solid #f97316;
+}
+
 .sh-card-gold {
   border-top: 4px solid #f59e0b;
 }
@@ -217,6 +208,11 @@
 
 .sh-card-green {
   border-top: 4px solid #10b981;
+}
+
+.sh-card-orange.active {
+  border-color: #f97316;
+  background: #fff7ed;
 }
 
 .sh-card-gold.active {
@@ -702,6 +698,165 @@
     cursor: not-allowed;
   }
 
+/* ── My Class Panel ───────────────────────────────────────────────────────── */
+.sh-class-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  background: #f8fafc;
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 24px;
+}
+
+.sh-class-main {
+  flex: 1;
+}
+
+.sh-class-main h3 {
+  margin: 0 0 12px;
+  font-size: 1.4rem;
+  color: #1e293b;
+}
+
+.sh-class-tags {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.sh-class-desc {
+  font-size: 0.9rem;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.sh-tutor-card {
+  width: 260px;
+  background: white;
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.sh-tutor-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #94a3b8;
+  margin-bottom: 12px;
+  letter-spacing: 0.05em;
+}
+
+.sh-tutor-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sh-tutor-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #1e293b;
+}
+
+.sh-tutor-email {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.sh-classmates-section {
+  margin-top: 32px;
+}
+
+.sh-section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.count-badge {
+  font-size: 0.75rem;
+  background: #f1f5f9;
+  padding: 2px 10px;
+  border-radius: 99px;
+  color: #64748b;
+}
+
+.sh-classmates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.sh-classmate-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  background: white;
+  border: 1px solid #f1f5f9;
+  border-radius: 10px;
+  transition: all 0.2s;
+}
+
+.sh-classmate-item:hover {
+  border-color: #e2e8f0;
+  background: #f8fafc;
+}
+
+.sh-classmate-item.sh-is-me {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.sh-classmate-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #334155;
+  display: flex;
+  flex-direction: column;
+}
+
+.sh-av-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.sh-class-actions {
+  margin-top: 32px;
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 20px;
+}
+
+.sh-btn-action {
+  background: white;
+  color: #1e293b;
+  border: 1px solid #e2e8f0;
+  padding: 10px 20px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+
+.sh-btn-action:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
 /* ── Badges ──────────────────────────────────────────────────────────────── */
 .badge {
   display: inline-block;
@@ -768,9 +923,23 @@
 }
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 1200px) {
+  .sh-cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 1024px) {
   .sh-cards {
     grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .sh-class-header {
+    flex-direction: column;
+  }
+  
+  .sh-tutor-card {
+    width: 100%;
   }
 }
 

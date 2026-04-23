@@ -1,23 +1,52 @@
 <div class="student-shell">
   <aside class="sidebar">
-    <div class="logo">&#127891; Student</div>
+    <div class="sidebar-logo">
+      <img src="assets/images/logo.png" alt="Fluencity" class="logo-img"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='block'" />
+      <span class="logo-fallback">Fluencity</span>
+    </div>
+
     <nav>
-      <a routerLink="/student/home"        routerLinkActive="active">&#127968; Dashboard</a>
-      <a routerLink="/student/courses"     routerLinkActive="active">&#128218; My Courses</a>
-      <a routerLink="/student/attendance"  routerLinkActive="active">&#9989; Attendance</a>
-      <a routerLink="/student/grades"      routerLinkActive="active">&#127942; My Grades</a>
-      <a routerLink="/student/assessments" routerLinkActive="active">&#128221; Assessments</a>
-      <a routerLink="/student/leaderboard" routerLinkActive="active">&#129351; Leaderboard</a>
-      <a routerLink="/student/schedule"      routerLinkActive="active">&#128197; Schedule</a>
-      <a routerLink="/student/certificates" routerLinkActive="active">&#127942; Certificates</a>
-      <a routerLink="/student/profile"      routerLinkActive="active">&#128100; My Profile</a>
+      <a routerLink="/student/home"         routerLinkActive="active">
+        <mat-icon>home</mat-icon><span>Dashboard</span>
+      </a>
+      <a routerLink="/student/courses"      routerLinkActive="active">
+        <mat-icon>menu_book</mat-icon><span>My Courses</span>
+      </a>
+      <a routerLink="/student/attendance"   routerLinkActive="active">
+        <mat-icon>fact_check</mat-icon><span>Attendance</span>
+      </a>
+      <a routerLink="/student/grades"       routerLinkActive="active">
+        <mat-icon>grade</mat-icon><span>My Grades</span>
+      </a>
+      <a routerLink="/student/assessments"  routerLinkActive="active">
+        <mat-icon>assignment</mat-icon><span>Assessments</span>
+      </a>
+      <a routerLink="/student/leaderboard"  routerLinkActive="active">
+        <mat-icon>leaderboard</mat-icon><span>Leaderboard</span>
+      </a>
+      <a routerLink="/student/schedule"     routerLinkActive="active">
+        <mat-icon>calendar_month</mat-icon><span>Schedule</span>
+      </a>
+      <a routerLink="/student/certificates" routerLinkActive="active">
+        <mat-icon>workspace_premium</mat-icon><span>Certificates</span>
+      </a>
+      <a routerLink="/student/profile"      routerLinkActive="active">
+        <mat-icon>manage_accounts</mat-icon><span>My Profile</span>
+      </a>
     </nav>
-    <button class="logout-btn" (click)="logout()">&#128682; Sign Out</button>
+
+    <button class="logout-btn" (click)="logout()">
+      <mat-icon>logout</mat-icon><span>Sign Out</span>
+    </button>
   </aside>
+
   <div class="main">
-    <header class="header">
-      <span>Student Portal</span>
-      <a routerLink="/student/profile" style="color:#374151;text-decoration:none;font-size:0.875rem;">&#128100; {{ userName }}</a>
+    <header class="topbar">
+      <span class="portal-title">Student Portal</span>
+      <a routerLink="/student/profile" class="user-pill">
+        <mat-icon>account_circle</mat-icon><span>{{ userName }}</span>
+      </a>
     </header>
     <main class="content">
       <router-outlet></router-outlet>

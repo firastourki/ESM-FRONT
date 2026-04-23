@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
 import { catchError, of } from 'rxjs';
@@ -8,7 +8,7 @@ import { catchError, of } from 'rxjs';
 @Component({
   selector: 'app-tutor-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatIconModule],
   templateUrl: './tutor-layout.html',
   styleUrls: ['./tutor-layout.css']
 })

@@ -1,19 +1,40 @@
 <div class="parent-shell">
   <aside class="sidebar">
-    <div class="logo">&#128106; Parent</div>
+    <div class="sidebar-logo">
+      <img src="assets/images/logo.png" alt="Fluencity" class="logo-img"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='block'" />
+      <span class="logo-fallback">Fluencity</span>
+    </div>
+
     <nav>
-      <a routerLink="/parent/dashboard" routerLinkActive="active">&#127968; Dashboard</a>
-      <a routerLink="/parent/grades"    routerLinkActive="active">&#127942; Child Grades</a>
-      <a routerLink="/parent/planning"  routerLinkActive="active">&#128197; Planning</a>
-      <a routerLink="/parent/payments"  routerLinkActive="active">&#128179; Payments</a>
-      <a routerLink="/parent/profile"   routerLinkActive="active">&#128100; My Profile</a>
+      <a routerLink="/parent/dashboard" routerLinkActive="active">
+        <mat-icon>home</mat-icon><span>Dashboard</span>
+      </a>
+      <a routerLink="/parent/grades"    routerLinkActive="active">
+        <mat-icon>grade</mat-icon><span>Child Grades</span>
+      </a>
+      <a routerLink="/parent/planning"  routerLinkActive="active">
+        <mat-icon>event_note</mat-icon><span>Planning</span>
+      </a>
+      <a routerLink="/parent/payments"  routerLinkActive="active">
+        <mat-icon>payments</mat-icon><span>Payments</span>
+      </a>
+      <a routerLink="/parent/profile"   routerLinkActive="active">
+        <mat-icon>manage_accounts</mat-icon><span>My Profile</span>
+      </a>
     </nav>
-    <button class="logout-btn" (click)="logout()">&#128682; Sign Out</button>
+
+    <button class="logout-btn" (click)="logout()">
+      <mat-icon>logout</mat-icon><span>Sign Out</span>
+    </button>
   </aside>
+
   <div class="main">
-    <header class="header">
-      <span>Parent Portal</span>
-      <a routerLink="/parent/profile" style="color:#374151;text-decoration:none;font-size:0.875rem;">&#128100; {{ userName }}</a>
+    <header class="topbar">
+      <span class="portal-title">Parent Portal</span>
+      <a routerLink="/parent/profile" class="user-pill">
+        <mat-icon>account_circle</mat-icon><span>{{ userName }}</span>
+      </a>
     </header>
     <main class="content">
       <router-outlet></router-outlet>

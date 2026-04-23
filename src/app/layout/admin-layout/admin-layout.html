@@ -1,48 +1,85 @@
-<div class="admin-container">
+<div class="admin-shell">
   <aside class="sidebar">
-    <div class="logo">
-      <img src="assets/images/logo.png" alt="Fluencity" class="sidebar-logo" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" />
-      <span style="display:none;font-size:1.1rem;font-weight:800;color:white;">&#127891; Fluencity</span>
+    <div class="sidebar-logo">
+      <img src="assets/images/logo.png" alt="Fluencity" class="logo-img"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='block'" />
+      <span class="logo-fallback">Fluencity</span>
     </div>
 
     <nav>
       <span class="nav-section">Overview</span>
-      <a routerLink="/backoffice/dashboard"  routerLinkActive="active">📊 Dashboard</a>
+      <a routerLink="/backoffice/dashboard"  routerLinkActive="active">
+        <mat-icon>dashboard</mat-icon><span>Dashboard</span>
+      </a>
 
       <span class="nav-section">Academics</span>
-      <a routerLink="/backoffice/assessments" routerLinkActive="active">📋 Assessments</a>
-      <a routerLink="/backoffice/grades"      routerLinkActive="active">🏆 Grades</a>
-      <a routerLink="/backoffice/leaderboard" routerLinkActive="active">🥇 Leaderboard</a>
-      <a routerLink="/backoffice/resources"   routerLinkActive="active">📚 Resources</a>
-      <a routerLink="/backoffice/planning"    routerLinkActive="active">📅 Planning</a>
+      <a routerLink="/backoffice/assessments" routerLinkActive="active">
+        <mat-icon>assignment</mat-icon><span>Assessments</span>
+      </a>
+      <a routerLink="/backoffice/grades" routerLinkActive="active">
+        <mat-icon>grade</mat-icon><span>Grades</span>
+      </a>
+      <a routerLink="/backoffice/leaderboard" routerLinkActive="active">
+        <mat-icon>leaderboard</mat-icon><span>Leaderboard</span>
+      </a>
+      <a routerLink="/backoffice/resources" routerLinkActive="active">
+        <mat-icon>library_books</mat-icon><span>Resources</span>
+      </a>
+      <a routerLink="/backoffice/planning" routerLinkActive="active">
+        <mat-icon>event_note</mat-icon><span>Planning</span>
+      </a>
 
       <span class="nav-section">Operations</span>
-      <a routerLink="/backoffice/courses"    routerLinkActive="active">📖 Courses</a>
-      <a routerLink="/backoffice/enrollment" routerLinkActive="active">📝 Enrollment</a>
-      <a routerLink="/backoffice/attendance" routerLinkActive="active">✅ Attendance</a>
-      <a routerLink="/backoffice/schedule"   routerLinkActive="active">📆 Schedule</a>
+      <a routerLink="/backoffice/courses" routerLinkActive="active">
+        <mat-icon>menu_book</mat-icon><span>Courses</span>
+      </a>
+      <a routerLink="/backoffice/enrollment" routerLinkActive="active">
+        <mat-icon>how_to_reg</mat-icon><span>Enrollment</span>
+      </a>
+      <a routerLink="/backoffice/attendance" routerLinkActive="active">
+        <mat-icon>fact_check</mat-icon><span>Attendance</span>
+      </a>
+      <a routerLink="/backoffice/schedule" routerLinkActive="active">
+        <mat-icon>calendar_month</mat-icon><span>Schedule</span>
+      </a>
 
       <span class="nav-section">Finance & Reports</span>
-      <a routerLink="/backoffice/payments" routerLinkActive="active">💳 Payments</a>
-      <a routerLink="/backoffice/reports"  routerLinkActive="active">📊 Reports</a>
+      <a routerLink="/backoffice/payments" routerLinkActive="active">
+        <mat-icon>payments</mat-icon><span>Payments</span>
+      </a>
+      <a routerLink="/backoffice/reports" routerLinkActive="active">
+        <mat-icon>analytics</mat-icon><span>Reports</span>
+      </a>
 
       <span class="nav-section">Administration</span>
-      <a routerLink="/backoffice/users"   routerLinkActive="active">👥 Users</a>
-      <a routerLink="/backoffice/classes" routerLinkActive="active">🏫 Classes</a>
-      <a routerLink="/backoffice/parents" routerLinkActive="active">👨‍👩‍👧 Parents</a>
-      <a routerLink="/backoffice/profile" routerLinkActive="active">👤 My Profile</a>
+      <a routerLink="/backoffice/users" routerLinkActive="active">
+        <mat-icon>people</mat-icon><span>Users</span>
+      </a>
+      <a routerLink="/backoffice/classes" routerLinkActive="active">
+        <mat-icon>school</mat-icon><span>Classes</span>
+      </a>
+      <a routerLink="/backoffice/parents" routerLinkActive="active">
+        <mat-icon>family_restroom</mat-icon><span>Parents</span>
+      </a>
+      <a routerLink="/backoffice/profile" routerLinkActive="active">
+        <mat-icon>manage_accounts</mat-icon><span>My Profile</span>
+      </a>
     </nav>
 
-    <button class="logout-btn" (click)="logout()">🚪 Sign Out</button>
+    <button class="logout-btn" (click)="logout()">
+      <mat-icon>logout</mat-icon><span>Sign Out</span>
+    </button>
   </aside>
 
-  <div class="main-content">
-    <header class="header">
-      <div class="title">Admin Panel</div>
-      <a routerLink="/backoffice/profile" class="header-profile">👤 {{ userName }}</a>
+  <div class="main">
+    <header class="topbar">
+      <span class="portal-title">Admin Panel</span>
+      <a routerLink="/backoffice/profile" class="user-pill">
+        <mat-icon>account_circle</mat-icon><span>{{ userName }}</span>
+      </a>
     </header>
-    <div class="content">
+    <main class="content">
       <router-outlet></router-outlet>
-    </div>
+    </main>
   </div>
 </div>

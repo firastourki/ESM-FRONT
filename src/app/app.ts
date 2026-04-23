@@ -21,7 +21,7 @@ export class App {
 
   get hideShell(): boolean {
     const url = this.router.url.split('?')[0];
-    const authRoutes = ['backoffice', 'student', 'parent', 'signin', 'signup',
+    const authRoutes = ['backoffice', 'tutor', 'student', 'parent', 'signin', 'signup',
       'verify-email', 'forgot-password', 'reset-password'];
     return authRoutes.some(r => url.includes(r));
   }

@@ -1,13 +1,11 @@
 import { Component } from '@angular/core';
-import { NgIconComponent, provideIcons } from '@ng-icons/core';
-import { bootstrapCheck } from '@ng-icons/bootstrap-icons';
+import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-content',
   standalone: true,
-  imports: [NgIconComponent, RouterLink],
-  providers: [provideIcons({ bootstrapCheck })],
+  imports: [MatIconModule, RouterLink],
   templateUrl: './content.html',
   styleUrl: './content.css'
 })

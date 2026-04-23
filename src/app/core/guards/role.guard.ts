@@ -33,10 +33,10 @@ export const roleGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
 
     if (!allowedRoles.includes(decoded.role)) {
       const roleRoutes: Record<string, string> = {
-        ADMIN: '/admin',
-        TUTOR: '/backoffice',
-        STUDENT: '/student',
-        PARENT: '/parent'
+        ADMIN: '/backoffice/dashboard',
+        TUTOR: '/tutor/dashboard',
+        STUDENT: '/student/home',
+        PARENT: '/parent/dashboard'
       };
       const userDashboard = roleRoutes[decoded.role] || '/';
       return router.createUrlTree([userDashboard]);

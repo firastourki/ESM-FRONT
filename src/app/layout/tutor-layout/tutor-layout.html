@@ -1,19 +1,40 @@
-<div class="student-shell">
+<div class="tutor-shell">
   <aside class="sidebar">
-    <div class="logo">🎓 Tutor</div>
+    <div class="sidebar-logo">
+      <img src="assets/images/logo.png" alt="Fluencity" class="logo-img"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='block'" />
+      <span class="logo-fallback">Fluencity</span>
+    </div>
+
     <nav>
-      <a routerLink="/tutor/dashboard"  routerLinkActive="active">🏠 Dashboard</a>
-      <a routerLink="/tutor/grades"     routerLinkActive="active">🏆 Grades</a>
-      <a routerLink="/tutor/resources"  routerLinkActive="active">📚 Resources</a>
-      <a routerLink="/tutor/reports"    routerLinkActive="active">📊 Reports</a>
-      <a routerLink="/tutor/profile"    routerLinkActive="active">👤 My Profile</a>
+      <a routerLink="/tutor/dashboard"  routerLinkActive="active">
+        <mat-icon>home</mat-icon><span>Dashboard</span>
+      </a>
+      <a routerLink="/tutor/grades"     routerLinkActive="active">
+        <mat-icon>grade</mat-icon><span>Grades</span>
+      </a>
+      <a routerLink="/tutor/resources"  routerLinkActive="active">
+        <mat-icon>library_books</mat-icon><span>Resources</span>
+      </a>
+      <a routerLink="/tutor/reports"    routerLinkActive="active">
+        <mat-icon>analytics</mat-icon><span>Reports</span>
+      </a>
+      <a routerLink="/tutor/profile"    routerLinkActive="active">
+        <mat-icon>manage_accounts</mat-icon><span>My Profile</span>
+      </a>
     </nav>
-    <button class="logout-btn" (click)="logout()">🚪 Sign Out</button>
+
+    <button class="logout-btn" (click)="logout()">
+      <mat-icon>logout</mat-icon><span>Sign Out</span>
+    </button>
   </aside>
+
   <div class="main">
-    <header class="header">
-      <span>Tutor Portal</span>
-      <a routerLink="/tutor/profile" style="color:#374151;text-decoration:none;font-size:0.875rem;">👤 {{ userName }}</a>
+    <header class="topbar">
+      <span class="portal-title">Tutor Portal</span>
+      <a routerLink="/tutor/profile" class="user-pill">
+        <mat-icon>account_circle</mat-icon><span>{{ userName }}</span>
+      </a>
     </header>
     <main class="content">
       <router-outlet></router-outlet>
