@@ -1,0 +1,100 @@
+<div style="padding:0;">
+
+  <!-- Header -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
+    <div>
+      <h1 style="font-size:1.5rem;font-weight:700;color:#1e293b;margin:0;">My Assessments</h1>
+      @if (className) {
+        <p style="font-size:0.875rem;color:#64748b;margin:4px 0 0;">Class: <strong>{{ className }}</strong></p>
+      }
+    </div>
+    <!-- Status filter -->
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+      @for (s of ['ALL','PUBLISHED','DRAFT','CLOSED']; track s) {
+        <button (click)="filterStatus = s"
+          style="padding:6px 14px;border-radius:99px;font-size:0.75rem;font-weight:700;border:1.5px solid;cursor:pointer;transition:0.2s;"
+          [style.background]="filterStatus === s ? '#6366f1' : 'white'"
+          [style.color]="filterStatus === s ? 'white' : '#64748b'"
+          [style.borderColor]="filterStatus === s ? '#6366f1' : '#e2e8f0'">
+          {{ s === 'ALL' ? 'All' : s }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Loading -->
+  @if (loading) {
+    <div style="text-align:center;padding:4rem;color:#64748b;">
+      <div style="width:36px;height:36px;border:4px solid #e2e8f0;border-top-color:#6366f1;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 1rem;"></div>
+      Loading assessments…
+    </div>
+  }
+
+  <!-- Empty -->
+  @if (!loading && filtered.length === 0) {
+    <div style="text-align:center;padding:4rem;color:#94a3b8;">
+      <div style="font-size:3rem;margin-bottom:1rem;">📭</div>
+      <div>No assessments found.</div>
+    </div>
+  }
+
+  <!-- Assessment cards -->
+  @if (!loading && filtered.length > 0) {
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      @for (a of filtered; track a.id) {
+        <div style="background:white;border-radius:14px;padding:1.5rem;border:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:flex-start;gap:1.5rem;flex-wrap:wrap;">
+
+          <!-- Left: info -->
+          <div style="flex:1;min-width:200px;">
+            <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;flex-wrap:wrap;">
+              <span style="font-size:1rem;font-weight:700;color:#1e293b;">{{ a.title }}</span>
+              <!-- Type badge -->
+              <span style="padding:3px 10px;border-radius:99px;font-size:0.7rem;font-weight:700;"
+                    [style.background]="typeBg(a.type)"
+                    [style.color]="typeColor(a.type)">
+                {{ a.type }}
+              </span>
+            </div>
+            <div style="font-size:0.8rem;color:#64748b;margin-bottom:0.75rem;">
+              📚 {{ a.courseName }}
+              @if (a.className) { <span style="margin-left:0.5rem;">🎓 {{ a.className }}</span> }
+            </div>
+            <!-- Dates & duration -->
+            <div style="display:flex;gap:1.5rem;flex-wrap:wrap;">
+              @if (a.startDate) {
+                <div style="font-size:0.75rem;color:#64748b;">
+                  <span style="font-weight:600;color:#374151;">Start:</span>
+                  {{ a.startDate | date:'dd/MM/yyyy HH:mm' }}
+                </div>
+              }
+              @if (a.endDate) {
+                <div style="font-size:0.75rem;color:#64748b;">
+                  <span style="font-weight:600;color:#374151;">End:</span>
+                  {{ a.endDate | date:'dd/MM/yyyy HH:mm' }}
+                </div>
+              }
+              @if (a.duration) {
+                <div style="font-size:0.75rem;color:#64748b;">
+                  ⏱ <span style="font-weight:600;color:#374151;">{{ a.duration }} min</span>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Right: status badge -->
+          <span style="padding:5px 14px;border-radius:99px;font-size:0.75rem;font-weight:700;white-space:nowrap;flex-shrink:0;"
+                [style.background]="statusBg(a.status)"
+                [style.color]="statusColor(a.status)">
+            {{ a.status }}
+          </span>
+
+        </div>
+      }
+    </div>
+  }
+
+</div>
+
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>

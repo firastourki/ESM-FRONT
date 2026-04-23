@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  private attendanceApi = 'http://localhost:8080/api/attendances';
-  private scheduleApi = 'http://localhost:8080/api/schedules';
+  private attendanceApi = `${environment.apiUrl}/api/attendances`;
+  private scheduleApi = `${environment.apiUrl}/api/schedules`;
 
   constructor(private http: HttpClient) {}
 

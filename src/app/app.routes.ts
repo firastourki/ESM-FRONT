@@ -3,9 +3,13 @@ import { Content } from './content/content';
 import { Signin } from './pages/signin/signin';
 import { Signup } from './pages/signup/signup';
 import { VerifyEmail } from './pages/verify-email/verify-email';
+import { ForgotPassword } from './pages/forgot-password/forgot-password';
+import { ResetPassword } from './pages/reset-password/reset-password';
+import { Profile } from './pages/profile/profile';
 import { AdminLayout } from './layout/admin-layout/admin-layout';
 import { StudentLayout } from './layout/student-layout/student-layout';
 import { ParentLayout } from './layout/parent-layout/parent-layout';
+import { TutorLayout } from './layout/tutor-layout/tutor-layout';
 import { Backoffice } from './pages/backoffice/backoffice';
 import { Dashboard } from './pages/dashboard/dashboard';
 import { Resources } from './pages/resources/resources';
@@ -32,12 +36,16 @@ import { Payments } from './pages/payments/payments';
 
 // ── AKREM ─────────────────────────────────────────────────────────────────────
 import { AdminUsers } from './pages/users/users';
+import { AdminClasses } from './pages/admin-classes/admin-classes';
+import { AdminParents } from './pages/admin-parents/admin-parents';
+import { TutorDashboard } from './pages/tutor-dashboard/tutor-dashboard';
 
 // ── Student pages ─────────────────────────────────────────────────────────────
 import { StudentCoursesPage } from './pages/student/student-courses/student-courses';
 import { StudentAttendancePage } from './pages/student/student-attendance/student-attendance';
 import { StudentAssessmentsPage } from './pages/student/student-assessments/student-assessments';
 import { StudentSchedulePage } from './pages/student/student-schedule/student-schedule';
+import { StudentCertificatesPage } from './pages/student/student-certificates/student-certificates';
 
 // ── Parent pages ──────────────────────────────────────────────────────────────
 import { ParentDashboard } from './pages/parent/parent-dashboard/parent-dashboard';
@@ -50,7 +58,10 @@ export const routes: Routes = [
   { path: 'signin', component: Signin },
   { path: 'signup', component: Signup },
   { path: 'verify-email', component: VerifyEmail },
+  { path: 'forgot-password', component: ForgotPassword },
+  { path: 'reset-password', component: ResetPassword },
   { path: 'course/:id', component: CourseDetailComponent },
+  
 
   // ── Admin ──────────────────────────────────────────────────────────────────
   {
@@ -75,6 +86,23 @@ export const routes: Routes = [
       { path: 'reports', component: Reports },
       { path: 'payments', component: Payments },
       { path: 'users', component: AdminUsers },
+      { path: 'classes', component: AdminClasses },
+      { path: 'parents', component: AdminParents },
+      { path: 'profile', component: Profile },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+    ]
+  },
+
+  // ── Tutor ──────────────────────────────────────────────────────────────────
+  {
+    path: 'tutor',
+    component: TutorLayout,
+    children: [
+      { path: 'dashboard', component: TutorDashboard },
+      { path: 'grades', component: GradesComponent },
+      { path: 'resources', component: Resources },
+      { path: 'reports', component: Reports },
+      { path: 'profile', component: Profile },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },
@@ -91,6 +119,8 @@ export const routes: Routes = [
       { path: 'assessments', component: StudentAssessmentsPage },
       { path: 'leaderboard', component: LeaderboardComponent },
       { path: 'schedule', component: StudentSchedulePage },
+      { path: 'certificates', component: StudentCertificatesPage },
+      { path: 'profile', component: Profile },
       { path: '', redirectTo: 'home', pathMatch: 'full' }
     ]
   },
@@ -104,6 +134,7 @@ export const routes: Routes = [
       { path: 'grades', component: ParentGradesPage },
       { path: 'planning', component: ParentPlanningPage },
       { path: 'payments', component: ParentPaymentsPage },
+      { path: 'profile', component: Profile },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },

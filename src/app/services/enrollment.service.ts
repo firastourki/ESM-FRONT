@@ -7,6 +7,7 @@ import { environment } from '../../environments/environment';
 export interface Enrollment {
   id?: number;
   userId?: number;
+  userUuid?: string;
   studentName?: string;
   courseId: number;
   status?: string;
@@ -19,10 +20,7 @@ export interface Enrollment {
   providedIn: 'root'
 })
 export class EnrollmentService {
-  // Proxy rewrites /enrollment-api -> /api, so use /v1 to get /api/v1 on backend
-  private readonly apiUrl = environment.enrollmentApiUrl
-    ? `${environment.enrollmentApiUrl}/v1/enrollments`
-    : '/enrollment-api/v1/enrollments';
+  private readonly apiUrl = `${environment.apiUrl}/api/v1/enrollments`;
 
   constructor(private http: HttpClient) {}
 
@@ -30,16 +28,15 @@ export class EnrollmentService {
     return this.http.get<Enrollment[]>(this.apiUrl);
   }
 
-  /** Count of enrollments per courseId (for display). Call getEnrollments and aggregate client-side. */
   getEnrollmentCountByCourse(): Observable<Map<number, number>> {
     return this.http.get<Enrollment[]>(this.apiUrl).pipe(
       map(list => {
-        const map = new Map<number, number>();
+        const countMap = new Map<number, number>();
         (list || []).forEach(e => {
           const cid = e.courseId;
-          map.set(cid, (map.get(cid) || 0) + 1);
+          countMap.set(cid, (countMap.get(cid) || 0) + 1);
         });
-        return map;
+        return countMap;
       })
     );
   }
@@ -52,7 +49,15 @@ export class EnrollmentService {
     return this.http.post<Enrollment>(this.apiUrl, enrollment);
   }
 
-  getEnrollmentsByUser(userId: number): Observable<Enrollment[]> {
+  getMyCourses(userId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/user/${userId}/my-courses`);
+  }
+
+  getEnrollmentHistory(userId: string): Observable<Enrollment[]> {
+    return this.http.get<Enrollment[]>(`${this.apiUrl}/user/${userId}/history`);
+  }
+
+  getEnrollmentsByUser(userId: string): Observable<Enrollment[]> {
     return this.http.get<Enrollment[]>(`${this.apiUrl}/user/${userId}`);
   }
 

@@ -1,7 +1,8 @@
 ﻿import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { catchError, of } from 'rxjs';
+import { catchError, of, switchMap } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-student-attendance',
@@ -55,10 +56,21 @@ export class StudentAttendancePage implements OnInit {
   records: any[] = [];
   loading = true;
   present = 0; absent = 0; late = 0; total = 0;
-  private api = 'http://localhost:8080';
+  private api = environment.apiUrl;
   constructor(private http: HttpClient) {}
+
   ngOnInit() {
-    this.http.get<any[]>(this.api + '/api/attendances').pipe(catchError(() => of([]))).subscribe((d: any) => {
+    this.http.get<any>(`${this.api}/api/users/me`).pipe(
+      catchError(() => of(null)),
+      switchMap(profile => {
+        if (profile?.email) {
+          return this.http.get<any[]>(`${this.api}/api/attendances/student/${encodeURIComponent(profile.email)}`).pipe(
+            catchError(() => this.http.get<any[]>(`${this.api}/api/attendances`).pipe(catchError(() => of([]))))
+          );
+        }
+        return this.http.get<any[]>(`${this.api}/api/attendances`).pipe(catchError(() => of([])));
+      })
+    ).subscribe((d: any) => {
       this.records = d || [];
       this.total = this.records.length;
       this.present = this.records.filter((r: any) => r.status === 'PRESENT').length;

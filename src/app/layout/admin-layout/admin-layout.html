@@ -1,16 +1,45 @@
 <div class="admin-container">
   <aside class="sidebar">
     <div class="logo">
-      <img src="assets/images/logo.png" alt="Fluencity" class="sidebar-logo" />
+      <img src="assets/images/logo.png" alt="Fluencity" class="sidebar-logo" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" />
+      <span style="display:none;font-size:1.1rem;font-weight:800;color:white;">&#127891; Fluencity</span>
     </div>
+
     <nav>
-      <a routerLink="/backoffice/dashboard" routerLinkActive="active">📊 Dashboard</a>
+      <span class="nav-section">Overview</span>
+      <a routerLink="/backoffice/dashboard"  routerLinkActive="active">📊 Dashboard</a>
+
+      <span class="nav-section">Academics</span>
+      <a routerLink="/backoffice/assessments" routerLinkActive="active">📋 Assessments</a>
+      <a routerLink="/backoffice/grades"      routerLinkActive="active">🏆 Grades</a>
+      <a routerLink="/backoffice/leaderboard" routerLinkActive="active">🥇 Leaderboard</a>
+      <a routerLink="/backoffice/resources"   routerLinkActive="active">📚 Resources</a>
+      <a routerLink="/backoffice/planning"    routerLinkActive="active">📅 Planning</a>
+
+      <span class="nav-section">Operations</span>
+      <a routerLink="/backoffice/courses"    routerLinkActive="active">📖 Courses</a>
+      <a routerLink="/backoffice/enrollment" routerLinkActive="active">📝 Enrollment</a>
+      <a routerLink="/backoffice/attendance" routerLinkActive="active">✅ Attendance</a>
+      <a routerLink="/backoffice/schedule"   routerLinkActive="active">📆 Schedule</a>
+
+      <span class="nav-section">Finance & Reports</span>
+      <a routerLink="/backoffice/payments" routerLinkActive="active">💳 Payments</a>
+      <a routerLink="/backoffice/reports"  routerLinkActive="active">📊 Reports</a>
+
+      <span class="nav-section">Administration</span>
+      <a routerLink="/backoffice/users"   routerLinkActive="active">👥 Users</a>
+      <a routerLink="/backoffice/classes" routerLinkActive="active">🏫 Classes</a>
+      <a routerLink="/backoffice/parents" routerLinkActive="active">👨‍👩‍👧 Parents</a>
+      <a routerLink="/backoffice/profile" routerLinkActive="active">👤 My Profile</a>
     </nav>
+
+    <button class="logout-btn" (click)="logout()">🚪 Sign Out</button>
   </aside>
+
   <div class="main-content">
     <header class="header">
       <div class="title">Admin Panel</div>
-      <div class="user">👤 Admin</div>
+      <a routerLink="/backoffice/profile" class="header-profile">👤 {{ userName }}</a>
     </header>
     <div class="content">
       <router-outlet></router-outlet>

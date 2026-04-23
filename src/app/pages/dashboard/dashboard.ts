@@ -8,6 +8,7 @@ import { ResourcesService } from '../../services/resource.service';
 import { CourseService } from '../../services/course.service';
 import { forkJoin, of } from 'rxjs';
 import { catchError, retry } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
 
 interface ActivityItem {
   icon: string;
@@ -134,7 +135,7 @@ export class Dashboard implements OnInit {
   }
 
   loadClasses(): void {
-    this.http.get<StudentClass[]>('http://localhost:8080/api/classes')
+    this.http.get<StudentClass[]>(`${environment.apiUrl}/api/classes`)
       .pipe(catchError(() => of([])))
       .subscribe(data => {
         this.classes = data;
@@ -150,7 +151,7 @@ export class Dashboard implements OnInit {
   createClass(): void {
     if (!this.newClass.name.trim()) { this.classError = 'Class name is required.'; return; }
     this.classError = '';
-    this.http.post<StudentClass>('http://localhost:8080/api/classes', this.newClass)
+    this.http.post<StudentClass>(`${environment.apiUrl}/api/classes`, this.newClass)
       .subscribe({
         next: created => {
           this.classes = [...this.classes, created];
@@ -166,7 +167,7 @@ export class Dashboard implements OnInit {
   }
 
   deleteClass(id: number): void {
-    this.http.delete(`http://localhost:8080/api/classes/${id}`)
+    this.http.delete(`${environment.apiUrl}/api/classes/${id}`)
       .subscribe({
         next: () => {
           this.classes = this.classes.filter(c => c.id !== id);

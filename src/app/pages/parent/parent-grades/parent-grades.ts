@@ -2,6 +2,7 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { catchError, of } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-parent-grades',
@@ -44,10 +45,16 @@ import { catchError, of } from 'rxjs';
 export class ParentGradesPage implements OnInit {
   grades: any[] = [];
   loading = true;
-  private api = 'http://localhost:8080';
+  childEmail = '';
+  private api = environment.apiUrl;
   constructor(private http: HttpClient) {}
+
   ngOnInit() {
-    this.http.get<any[]>(this.api + '/api/grades').pipe(catchError(() => of([]))).subscribe((d: any) => {
+    this.childEmail = localStorage.getItem('parent_child_email') || '';
+    const url = this.childEmail
+      ? `${this.api}/api/grades/student/${encodeURIComponent(this.childEmail)}`
+      : `${this.api}/api/grades`;
+    this.http.get<any[]>(url).pipe(catchError(() => of([]))).subscribe((d: any) => {
       this.grades = d || [];
       this.loading = false;
     });

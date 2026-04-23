@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc *)",
+      "Bash(npx ng *)",
+      "Bash(node -e \"const p = require\\('./node_modules/@angular/ssr/package.json'\\); console.log\\(p.version\\)\")",
+      "Bash(node -e \"const a=require\\('./node_modules/@angular/ssr/dist/node/index.js'\\); console.log\\(typeof a.RenderMode, Object.keys\\(a\\).filter\\(k=>k.includes\\('Render'\\)\\)\\)\")",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); proj=list\\(d['projects'].values\\(\\)\\)[0]; build=proj['architect']['build']; print\\(json.dumps\\({k:build['options'].get\\(k\\) for k in ['server','serverRoutesConfig','ssr','prerender']}, indent=2\\)\\)\")",
+      "Bash(python -c ' *)"
+    ]
+  }
+}

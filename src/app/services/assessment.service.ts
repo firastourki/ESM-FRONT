@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface Assessment {
   id?: number;
@@ -17,8 +18,8 @@ export interface Assessment {
 @Injectable({ providedIn: 'root' })
 export class AssessmentService {
 
-  private assessmentsUrl = 'http://localhost:8080/api/assessments';
-  private enumsUrl = 'http://localhost:8080/api/enums';
+  private assessmentsUrl = `${environment.apiUrl}/api/assessments`;
+  private enumsUrl = `${environment.apiUrl}/api/enums`;
 
   constructor(private http: HttpClient) { }
 

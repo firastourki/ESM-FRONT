@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 
 interface Weather {
   temperature: number;
@@ -34,7 +35,7 @@ export class WeatherWidgetComponent implements OnInit {
 
   loadWeather(): void {
     this.loading = true;
-    this.http.get<Weather>(`http://localhost:8080/api/schedules/weather/${this.dayOfWeek}/${this.date}`)
+    this.http.get<Weather>(`${environment.apiUrl}/api/schedules/weather/${this.dayOfWeek}/${this.date}`)
       .subscribe({
         next: (data) => {
           this.weather = data;

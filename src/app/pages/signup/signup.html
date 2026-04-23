@@ -1,94 +1,180 @@
-<div class="min-h-screen">
+<div style="min-height:100vh;background:#f8fafc;display:flex;flex-direction:column;">
 
-  <div class="min-h-80 mb-12 flex items-center justify-center bg-violet-50 font-bold text-gray-800 relative">
-    <h1 class="text-4xl">Sign Up</h1>
-    <img src="assets\images\herobanner__1.png"  alt="" class="absolute -bottom-10 left-10 animate-bounce ">
-    <img src="assets\images\herobanner__2.png"  alt="" class="absolute -bottom-10 right-50 scale-50 lg:scale-150">
-    <img src="assets\images\herobanner__3.png"  alt="" class="absolute top-5 left-50">
+  <!-- Header -->
+  <div style="background:linear-gradient(135deg,#6366f1,#8b5cf6);padding:3rem 2rem;text-align:center;color:white;">
+    <div style="font-size:2rem;font-weight:800;margin-bottom:0.5rem;">&#127891; Fluencity</div>
+    <div style="font-size:1rem;opacity:0.9;">English School Management</div>
   </div>
 
-  <div class="w-full max-w-xl mx-auto p-12 bg-white flex flex-col items-center rounded shadow-sm">
-    <h2 class="text-2xl font-bold mb-6 text-center">Sign Up</h2>
+  <!-- Form -->
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:2rem;">
+    <div style="background:white;border-radius:16px;padding:2.5rem;width:100%;max-width:520px;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
 
-    <form class="space-y-6 container w-full">
-      
-      <div class="flex flex-col">
-        <label for="fullName" class="mb-2 text-sm font-medium text-gray-700">
-          Full Name
-        </label>
-        <input
-          id="fullName"
-          name="fullName"
-          type="text"
-          class="w-full border py-4 px-3 rounded border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary"
-        />
+      <h2 style="font-size:1.5rem;font-weight:700;color:#1e293b;margin-bottom:0.5rem;text-align:center;">Create an account</h2>
+      <p style="font-size:0.875rem;color:#64748b;text-align:center;margin-bottom:2rem;">Fill in your details to get started</p>
+
+      <!-- Error -->
+      @if (errorMessage) {
+      <div style="background:#fee2e2;color:#dc2626;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.25rem;font-size:0.875rem;">
+        &#9888; {{ errorMessage }}
       </div>
+      }
 
-      <div class="flex flex-col">
-        <label for="email" class="mb-2 text-sm font-medium text-gray-700">
-          Email Address
-        </label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          class="w-full border py-4 px-3 rounded border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary"
-        />
+      <!-- Success -->
+      @if (successMessage) {
+      <div style="background:#dcfce7;color:#15803d;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.25rem;font-size:0.875rem;">
+        &#10003; {{ successMessage }}
       </div>
+      }
 
-      <div class="flex flex-col">
-        <label for="password" class="mb-2 text-sm font-medium text-gray-700">
-          Password
-        </label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          class="w-full border py-4 px-3 rounded border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary"
-        />
-      </div>
+      <form (ngSubmit)="onSubmit()">
 
-      <div class="flex flex-col">
-        <label for="repeatPassword" class="mb-2 text-sm font-medium text-gray-700">
-          Repeat Password
-        </label>
-        <input
-          id="repeatPassword"
-          name="repeatPassword"
-          type="password"
-          class="w-full border py-4 px-3 rounded border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary"
-        />
-      </div>
-
-      <button
-        type="submit"
-        class="w-full bg-primary text-white py-4 rounded hover:opacity-90 transition"
-      >
-        Create Account
-      </button>
-
-      <!-- Secondary Links -->
-      <div class="flex flex-col items-center gap-3 pt-4 text-sm text-gray-600">
-
-        <div>
-          Already have an account?
-          <a routerLink="/signin" class="text-primary font-medium hover:underline">
-            Sign in
-          </a>
+        <!-- First Name + Last Name -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div>
+            <label style="display:block;font-size:0.875rem;font-weight:600;color:#374151;margin-bottom:0.5rem;">First Name</label>
+            <input
+              type="text"
+              name="firstName"
+              [(ngModel)]="firstName"
+              placeholder="John"
+              style="width:100%;border:1.5px solid #e2e8f0;border-radius:10px;padding:0.75rem 1rem;font-size:0.875rem;outline:none;box-sizing:border-box;"
+              (focus)="$event.target.style.borderColor='#6366f1'"
+              (blur)="$event.target.style.borderColor='#e2e8f0'"
+            />
+          </div>
+          <div>
+            <label style="display:block;font-size:0.875rem;font-weight:600;color:#374151;margin-bottom:0.5rem;">Last Name</label>
+            <input
+              type="text"
+              name="lastName"
+              [(ngModel)]="lastName"
+              placeholder="Doe"
+              style="width:100%;border:1.5px solid #e2e8f0;border-radius:10px;padding:0.75rem 1rem;font-size:0.875rem;outline:none;box-sizing:border-box;"
+              (focus)="$event.target.style.borderColor='#6366f1'"
+              (blur)="$event.target.style.borderColor='#e2e8f0'"
+            />
+          </div>
         </div>
 
-        <div class="flex gap-4">
-          <a routerLink="/forgot-password" class="hover:underline">
-            Forgot password?
-          </a>
-          <a routerLink="/support" class="hover:underline">
-            Need help?
-          </a>
+        <!-- Email -->
+        <div style="margin-bottom:1.25rem;">
+          <label style="display:block;font-size:0.875rem;font-weight:600;color:#374151;margin-bottom:0.5rem;">Email Address <span style="color:#dc2626;">*</span></label>
+          <input
+            type="email"
+            name="email"
+            [(ngModel)]="email"
+            required
+            placeholder="your@email.com"
+            style="width:100%;border:1.5px solid #e2e8f0;border-radius:10px;padding:0.875rem 1rem;font-size:0.875rem;outline:none;box-sizing:border-box;"
+            (focus)="$event.target.style.borderColor='#6366f1'"
+            (blur)="$event.target.style.borderColor='#e2e8f0'"
+          />
         </div>
 
+        <!-- CIN + Phone -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div>
+            <label style="display:block;font-size:0.875rem;font-weight:600;color:#374151;margin-bottom:0.5rem;">CIN</label>
+            <input
+              type="text"
+              name="cin"
+              [(ngModel)]="cin"
+              placeholder="12345678"
+              style="width:100%;border:1.5px solid #e2e8f0;border-radius:10px;padding:0.75rem 1rem;font-size:0.875rem;outline:none;box-sizing:border-box;"
+              (focus)="$event.target.style.borderColor='#6366f1'"
+              (blur)="$event.target.style.borderColor='#e2e8f0'"
+            />
+          </div>
+          <div>
+            <label style="display:block;font-size:0.875rem;font-weight:600;color:#374151;margin-bottom:0.5rem;">Phone Number</label>
+            <input
+              type="tel"
+              name="phoneNumber"
+              [(ngModel)]="phoneNumber"
+              placeholder="+216 XX XXX XXX"
+              style="width:100%;border:1.5px solid #e2e8f0;border-radius:10px;padding:0.75rem 1rem;font-size:0.875rem;outline:none;box-sizing:border-box;"
+              (focus)="$event.target.style.borderColor='#6366f1'"
+              (blur)="$event.target.style.borderColor='#e2e8f0'"
+            />
+          </div>
+        </div>
+
+        <!-- Address -->
+        <div style="margin-bottom:1.25rem;">
+          <label style="display:block;font-size:0.875rem;font-weight:600;color:#374151;margin-bottom:0.5rem;">Address</label>
+          <input
+            type="text"
+            name="address"
+            [(ngModel)]="address"
+            placeholder="123 Main St, Tunis"
+            style="width:100%;border:1.5px solid #e2e8f0;border-radius:10px;padding:0.875rem 1rem;font-size:0.875rem;outline:none;box-sizing:border-box;"
+            (focus)="$event.target.style.borderColor='#6366f1'"
+            (blur)="$event.target.style.borderColor='#e2e8f0'"
+          />
+        </div>
+
+        <!-- Role -->
+        <div style="margin-bottom:1.25rem;">
+          <label style="display:block;font-size:0.875rem;font-weight:600;color:#374151;margin-bottom:0.5rem;">I am a</label>
+          <select
+            name="role"
+            [(ngModel)]="role"
+            style="width:100%;border:1.5px solid #e2e8f0;border-radius:10px;padding:0.875rem 1rem;font-size:0.875rem;outline:none;box-sizing:border-box;background:white;color:#374151;"
+          >
+            <option value="STUDENT">Student</option>
+            <option value="PARENT">Parent</option>
+          </select>
+        </div>
+
+        <!-- Password -->
+        <div style="margin-bottom:1.25rem;">
+          <label style="display:block;font-size:0.875rem;font-weight:600;color:#374151;margin-bottom:0.5rem;">Password <span style="color:#dc2626;">*</span></label>
+          <input
+            type="password"
+            name="password"
+            [(ngModel)]="password"
+            required
+            placeholder="At least 6 characters"
+            style="width:100%;border:1.5px solid #e2e8f0;border-radius:10px;padding:0.875rem 1rem;font-size:0.875rem;outline:none;box-sizing:border-box;"
+            (focus)="$event.target.style.borderColor='#6366f1'"
+            (blur)="$event.target.style.borderColor='#e2e8f0'"
+          />
+        </div>
+
+        <!-- Repeat Password -->
+        <div style="margin-bottom:1.75rem;">
+          <label style="display:block;font-size:0.875rem;font-weight:600;color:#374151;margin-bottom:0.5rem;">Confirm Password <span style="color:#dc2626;">*</span></label>
+          <input
+            type="password"
+            name="repeatPassword"
+            [(ngModel)]="repeatPassword"
+            required
+            placeholder="Repeat your password"
+            style="width:100%;border:1.5px solid #e2e8f0;border-radius:10px;padding:0.875rem 1rem;font-size:0.875rem;outline:none;box-sizing:border-box;"
+            (focus)="$event.target.style.borderColor='#6366f1'"
+            (blur)="$event.target.style.borderColor='#e2e8f0'"
+          />
+        </div>
+
+        <!-- Submit -->
+        <button
+          type="submit"
+          [disabled]="isLoading"
+          style="width:100%;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;padding:0.875rem;border-radius:10px;font-size:1rem;font-weight:600;border:none;cursor:pointer;transition:opacity 0.2s;"
+          [style.opacity]="isLoading ? '0.7' : '1'"
+        >
+          {{ isLoading ? 'Creating account…' : 'Create Account' }}
+        </button>
+
+      </form>
+
+      <!-- Footer Links -->
+      <div style="text-align:center;margin-top:1.5rem;font-size:0.875rem;color:#64748b;">
+        Already have an account?
+        <a routerLink="/signin" style="color:#6366f1;font-weight:600;text-decoration:none;">Sign in</a>
       </div>
 
-    </form>
+    </div>
   </div>
-
 </div>

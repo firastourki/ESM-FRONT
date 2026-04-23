@@ -1,69 +1,147 @@
-﻿import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { catchError, of } from 'rxjs';
+import { catchError, of, switchMap } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-parent-payments',
   standalone: true,
-  imports: [CommonModule],
-  template: `
-    <div>
-      <h1 style="font-size:1.5rem;font-weight:700;color:#1e293b;margin-bottom:1.5rem;">Payments</h1>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem;">
-        <div style="background:white;border-radius:12px;padding:1.25rem;border:1px solid #e2e8f0;text-align:center;">
-          <div style="font-size:1.75rem;font-weight:800;color:#1e293b;">{{ total }}</div>
-          <div style="font-size:0.8rem;color:#64748b;">Total</div>
-        </div>
-        <div style="background:white;border-radius:12px;padding:1.25rem;border:1px solid #e2e8f0;text-align:center;">
-          <div style="font-size:1.75rem;font-weight:800;color:#22c55e;">{{ paid }}</div>
-          <div style="font-size:0.8rem;color:#64748b;">Paid</div>
-        </div>
-        <div style="background:white;border-radius:12px;padding:1.25rem;border:1px solid #e2e8f0;text-align:center;">
-          <div style="font-size:1.75rem;font-weight:800;color:#f59e0b;">{{ pending }}</div>
-          <div style="font-size:0.8rem;color:#64748b;">Pending</div>
-        </div>
-      </div>
-      <div style="background:white;border-radius:12px;border:1px solid #e2e8f0;overflow:hidden;">
-        <div *ngIf="loading" style="text-align:center;padding:3rem;">Loading...</div>
-        <table *ngIf="!loading && payments.length > 0" style="width:100%;border-collapse:collapse;">
-          <thead style="background:#f8fafc;"><tr>
-            <th style="padding:0.75rem 1rem;text-align:left;font-size:0.75rem;color:#64748b;">ID</th>
-            <th style="padding:0.75rem 1rem;text-align:left;font-size:0.75rem;color:#64748b;">Amount</th>
-            <th style="padding:0.75rem 1rem;text-align:left;font-size:0.75rem;color:#64748b;">Method</th>
-            <th style="padding:0.75rem 1rem;text-align:left;font-size:0.75rem;color:#64748b;">Status</th>
-          </tr></thead>
-          <tbody>
-            <tr *ngFor="let p of payments" style="border-top:1px solid #f1f5f9;">
-              <td style="padding:0.75rem 1rem;font-size:0.875rem;">#{{ p.paymentId }}</td>
-              <td style="padding:0.75rem 1rem;font-size:0.875rem;font-weight:600;">{{ p.amount }} TND</td>
-              <td style="padding:0.75rem 1rem;font-size:0.875rem;">{{ p.method }}</td>
-              <td style="padding:0.75rem 1rem;">
-                <span [style.background]="p.status==='PAID'?'#dcfce7':p.status==='PENDING'?'#fef3c7':'#fee2e2'"
-                      [style.color]="p.status==='PAID'?'#15803d':p.status==='PENDING'?'#b45309':'#dc2626'"
-                      style="padding:2px 10px;border-radius:99px;font-size:0.75rem;font-weight:700;">{{ p.status }}</span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <div *ngIf="!loading && payments.length === 0" style="text-align:center;padding:3rem;color:#94a3b8;">No payments.</div>
-      </div>
-    </div>
-  `
+  imports: [CommonModule, FormsModule],
+  templateUrl: './parent-payments.html'
 })
 export class ParentPaymentsPage implements OnInit {
   payments: any[] = [];
   loading = true;
-  total = 0; paid = 0; pending = 0;
-  private api = 'http://localhost:8080';
-  constructor(private http: HttpClient) {}
-  ngOnInit() {
-    this.http.get<any[]>(this.api + '/api/payments').pipe(catchError(() => of([]))).subscribe((d: any) => {
-      this.payments = d || [];
-      this.total = this.payments.length;
-      this.paid = this.payments.filter((p: any) => p.status === 'PAID').length;
-      this.pending = this.payments.filter((p: any) => p.status === 'PENDING').length;
+  showForm = false;
+  submitting = false;
+  successMessage = '';
+  errorMessage = '';
+
+  childEmail = '';
+  childId = '';
+  walletBalance = 0;
+  loadingWallet = false;
+
+  topupAmount: number | null = null;
+
+  private api = environment.apiUrl;
+
+  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
+
+  ngOnInit(): void {
+    this.childEmail = localStorage.getItem('parent_child_email') || '';
+    if (this.childEmail) {
+      this.resolveChildAndLoad();
+    } else {
       this.loading = false;
+      this.cdr.detectChanges();
+    }
+  }
+
+  resolveChildAndLoad(): void {
+    this.loadingWallet = true;
+    this.http.get<any>(`${this.api}/api/users?email=${encodeURIComponent(this.childEmail)}&size=1`).pipe(
+      catchError(() => of(null))
+    ).subscribe(page => {
+      const child = page?.content?.[0] || null;
+      if (child?.id) {
+        this.childId = child.id;
+        this.walletBalance = child.walletBalance ?? 0;
+        this.loadPayments(child.id);
+      } else {
+        this.loading = false;
+        this.loadingWallet = false;
+        this.errorMessage = 'Child not found. Please update the email in the dashboard.';
+      }
+      this.loadingWallet = false;
+      this.cdr.detectChanges();
     });
+  }
+
+  loadPayments(studentId: string): void {
+    this.loading = true;
+    this.http.get<any[]>(`${this.api}/api/payments/by-student/${studentId}`).pipe(
+      catchError(() => this.http.get<any[]>(`${this.api}/api/payments`).pipe(catchError(() => of([]))))
+    ).subscribe(data => {
+      this.payments = data || [];
+      this.loading = false;
+      this.cdr.detectChanges();
+    });
+  }
+
+  refreshWallet(): void {
+    if (!this.childId) return;
+    this.http.get<any>(`${this.api}/api/users/${this.childId}/wallet`).pipe(
+      catchError(() => of(null))
+    ).subscribe(w => {
+      if (w?.walletBalance !== undefined) {
+        this.walletBalance = w.walletBalance;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  openForm(): void {
+    this.topupAmount = null;
+    this.successMessage = '';
+    this.errorMessage = '';
+    this.showForm = true;
+    this.cdr.detectChanges();
+  }
+
+  closeForm(): void {
+    this.showForm = false;
+    this.cdr.detectChanges();
+  }
+
+  submitTopup(): void {
+    if (!this.topupAmount || this.topupAmount <= 0) {
+      this.errorMessage = 'Please enter a valid amount.';
+      this.cdr.detectChanges();
+      return;
+    }
+    if (!this.childId) {
+      this.errorMessage = 'Child account not found.';
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.submitting = true;
+    this.errorMessage = '';
+    this.cdr.detectChanges();
+
+    this.http.put<any>(`${this.api}/api/users/${this.childId}/wallet/topup`, { amount: this.topupAmount }).pipe(
+      catchError(err => {
+        this.submitting = false;
+        this.errorMessage = err?.error?.message || 'Top-up failed. Please try again.';
+        this.cdr.detectChanges();
+        return of(null);
+      })
+    ).subscribe(result => {
+      if (result !== null) {
+        this.walletBalance = result.walletBalance ?? this.walletBalance + (this.topupAmount ?? 0);
+        this.submitting = false;
+        this.showForm = false;
+        this.successMessage = `Successfully added ${this.topupAmount} TND to your child's wallet!`;
+        this.loadPayments(this.childId);
+        setTimeout(() => { this.successMessage = ''; this.cdr.detectChanges(); }, 4000);
+      }
+    });
+  }
+
+  get total(): number { return this.payments.length; }
+  get paid(): number { return this.payments.filter(p => p.status === 'PAID').length; }
+  get pending(): number { return this.payments.filter(p => p.status === 'PENDING').length; }
+  get totalAmount(): number {
+    return this.payments.filter(p => p.status === 'PAID').reduce((s, p) => s + (p.amount || 0), 0);
+  }
+
+  statusBg(s: string): string {
+    return s === 'PAID' ? '#dcfce7' : s === 'PENDING' ? '#fef3c7' : '#fee2e2';
+  }
+  statusColor(s: string): string {
+    return s === 'PAID' ? '#15803d' : s === 'PENDING' ? '#b45309' : '#dc2626';
   }
 }

@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { catchError, map } from 'rxjs';
 import { PlanningService } from '../../services/planning.service';
 import { AssessmentService, Assessment } from '../../services/assessment.service';
 
@@ -64,9 +65,11 @@ export class Planning implements OnInit {
 
   loadCalendar(): void {
     this.loading = true;
-    this.planningService.getCalendar(this.currentYear, this.currentMonth).subscribe({
+    this.planningService.getCalendar(this.currentYear, this.currentMonth).pipe(
+      catchError(() => this.assessmentService.getAll())
+    ).subscribe({
       next: data => {
-        this.calendarAssessments = data;
+        this.calendarAssessments = data || [];
         this.buildCalendar();
         this.loading = false;
         this.refresh();
@@ -80,13 +83,28 @@ export class Planning implements OnInit {
   }
 
   loadUpcoming(): void {
-    this.planningService.getUpcoming().subscribe({
+    const now = Date.now();
+    this.planningService.getUpcoming().pipe(
+      catchError(() => this.assessmentService.getAll().pipe(
+        map(all => all.filter(a => a.startDate && new Date(a.startDate as any).getTime() > now))
+      ))
+    ).subscribe({
       next: data => { this.upcomingAssessments = data; this.refresh(); },
-      error: () => { }
+      error: () => {}
     });
-    this.planningService.getOngoing().subscribe({
+
+    this.planningService.getOngoing().pipe(
+      catchError(() => this.assessmentService.getAll().pipe(
+        map(all => all.filter(a => {
+          if (!a.startDate || !a.endDate) return false;
+          const start = new Date(a.startDate as any).getTime();
+          const end = new Date(a.endDate as any).getTime();
+          return start <= now && end >= now;
+        }))
+      ))
+    ).subscribe({
       next: data => { this.ongoingAssessments = data; this.refresh(); },
-      error: () => { }
+      error: () => {}
     });
   }
 

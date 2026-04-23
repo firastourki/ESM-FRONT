@@ -11,7 +11,7 @@
             {{ isEdit ? 'Update Class Schedule' : 'Create New Schedule' }}
           </h1>
         </div>
-        <button routerLink="/schedule"
+        <button routerLink="/backoffice/schedule"
                 class="inline-flex items-center justify-center gap-2 rounded-md border border-white px-8 py-4 text-lg font-semibold text-white hover:bg-white/10 transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -127,6 +127,42 @@
             </p>
           </div>
 
+          <!-- Class & Course Row -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <!-- Assign to Class -->
+            <div class="space-y-2">
+              <label class="block text-sm font-semibold text-darkindigo uppercase tracking-wide">
+                Assign to Class
+              </label>
+              <select
+                [(ngModel)]="schedule.className"
+                name="className"
+                class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:border-primary bg-body-bg"
+              >
+                <option value="">— No class —</option>
+                <option *ngFor="let c of classes" [value]="c.name">{{ c.name }}</option>
+              </select>
+              <p class="text-xs text-gray-400">Students in this class will see this schedule.</p>
+            </div>
+
+            <!-- Assign to Course -->
+            <div class="space-y-2">
+              <label class="block text-sm font-semibold text-darkindigo uppercase tracking-wide">
+                Related Course
+              </label>
+              <select
+                [(ngModel)]="schedule.courseId"
+                name="courseId"
+                class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:border-primary bg-body-bg"
+              >
+                <option [ngValue]="undefined">— No course —</option>
+                <option *ngFor="let co of courses" [ngValue]="co.courseId">{{ co.name }}</option>
+              </select>
+            </div>
+
+          </div>
+
           <!-- Form Actions -->
           <div class="flex gap-4 pt-6 border-t border-border">
             <button type="submit"
@@ -139,7 +175,7 @@
             </button>
             
             <button type="button"
-                    routerLink="/schedule"
+                    routerLink="/backoffice/schedule"
                     class="flex-1 inline-flex items-center justify-center gap-2 rounded-md border border-border px-6 py-4 text-content font-semibold hover:bg-gray-50 transition-colors">
               Cancel
             </button>

@@ -2,7 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { ScheduleService, Schedule } from '../../../services/schedule.service';
+import { catchError, forkJoin, of } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-schedule-form',
@@ -15,24 +18,37 @@ export class ScheduleFormComponent implements OnInit {
     dayOfWeek: 'Monday',
     startTime: '09:00',
     endTime: '10:30',
-    room: ''
+    room: '',
+    className: '',
+    courseId: undefined
   };
   isEdit = false;
   loading = false;
   submitted = false;
 
   daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-  
+  classes: { id: number; name: string }[] = [];
+  courses: { courseId: number; name: string }[] = [];
+
   // Validation errors
   errors: { [key: string]: string } = {};
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private scheduleService: ScheduleService
+    private scheduleService: ScheduleService,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
+    forkJoin({
+      classes: this.http.get<any[]>(`${environment.apiUrl}/api/classes`).pipe(catchError(() => of([]))),
+      courses: this.http.get<any>(`${environment.apiUrl}/api/v1/courses?size=100`).pipe(catchError(() => of([])))
+    }).subscribe(({ classes, courses }) => {
+      this.classes = classes;
+      this.courses = Array.isArray(courses) ? courses : (courses?.content ?? []);
+    });
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEdit = true;
@@ -119,7 +135,7 @@ export class ScheduleFormComponent implements OnInit {
     if (this.isEdit) {
       this.scheduleService.update(this.schedule.scheduled!, this.schedule).subscribe({
         next: () => {
-          this.router.navigate(['/schedule']);
+          this.router.navigate(['/backoffice/schedule']);
         },
         error: (error) => {
           console.error('Error updating:', error);
@@ -130,7 +146,7 @@ export class ScheduleFormComponent implements OnInit {
     } else {
       this.scheduleService.create(this.schedule).subscribe({
         next: () => {
-          this.router.navigate(['/schedule']);
+          this.router.navigate(['/backoffice/schedule']);
         },
         error: (error) => {
           console.error('Error creating:', error);

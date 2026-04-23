@@ -1,0 +1,201 @@
+<!-- Loading -->
+@if (isLoading) {
+  <div style="display:flex;align-items:center;justify-content:center;height:60vh;">
+    <div style="width:40px;height:40px;border:4px solid #e2e8f0;border-top-color:#6366f1;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+  </div>
+}
+
+@if (!isLoading) {
+<div style="max-width:720px;margin:0 auto;padding:2rem;">
+
+  <!-- Page title -->
+  <h1 style="font-size:1.5rem;font-weight:700;color:#1e293b;margin-bottom:2rem;">Account Settings</h1>
+
+  <!-- Avatar + identity card -->
+  <div style="background:white;border-radius:16px;padding:1.5rem;box-shadow:0 1px 8px rgba(0,0,0,0.07);margin-bottom:1.5rem;display:flex;align-items:center;gap:1.5rem;">
+
+    <!-- Avatar -->
+    <div style="position:relative;flex-shrink:0;">
+      @if (user?.avatarUrl) {
+        <img [src]="user!.avatarUrl" alt="avatar"
+          style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid #e2e8f0;" />
+      } @else {
+        <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:2rem;color:white;font-weight:700;">
+          {{ (firstName || user?.email || '?').charAt(0).toUpperCase() }}
+        </div>
+      }
+      <!-- Upload overlay -->
+      <label style="position:absolute;bottom:0;right:0;width:26px;height:26px;background:#6366f1;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid white;" title="Change avatar">
+        @if (isUploadingAvatar) {
+          <div style="width:12px;height:12px;border:2px solid white;border-top-color:transparent;border-radius:50%;animation:spin 0.6s linear infinite;"></div>
+        } @else {
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        }
+        <input type="file" accept="image/*" (change)="onAvatarChange($event)" style="display:none;" />
+      </label>
+    </div>
+
+    <!-- Name + role -->
+    <div>
+      <div style="font-size:1.2rem;font-weight:700;color:#1e293b;">{{ displayName }}</div>
+      <div style="font-size:0.8rem;color:#64748b;margin-top:2px;">{{ user?.email }}</div>
+      <span style="display:inline-block;margin-top:6px;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:600;background:{{ roleColor.split(';')[0] }};{{ roleColor.split(';')[1] }}">
+        {{ roleLabel }}
+      </span>
+    </div>
+
+    <!-- Status badge -->
+    <div style="margin-left:auto;text-align:right;">
+      <span style="font-size:0.75rem;color:#64748b;">Status</span><br>
+      <span style="font-weight:600;color:{{ user?.status === 'ACTIVE' ? '#15803d' : '#dc2626' }}">
+        {{ user?.status ?? 'Unknown' }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Success / Error -->
+  @if (successMessage) {
+    <div style="background:#dcfce7;color:#15803d;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1rem;font-size:0.875rem;">
+      &#10003; {{ successMessage }}
+    </div>
+  }
+  @if (errorMessage) {
+    <div style="background:#fee2e2;color:#dc2626;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1rem;font-size:0.875rem;">
+      &#9888; {{ errorMessage }}
+    </div>
+  }
+
+  <!-- Edit form -->
+  <div style="background:white;border-radius:16px;padding:1.5rem;box-shadow:0 1px 8px rgba(0,0,0,0.07);">
+    <h2 style="font-size:1rem;font-weight:700;color:#1e293b;margin-bottom:1.25rem;padding-bottom:0.75rem;border-bottom:1px solid #f1f5f9;">
+      Personal Information
+    </h2>
+
+    <!-- First + Last name -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+      <div>
+        <label style="display:block;font-size:0.8rem;font-weight:600;color:#374151;margin-bottom:4px;">First Name</label>
+        <input type="text" name="firstName" [(ngModel)]="firstName" placeholder="First name"
+          style="width:100%;border:1.5px solid #e2e8f0;border-radius:8px;padding:0.6rem 0.75rem;font-size:0.875rem;outline:none;box-sizing:border-box;"
+          (focus)="$event.target.style.borderColor='#6366f1'"
+          (blur)="$event.target.style.borderColor='#e2e8f0'" />
+      </div>
+      <div>
+        <label style="display:block;font-size:0.8rem;font-weight:600;color:#374151;margin-bottom:4px;">Last Name</label>
+        <input type="text" name="lastName" [(ngModel)]="lastName" placeholder="Last name"
+          style="width:100%;border:1.5px solid #e2e8f0;border-radius:8px;padding:0.6rem 0.75rem;font-size:0.875rem;outline:none;box-sizing:border-box;"
+          (focus)="$event.target.style.borderColor='#6366f1'"
+          (blur)="$event.target.style.borderColor='#e2e8f0'" />
+      </div>
+    </div>
+
+    <!-- Email -->
+    <div style="margin-bottom:1rem;">
+      <label style="display:block;font-size:0.8rem;font-weight:600;color:#374151;margin-bottom:4px;">Email Address</label>
+      <input type="email" name="email" [(ngModel)]="email" placeholder="your@email.com"
+        style="width:100%;border:1.5px solid #e2e8f0;border-radius:8px;padding:0.6rem 0.75rem;font-size:0.875rem;outline:none;box-sizing:border-box;"
+        (focus)="$event.target.style.borderColor='#6366f1'"
+        (blur)="$event.target.style.borderColor='#e2e8f0'" />
+    </div>
+
+    <!-- CIN + Phone -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+      <div>
+        <label style="display:block;font-size:0.8rem;font-weight:600;color:#374151;margin-bottom:4px;">CIN <span style="font-weight:400;color:#94a3b8;">(8 digits)</span></label>
+        <input type="text" name="cin" [(ngModel)]="cin" placeholder="12345678" maxlength="8"
+          style="width:100%;border:1.5px solid #e2e8f0;border-radius:8px;padding:0.6rem 0.75rem;font-size:0.875rem;outline:none;box-sizing:border-box;"
+          (focus)="$event.target.style.borderColor='#6366f1'"
+          (blur)="$event.target.style.borderColor='#e2e8f0'" />
+      </div>
+      <div>
+        <label style="display:block;font-size:0.8rem;font-weight:600;color:#374151;margin-bottom:4px;">Phone Number</label>
+        <input type="tel" name="phoneNumber" [(ngModel)]="phoneNumber" placeholder="+216 XX XXX XXX"
+          style="width:100%;border:1.5px solid #e2e8f0;border-radius:8px;padding:0.6rem 0.75rem;font-size:0.875rem;outline:none;box-sizing:border-box;"
+          (focus)="$event.target.style.borderColor='#6366f1'"
+          (blur)="$event.target.style.borderColor='#e2e8f0'" />
+      </div>
+    </div>
+
+    <!-- Address -->
+    <div style="margin-bottom:1.5rem;">
+      <label style="display:block;font-size:0.8rem;font-weight:600;color:#374151;margin-bottom:4px;">Address</label>
+      <input type="text" name="address" [(ngModel)]="address" placeholder="123 Main St, Tunis"
+        style="width:100%;border:1.5px solid #e2e8f0;border-radius:8px;padding:0.6rem 0.75rem;font-size:0.875rem;outline:none;box-sizing:border-box;"
+        (focus)="$event.target.style.borderColor='#6366f1'"
+        (blur)="$event.target.style.borderColor='#e2e8f0'" />
+    </div>
+
+    <!-- Read-only info -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;padding:1rem;background:#f8fafc;border-radius:8px;">
+      <div>
+        <div style="font-size:0.75rem;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Role</div>
+        <div style="font-size:0.875rem;color:#374151;font-weight:600;margin-top:2px;">{{ roleLabel }}</div>
+      </div>
+      <div>
+        <div style="font-size:0.75rem;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Email Verified</div>
+        <div style="font-size:0.875rem;font-weight:600;margin-top:2px;color:{{ user?.emailVerified ? '#15803d' : '#dc2626' }}">
+          {{ user?.emailVerified ? '✓ Verified' : '✗ Not verified' }}
+        </div>
+      </div>
+      <div>
+        <div style="font-size:0.75rem;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">2FA</div>
+        <div style="font-size:0.875rem;font-weight:600;margin-top:2px;color:{{ user?.twoFactorEnabled ? '#15803d' : '#64748b' }}">
+          {{ user?.twoFactorEnabled ? '✓ Enabled' : 'Disabled' }}
+        </div>
+      </div>
+      <div>
+        <div style="font-size:0.75rem;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Member since</div>
+        <div style="font-size:0.875rem;color:#374151;margin-top:2px;">{{ user?.createdAt | date:'mediumDate' }}</div>
+      </div>
+    </div>
+
+    <!-- Save button -->
+    <button (click)="saveProfile()" [disabled]="isSaving"
+      style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;padding:0.75rem 2rem;border-radius:10px;font-size:0.875rem;font-weight:600;border:none;cursor:pointer;"
+      [style.opacity]="isSaving ? '0.7' : '1'">
+      {{ isSaving ? 'Saving…' : 'Save Changes' }}
+    </button>
+  </div>
+
+  <!-- Wallet balance (STUDENT) -->
+  @if (user?.role === 'STUDENT') {
+    <div style="background:white;border-radius:16px;padding:1.5rem;box-shadow:0 1px 8px rgba(0,0,0,0.07);margin-top:1.5rem;">
+      <h2 style="font-size:1rem;font-weight:700;color:#1e293b;margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:1px solid #f1f5f9;">
+        Wallet & Parent
+      </h2>
+      @if (user?.walletBalance !== undefined) {
+        <div style="background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:10px;padding:1rem 1.25rem;color:white;margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-size:0.8rem;opacity:0.85;">Wallet Balance</div>
+          <div style="font-size:1.5rem;font-weight:800;">{{ user?.walletBalance | number:'1.0-2' }} TND</div>
+        </div>
+      }
+      <div>
+        <label style="display:block;font-size:0.8rem;font-weight:600;color:#374151;margin-bottom:4px;">Parent Email</label>
+        <div style="display:flex;gap:0.75rem;">
+          <input type="email" [(ngModel)]="parentEmailInput" placeholder="parent@family.com"
+            style="flex:1;border:1.5px solid #e2e8f0;border-radius:8px;padding:0.6rem 0.75rem;font-size:0.875rem;outline:none;" />
+          <button (click)="setParentEmail()" [disabled]="savingParentEmail"
+            style="padding:0.6rem 1.25rem;background:#6366f1;color:white;border:none;border-radius:8px;font-size:0.875rem;font-weight:600;cursor:pointer;"
+            [style.opacity]="savingParentEmail ? '0.7' : '1'">
+            {{ savingParentEmail ? 'Saving…' : 'Invite Parent' }}
+          </button>
+        </div>
+        <p style="font-size:0.75rem;color:#94a3b8;margin:6px 0 0;">An invitation email will be sent to your parent. They can then register and top up your wallet.</p>
+      </div>
+    </div>
+  }
+
+  <!-- Logout -->
+  <div style="margin-top:1.5rem;text-align:right;">
+    <button (click)="logout()"
+      style="padding:0.6rem 1.5rem;background:#fee2e2;color:#dc2626;border:none;border-radius:8px;font-size:0.875rem;font-weight:600;cursor:pointer;">
+      Sign Out
+    </button>
+  </div>
+
+</div>
+}
+
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>

@@ -4,9 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AssessmentService, Assessment } from '../../services/assessment.service';
 import { ResourcesService, LearningResource } from '../../services/resource.service';
+import { environment } from '../../../environments/environment';
 
 const PAGE_SIZE = 6;
-const UPLOADS_BASE = 'http://localhost:8080';
+const UPLOADS_BASE = environment.apiUrl;
 
 @Component({
   selector: 'app-resources',

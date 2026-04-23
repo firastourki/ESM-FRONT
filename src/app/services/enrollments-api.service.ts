@@ -3,10 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
-// Proxy rewrites /enrollment-api -> /api, so use /v1 to get /api/v1 on backend
-const BASE = environment.enrollmentApiUrl
-  ? `${environment.enrollmentApiUrl}/v1`
-  : '/enrollment-api/v1';
+const BASE = `${environment.apiUrl}/api/v1`;
 
 export interface MyCourse {
   enrollmentId: number;
@@ -61,15 +58,15 @@ export interface ModuleWithLessons {
 export class EnrollmentsApiService {
   constructor(private http: HttpClient) {}
 
-  getMyCourses(userId: number): Observable<MyCourse[]> {
+  getMyCourses(userId: string): Observable<MyCourse[]> {
     return this.http.get<MyCourse[]>(`${BASE}/enrollments/user/${userId}/my-courses`);
   }
 
-  getEnrollmentHistory(userId: number): Observable<Enrollment[]> {
+  getEnrollmentHistory(userId: string): Observable<Enrollment[]> {
     return this.http.get<Enrollment[]>(`${BASE}/enrollments/user/${userId}/history`);
   }
 
-  getEnrollmentsByUser(userId: number): Observable<Enrollment[]> {
+  getEnrollmentsByUser(userId: string): Observable<Enrollment[]> {
     return this.http.get<Enrollment[]>(`${BASE}/enrollments/user/${userId}`);
   }
 
@@ -85,7 +82,7 @@ export class EnrollmentsApiService {
     return this.http.delete<void>(`${BASE}/enrollments/${id}`);
   }
 
-  enroll(dto: { courseId: number; userId?: number; studentName?: string }, idempotencyKey?: string): Observable<Enrollment> {
+  enroll(dto: { courseId: number; userId?: number; userUuid?: string; studentName?: string; status?: string }, idempotencyKey?: string): Observable<Enrollment> {
     const headers = idempotencyKey
       ? new HttpHeaders({ 'X-Idempotency-Key': idempotencyKey })
       : undefined;

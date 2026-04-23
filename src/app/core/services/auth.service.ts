@@ -4,9 +4,11 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
+import { environment } from '../../../environments/environment';
 
 interface JwtPayload {
   sub: string;
+  userId?: string;
   role: string;
   status?: string;
   emailVerified?: boolean;
@@ -16,16 +18,20 @@ interface JwtPayload {
 }
 
 export interface AuthFlowResponse {
-  accessToken: string | null;
-  emailVerified: boolean;
-  accountStatus: string | null;
-  twoFactorRequired: boolean;
-  maskedEmail: string | null;
+  token?: string;
+  accessToken?: string | null;
+  requiresTwoFactor?: boolean;
+  twoFactorRequired?: boolean;
+  emailVerified?: boolean;
+  accountStatus?: string | null;
+  userId?: string;
+  role?: string;
+  maskedEmail?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly API = 'http://localhost:8080/api/auth';
+  private readonly API = `${environment.apiUrl}/api/auth`;
   private readonly TOKEN_KEY = 'access_token';
 
   private http = inject(HttpClient);
@@ -39,9 +45,14 @@ export class AuthService {
     return this.http
       .post<AuthFlowResponse>(`${this.API}/login`, { email, password })
       .pipe(
-        tap((response) => {
-          if (this.isBrowser() && response?.accessToken) {
-            localStorage.setItem(this.TOKEN_KEY, response.accessToken);
+        tap((response: any) => {
+          const jwt = response?.token || response?.accessToken;
+          if (this.isBrowser() && jwt) {
+            localStorage.setItem(this.TOKEN_KEY, jwt);
+          }
+          // Normalize 2FA field name
+          if (response?.requiresTwoFactor !== undefined && response?.twoFactorRequired === undefined) {
+            response.twoFactorRequired = response.requiresTwoFactor;
           }
         })
       );
@@ -51,9 +62,10 @@ export class AuthService {
     return this.http
       .post<AuthFlowResponse>(`${this.API}/2fa/verify`, { email, code })
       .pipe(
-        tap((response) => {
-          if (this.isBrowser() && response?.accessToken) {
-            localStorage.setItem(this.TOKEN_KEY, response.accessToken);
+        tap((response: any) => {
+          const jwt = response?.token || response?.accessToken;
+          if (this.isBrowser() && jwt) {
+            localStorage.setItem(this.TOKEN_KEY, jwt);
           }
         })
       );
@@ -74,8 +86,17 @@ export class AuthService {
     });
   }
 
-  register(fullName: string, email: string, password: string): Observable<any> {
-    return this.http.post<any>(`${this.API}/register`, { fullName, email, password });
+  register(data: {
+    email: string;
+    password: string;
+    firstName?: string;
+    lastName?: string;
+    cin?: string;
+    phoneNumber?: string;
+    address?: string;
+    role?: string;
+  }): Observable<any> {
+    return this.http.post<any>(`${this.API}/register`, data);
   }
 
   // NEW: enable 2FA for current user
@@ -151,5 +172,16 @@ export class AuthService {
   hasRole(...roles: string[]): boolean {
     const userRole = this.getRole();
     return userRole !== null && roles.includes(userRole);
+  }
+
+  getUserId(): string | null {
+    const token = this.getToken();
+    if (!token) return null;
+    try {
+      const decoded = jwtDecode<JwtPayload>(token);
+      return decoded.userId || decoded.sub || null;
+    } catch {
+      return null;
+    }
   }
 }

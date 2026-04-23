@@ -207,7 +207,7 @@
         <div class="sh-assess-right">
           <span class="sh-type-badge" [class.quiz]="isQuiz(a)">{{ a.type }}</span>
           <div *ngIf="a.startDate" class="sh-countdown">{{ getCountdown(a.startDate) }}</div>
-          <a *ngIf="isQuiz(a)" [routerLink]="['/student/quiz', a.id]" class="sh-btn-start">▶ Start Quiz</a>
+          <a *ngIf="isQuiz(a)" routerLink="/student/assessments" class="sh-btn-start">▶ View Quiz</a>
           <div *ngIf="!isQuiz(a)" class="sh-btn-info">ℹ️ Info only</div>
         </div>
       </div>

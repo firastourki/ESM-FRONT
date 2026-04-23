@@ -5,7 +5,7 @@ import { RouterModule } from '@angular/router';
 import { GradeService, Grade, LeaderboardEntry } from '../../../services/grade.service';
 import { AssessmentService, Assessment } from '../../../services/assessment.service';
 import { CertificateService } from '../../../services/certificate.service';
-import { AuthService } from '../../../services/auth.service';
+import { UserService } from '../../../core/services/user.service';
 import { catchError, of } from 'rxjs';
 
 type ActivePanel = null | 'leaderboard' | 'grades' | 'assessments' | 'certificates';
@@ -52,12 +52,12 @@ export class StudentHome implements OnInit {
     private gradeService: GradeService,
     private assessmentService: AssessmentService,
     private certificateService: CertificateService,
-    private authService: AuthService,
+    private userService: UserService,
     private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
-    this.authService.getMyProfile()
+    this.userService.getCurrentUser()
       .pipe(catchError(() => of(null)))
       .subscribe((profile: any) => {
         if (profile) {

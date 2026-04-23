@@ -1,18 +1,19 @@
-﻿<div class="parent-shell">
+<div class="parent-shell">
   <aside class="sidebar">
     <div class="logo">&#128106; Parent</div>
     <nav>
       <a routerLink="/parent/dashboard" routerLinkActive="active">&#127968; Dashboard</a>
-      <a routerLink="/parent/grades" routerLinkActive="active">&#127942; Child Grades</a>
-      <a routerLink="/parent/planning" routerLinkActive="active">&#128197; Planning</a>
-      <a routerLink="/parent/payments" routerLinkActive="active">&#128179; Payments</a>
+      <a routerLink="/parent/grades"    routerLinkActive="active">&#127942; Child Grades</a>
+      <a routerLink="/parent/planning"  routerLinkActive="active">&#128197; Planning</a>
+      <a routerLink="/parent/payments"  routerLinkActive="active">&#128179; Payments</a>
+      <a routerLink="/parent/profile"   routerLinkActive="active">&#128100; My Profile</a>
     </nav>
-    <a routerLink="/" class="back-link">&#8592; Home</a>
+    <button class="logout-btn" (click)="logout()">&#128682; Sign Out</button>
   </aside>
   <div class="main">
     <header class="header">
       <span>Parent Portal</span>
-      <span>&#128100; Parent</span>
+      <a routerLink="/parent/profile" style="color:#374151;text-decoration:none;font-size:0.875rem;">&#128100; {{ userName }}</a>
     </header>
     <main class="content">
       <router-outlet></router-outlet>

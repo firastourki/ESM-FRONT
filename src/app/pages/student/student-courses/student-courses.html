@@ -1,0 +1,203 @@
+<div>
+
+  <!-- Header -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
+    <div>
+      <h1 style="font-size:1.5rem;font-weight:700;color:#1e293b;margin:0 0 0.25rem;">Courses</h1>
+      <div style="font-size:0.8rem;color:#64748b;">
+        Wallet: <strong style="color:#6366f1;">{{ walletBalance | number:'1.0-2' }} TND</strong>
+      </div>
+    </div>
+    <!-- Tab switcher -->
+    <div style="display:flex;gap:0.5rem;">
+      <button (click)="activeTab='enrolled'"
+        style="padding:6px 18px;border-radius:99px;font-size:0.8rem;font-weight:700;border:1.5px solid;cursor:pointer;"
+        [style.background]="activeTab==='enrolled' ? '#6366f1' : 'white'"
+        [style.color]="activeTab==='enrolled' ? 'white' : '#64748b'"
+        [style.borderColor]="activeTab==='enrolled' ? '#6366f1' : '#e2e8f0'">
+        My Courses ({{ enrolledCourses.length }})
+      </button>
+      <button (click)="activeTab='browse'"
+        style="padding:6px 18px;border-radius:99px;font-size:0.8rem;font-weight:700;border:1.5px solid;cursor:pointer;"
+        [style.background]="activeTab==='browse' ? '#6366f1' : 'white'"
+        [style.color]="activeTab==='browse' ? 'white' : '#64748b'"
+        [style.borderColor]="activeTab==='browse' ? '#6366f1' : '#e2e8f0'">
+        Browse ({{ availableCourses.length }})
+      </button>
+    </div>
+  </div>
+
+  <!-- Notifications -->
+  @if (enrollSuccess) {
+    <div style="background:#dcfce7;color:#15803d;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1rem;font-size:0.875rem;">
+      ✓ {{ enrollSuccess }}
+    </div>
+  }
+  @if (enrollError) {
+    <div style="background:#fee2e2;color:#dc2626;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1rem;font-size:0.875rem;">
+      ⚠ {{ enrollError }}
+    </div>
+  }
+
+  <!-- Loading -->
+  @if (loading) {
+    <div style="text-align:center;padding:4rem;color:#64748b;">
+      <div style="width:36px;height:36px;border:4px solid #e2e8f0;border-top-color:#6366f1;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 1rem;"></div>
+      Loading courses…
+    </div>
+  }
+
+  <!-- ── ENROLLED TAB ─────────────────────────────────────────────── -->
+  @if (!loading && activeTab === 'enrolled') {
+    @if (enrolledCourses.length === 0) {
+      <div style="text-align:center;padding:4rem;color:#94a3b8;">
+        <div style="font-size:3rem;margin-bottom:1rem;">📚</div>
+        <div>You are not enrolled in any courses yet.</div>
+        <button (click)="activeTab='browse'"
+          style="margin-top:1rem;padding:0.6rem 1.5rem;background:#6366f1;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;">
+          Browse Courses
+        </button>
+      </div>
+    } @else {
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem;">
+        @for (e of enrolledCourses; track e.enrollmentId) {
+          <div style="background:white;border-radius:14px;border:1px solid #e2e8f0;overflow:hidden;display:flex;flex-direction:column;">
+            <div style="height:120px;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;">
+              @if (e.course?.imageUrl || e.course?.thumbnailUrl) {
+                <img [src]="e.course?.imageUrl || e.course?.thumbnailUrl" [alt]="e.course?.title || e.course?.name"
+                  style="width:100%;height:100%;object-fit:cover;" />
+              } @else {
+                <span style="font-size:2.5rem;">📖</span>
+              }
+              @if (e.course?.level) {
+                <span style="position:absolute;top:8px;left:8px;padding:2px 8px;border-radius:99px;font-size:0.7rem;font-weight:800;"
+                      [style.background]="levelBg(e.course?.level)"
+                      [style.color]="levelColor(e.course?.level)">
+                  {{ e.course?.level }}
+                </span>
+              }
+            </div>
+            <div style="padding:1rem;flex:1;display:flex;flex-direction:column;">
+              <h3 style="font-size:0.9rem;font-weight:700;color:#1e293b;margin:0 0 0.5rem;">
+                {{ e.course?.title || e.course?.name || 'Course #' + e.courseId }}
+              </h3>
+              <!-- Progress -->
+              <div style="margin-top:auto;">
+                <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:#64748b;margin-bottom:4px;">
+                  <span>Progress</span>
+                  <span style="font-weight:700;" [style.color]="progressColor(e.progressPercent || 0)">{{ e.progressPercent || 0 }}%</span>
+                </div>
+                <div style="height:6px;background:#f1f5f9;border-radius:99px;overflow:hidden;">
+                  <div style="height:100%;border-radius:99px;transition:width 0.3s;"
+                       [style.width]="(e.progressPercent || 0) + '%'"
+                       [style.background]="progressColor(e.progressPercent || 0)">
+                  </div>
+                </div>
+              </div>
+              <!-- Status -->
+              <div style="margin-top:0.75rem;font-size:0.75rem;color:#64748b;">
+                Status: <span style="font-weight:600;color:#1e293b;">{{ e.status }}</span>
+                @if (e.progressPercent >= 100) {
+                  <span style="margin-left:0.5rem;background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:99px;font-weight:700;">✓ Complete</span>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+
+  <!-- ── BROWSE TAB ──────────────────────────────────────────────── -->
+  @if (!loading && activeTab === 'browse') {
+    <!-- Level filter -->
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.5rem;">
+      @for (lv of levels; track lv) {
+        <button (click)="filterLevel = lv"
+          style="padding:4px 12px;border-radius:99px;font-size:0.75rem;font-weight:700;border:1.5px solid;cursor:pointer;"
+          [style.background]="filterLevel === lv ? '#6366f1' : 'white'"
+          [style.color]="filterLevel === lv ? 'white' : '#64748b'"
+          [style.borderColor]="filterLevel === lv ? '#6366f1' : '#e2e8f0'">
+          {{ lv === 'ALL' ? 'All Levels' : lv }}
+        </button>
+      }
+    </div>
+
+    @if (filteredAvailable.length === 0) {
+      <div style="text-align:center;padding:4rem;color:#94a3b8;">
+        <div style="font-size:3rem;margin-bottom:1rem;">🔍</div>
+        <div>No available courses for this level.</div>
+      </div>
+    } @else {
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem;">
+        @for (c of filteredAvailable; track c.courseId) {
+          <div style="background:white;border-radius:14px;border:1px solid #e2e8f0;overflow:hidden;display:flex;flex-direction:column;">
+            <div style="height:140px;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;">
+              @if (c.imageUrl || c.thumbnailUrl) {
+                <img [src]="c.imageUrl || c.thumbnailUrl" [alt]="c.title || c.name"
+                  style="width:100%;height:100%;object-fit:cover;" />
+              } @else {
+                <span style="font-size:3rem;">📖</span>
+              }
+              @if (c.level) {
+                <span style="position:absolute;top:10px;left:10px;padding:3px 10px;border-radius:99px;font-size:0.7rem;font-weight:800;"
+                      [style.background]="levelBg(c.level)"
+                      [style.color]="levelColor(c.level)">
+                  {{ c.level }}
+                </span>
+              }
+              @if (!c.price || c.price === 0) {
+                <span style="position:absolute;top:10px;right:10px;padding:3px 10px;border-radius:99px;font-size:0.7rem;font-weight:800;background:#dcfce7;color:#15803d;">FREE</span>
+              }
+            </div>
+
+            <div style="padding:1.25rem;flex:1;display:flex;flex-direction:column;">
+              <h3 style="font-size:0.95rem;font-weight:700;color:#1e293b;margin:0 0 0.5rem;">
+                {{ c.title || c.name }}
+              </h3>
+              @if (c.description) {
+                <p style="font-size:0.8rem;color:#64748b;margin:0 0 0.75rem;line-height:1.5;flex:1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">
+                  {{ c.description }}
+                </p>
+              }
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:0.75rem;border-top:1px solid #f1f5f9;">
+                <div style="font-size:0.75rem;color:#f59e0b;font-weight:700;">
+                  @if (c.averageRating) {
+                    ★ {{ c.averageRating | number:'1.1-1' }}
+                  } @else {
+                    <span style="color:#94a3b8;">No ratings</span>
+                  }
+                </div>
+                <div style="font-size:0.875rem;font-weight:700;color:#1e293b;">
+                  @if (c.price && c.price > 0) {
+                    {{ c.price | number:'1.0-0' }} TND
+                  } @else {
+                    <span style="color:#15803d;">Free</span>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <div style="padding:0 1.25rem 1.25rem;display:flex;gap:0.5rem;">
+              <a [routerLink]="['/course', c.courseId]"
+                style="flex:1;display:block;text-align:center;background:#f1f5f9;color:#374151;padding:0.55rem;border-radius:8px;font-size:0.78rem;font-weight:600;text-decoration:none;">
+                Details
+              </a>
+              <button (click)="enroll(c)"
+                [disabled]="enrollingCourseId === c.courseId"
+                style="flex:2;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;padding:0.55rem;border-radius:8px;font-size:0.78rem;font-weight:600;border:none;cursor:pointer;"
+                [style.opacity]="enrollingCourseId === c.courseId ? '0.7' : '1'">
+                {{ enrollingCourseId === c.courseId ? 'Enrolling…' : 'Enroll' + (c.price > 0 ? ' (' + c.price + ' TND)' : ' (Free)') }}
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+
+</div>
+
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>

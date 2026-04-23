@@ -1,9 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { catchError, of } from 'rxjs';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   standalone: true,
@@ -15,68 +14,108 @@ import { catchError, of } from 'rxjs';
 export class Signin {
   email = '';
   password = '';
+  twoFactorCode = '';
+
   loading = false;
   error = '';
+  infoMessage = '';
 
-  private api = 'http://localhost:8080';
+  // 'login' → normal form | '2fa' → code input | 'unverified' → resend prompt
+  step: 'login' | '2fa' | 'unverified' = 'login';
+  maskedEmail = '';
 
-  constructor(private http: HttpClient, private router: Router) { }
+  private auth = inject(AuthService);
+  private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
-  login() {
+  login(): void {
     if (!this.email || !this.password) {
       this.error = 'Please enter your email and password.';
       return;
     }
     this.loading = true;
     this.error = '';
+    this.cdr.markForCheck();
 
-    this.http.post<any>(`${this.api}/api/auth/login`, {
-      email: this.email,
-      password: this.password
-    }).pipe(
-      catchError(err => {
-        this.error = err?.error?.message || 'Invalid credentials.';
+    this.auth.login(this.email, this.password).subscribe({
+      next: (res) => {
         this.loading = false;
-        return of(null);
-      })
-    ).subscribe((res: any) => {
-      if (!res) return;
-      this.loading = false;
 
-      const token = res.accessToken || res.token || res.access_token || '';
-      localStorage.setItem('esm_token', token);
-      localStorage.setItem('esm_email', this.email);
+        if (res.twoFactorRequired) {
+          this.step = '2fa';
+          this.maskedEmail = res.maskedEmail || this.email;
+          this.cdr.markForCheck();
+          return;
+        }
 
-      // Try decode JWT
-      let role = '';
-      if (token) {
-        try {
-          const payload = JSON.parse(atob(token.split('.')[1]));
-          role = (payload.role || payload.roles?.[0] || payload.authorities?.[0] || '')
-            .toString().replace('ROLE_', '').toUpperCase();
-        } catch (e) { }
+        if (!res.emailVerified) {
+          this.step = 'unverified';
+          this.cdr.markForCheck();
+          return;
+        }
+
+        this.cdr.markForCheck();
+        this.redirectByRole();
+      },
+      error: (err) => {
+        this.loading = false;
+        this.error = err?.error?.message || 'Invalid credentials.';
+        this.cdr.markForCheck();
       }
-
-      // Fallback: detect role from email if JWT decode failed
-      if (!role) {
-        const em = this.email.toLowerCase();
-        if (em.includes('admin')) role = 'ADMIN';
-        else if (em.includes('student')) role = 'STUDENT';
-        else if (em.includes('parent')) role = 'PARENT';
-        else role = 'ADMIN';
-      }
-
-      // Also check accountStatus from response
-      const status = res.accountStatus || '';
-      localStorage.setItem('esm_role', role);
-
-      this.redirectByRole(role);
     });
   }
 
-  private redirectByRole(role: string) {
-    if (role === 'ADMIN' || role === 'TUTOR') {
+  verify2FA(): void {
+    if (!this.twoFactorCode.trim()) {
+      this.error = 'Please enter the 6-digit code.';
+      return;
+    }
+    this.loading = true;
+    this.error = '';
+    this.cdr.markForCheck();
+
+    this.auth.verifyTwoFactor(this.email, this.twoFactorCode).subscribe({
+      next: () => {
+        this.loading = false;
+        this.cdr.markForCheck();
+        this.redirectByRole();
+      },
+      error: (err) => {
+        this.loading = false;
+        this.error = err?.error?.message || 'Invalid or expired code.';
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  resendVerification(): void {
+    this.infoMessage = '';
+    this.error = '';
+    this.auth.sendEmailVerification(this.email).subscribe({
+      next: () => {
+        this.infoMessage = 'Verification email sent. Please check your inbox.';
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.error = 'Failed to resend verification email.';
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  backToLogin(): void {
+    this.step = 'login';
+    this.error = '';
+    this.infoMessage = '';
+    this.twoFactorCode = '';
+  }
+
+  private redirectByRole(): void {
+    const role = this.auth.getRole();
+    if (role === 'ADMIN') {
       this.router.navigate(['/backoffice/dashboard']);
+    } else if (role === 'TUTOR') {
+      this.router.navigate(['/tutor/dashboard']);
     } else if (role === 'STUDENT') {
       this.router.navigate(['/student/home']);
     } else if (role === 'PARENT') {
@@ -86,25 +125,14 @@ export class Signin {
     }
   }
 
-  quickLogin(role: string) {
-    const creds: any = {
-      ADMIN: { email: 'admin@test.com', password: 'admin123' },
+  quickLogin(role: string): void {
+    const creds: Record<string, { email: string; password: string }> = {
+      ADMIN:   { email: 'admin@test.com',   password: 'admin123'   },
       STUDENT: { email: 'student@test.com', password: 'student123' },
-      PARENT: { email: 'parent@test.com', password: 'parent123' }
+      PARENT:  { email: 'parent@test.com',  password: 'parent123'  }
     };
     this.email = creds[role].email;
     this.password = creds[role].password;
-
-    // Force redirect by role since backend token is null
-    this.loading = true;
-    this.http.post<any>(`${this.api}/api/auth/login`, {
-      email: creds[role].email,
-      password: creds[role].password
-    }).pipe(catchError(() => of({ accountStatus: 'ACTIVE' }))).subscribe(() => {
-      this.loading = false;
-      localStorage.setItem('esm_role', role);
-      localStorage.setItem('esm_email', creds[role].email);
-      this.redirectByRole(role);
-    });
+    this.login();
   }
 }

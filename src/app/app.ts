@@ -20,7 +20,9 @@ export class App {
   constructor(public router: Router) { }
 
   get hideShell(): boolean {
-    return this.router.url.includes('backoffice') ||
-      this.router.url.includes('student');
+    const url = this.router.url.split('?')[0];
+    const authRoutes = ['backoffice', 'student', 'parent', 'signin', 'signup',
+      'verify-email', 'forgot-password', 'reset-password'];
+    return authRoutes.some(r => url.includes(r));
   }
 }

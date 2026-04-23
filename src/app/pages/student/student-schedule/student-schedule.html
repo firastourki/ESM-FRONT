@@ -1,0 +1,80 @@
+<div style="padding:0;">
+
+  <!-- Header -->
+  <div style="margin-bottom:1.5rem;">
+    <h1 style="font-size:1.5rem;font-weight:700;color:#1e293b;margin:0;">📆 My Class Schedule</h1>
+    <p *ngIf="className" style="font-size:0.875rem;color:#64748b;margin:4px 0 0;">
+      Class: <strong style="color:#6366f1;">{{ className }}</strong>
+    </p>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" style="text-align:center;padding:4rem;color:#64748b;">
+    <div style="width:36px;height:36px;border:4px solid #e2e8f0;border-top-color:#6366f1;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 1rem;"></div>
+    Loading schedule…
+  </div>
+
+  <!-- Empty -->
+  <div *ngIf="!loading && schedules.length === 0"
+       style="text-align:center;padding:4rem;color:#94a3b8;">
+    <div style="font-size:3rem;margin-bottom:1rem;">📭</div>
+    <div style="font-weight:600;color:#64748b;">No schedule assigned yet.</div>
+    <div style="font-size:0.85rem;margin-top:0.5rem;">Your admin will assign a schedule to your class soon.</div>
+  </div>
+
+  <!-- Weekly view -->
+  <div *ngIf="!loading && schedules.length > 0"
+       style="display:flex;flex-direction:column;gap:1.25rem;">
+
+    <ng-container *ngFor="let day of days">
+      <ng-container *ngIf="forDay(day).length > 0">
+
+        <!-- Day header -->
+        <div style="display:flex;align-items:center;gap:0.75rem;">
+          <span style="display:inline-block;width:10px;height:10px;border-radius:50%;"
+                [style.background]="color(day)"></span>
+          <span style="font-size:1rem;font-weight:700;color:#1e293b;">{{ day }}</span>
+          <span style="font-size:0.75rem;color:#94a3b8;">{{ forDay(day).length }} session{{ forDay(day).length > 1 ? 's' : '' }}</span>
+        </div>
+
+        <!-- Session cards -->
+        <div style="display:flex;flex-wrap:wrap;gap:0.75rem;padding-left:1.5rem;">
+          <div *ngFor="let s of forDay(day)"
+               style="background:white;border-radius:12px;padding:1rem 1.25rem;border:1px solid #e2e8f0;min-width:220px;flex:1;max-width:320px;position:relative;overflow:hidden;">
+
+            <!-- Color accent bar -->
+            <div style="position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:12px 0 0 12px;"
+                 [style.background]="color(day)"></div>
+
+            <!-- Course name -->
+            <div style="font-size:1rem;font-weight:700;color:#1e293b;margin-bottom:0.5rem;padding-left:0.25rem;">
+              {{ courseName(s) }}
+            </div>
+
+            <!-- Details -->
+            <div style="display:flex;flex-direction:column;gap:0.25rem;">
+              <div style="font-size:0.8rem;color:#64748b;">
+                🕐 {{ s.startTime?.substring(0,5) }} – {{ s.endTime?.substring(0,5) }}
+              </div>
+              <div style="font-size:0.8rem;color:#64748b;">
+                🚪 Room {{ s.room }}
+              </div>
+              <div *ngIf="s.className" style="font-size:0.75rem;font-weight:600;margin-top:0.25rem;"
+                   [style.color]="color(day)">
+                🎓 {{ s.className }}
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </ng-container>
+    </ng-container>
+
+  </div>
+
+</div>
+
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>

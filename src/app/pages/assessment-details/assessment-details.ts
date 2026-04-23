@@ -3,8 +3,9 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { AssessmentService, Assessment } from '../../services/assessment.service';
 import { ResourcesService, LearningResource } from '../../services/resource.service';
+import { environment } from '../../../environments/environment';
 
-const UPLOADS_BASE = 'http://localhost:8080';
+const UPLOADS_BASE = environment.apiUrl;
 
 @Component({
   selector: 'app-assessment-details',

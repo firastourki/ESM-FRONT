@@ -5,6 +5,7 @@
 /tmp
 /out-tsc
 /bazel-out
+/esm-front
 
 # Node
 /node_modules

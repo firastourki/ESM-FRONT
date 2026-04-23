@@ -2,6 +2,7 @@ import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, tap, catchError, of } from 'rxjs';
 import { Router } from '@angular/router';
+import { environment } from '../../environments/environment';
 
 export interface User {
   id: string;
@@ -33,7 +34,7 @@ export class AuthService {
 
   private readonly storageKey = 'esm_token';
   private readonly userKey = 'esm_user';
-  private readonly apiUrl = 'http://localhost:8080/api';
+  private readonly apiUrl = `${environment.apiUrl}/api`;
 
   private currentUser = signal<User | null>(this.loadUser());
   user = this.currentUser.asReadonly();

@@ -20,6 +20,8 @@ export class ScheduleListComponent implements OnInit {
   // Filter properties
   selectedDay: string = 'all';
   searchRoom: string = '';
+  selectedClass: string = 'all';
+  classes: string[] = [];
   
   days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   timeSlots: string[] = [];
@@ -59,37 +61,34 @@ export class ScheduleListComponent implements OnInit {
   loadSchedules(): void {
     this.loading = true;
     this.error = null;
-    console.log('Loading schedules...');
-    
     this.scheduleService.getAll().subscribe({
       next: (data) => {
-        console.log('Data received:', data);
         this.schedules = data;
-        this.filteredSchedules = data; // Initialize filtered schedules
+        this.filteredSchedules = data;
+        this.classes = [...new Set(data.map(s => s.className).filter(Boolean) as string[])];
         this.loading = false;
       },
-      error: (error) => {
-        console.error('Error loading schedules:', error);
+      error: () => {
         this.error = 'Failed to load schedules. Please try again.';
         this.loading = false;
       }
     });
   }
 
-  // NEW: Apply filters
   applyFilters(): void {
     this.filteredSchedules = this.schedules.filter(s => {
       const matchesDay = this.selectedDay === 'all' || s.dayOfWeek === this.selectedDay;
       const matchesRoom = !this.searchRoom || s.room.toLowerCase().includes(this.searchRoom.toLowerCase());
-      return matchesDay && matchesRoom;
+      const matchesClass = this.selectedClass === 'all' || s.className === this.selectedClass;
+      return matchesDay && matchesRoom && matchesClass;
     });
   }
 
-  // NEW: Reset filters and reload data
   resetFilters(): void {
     this.selectedDay = 'all';
     this.searchRoom = '';
-    this.loadSchedules(); // Reload from backend
+    this.selectedClass = 'all';
+    this.loadSchedules();
   }
 
   deleteSchedule(id: number): void {

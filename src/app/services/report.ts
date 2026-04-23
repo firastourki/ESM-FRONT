@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, tap } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export type ReclamationStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'REJECTED';
 export type ReclamationPriority = 'LOW' | 'MEDIUM' | 'HIGH';
@@ -23,7 +24,7 @@ export interface Reclamation {
 })
 export class ReportService {
 
-  private apiUrl = 'http://localhost:8080/api/reports';
+  private apiUrl = `${environment.apiUrl}/api/reports`;
   private readonly storageKey = 'reclamation-cache-v1';
   private cachedReclamations: Reclamation[] = [];
 

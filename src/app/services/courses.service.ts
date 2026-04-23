@@ -249,4 +249,12 @@ export class CoursesService {
   deleteReview(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/api/v1/reviews/${id}`);
   }
+
+  assignTutor(courseId: number, tutorEmail: string): Observable<Course> {
+    return this.http.put<Course>(`${this.baseUrl}/api/v1/courses/${courseId}/assign-tutor`, { tutorEmail });
+  }
+
+  getCoursesByTutor(email: string): Observable<Course[]> {
+    return this.http.get<Course[]>(`${this.baseUrl}/api/v1/courses/by-tutor?email=${encodeURIComponent(email)}`);
+  }
 }

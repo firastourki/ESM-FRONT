@@ -7,6 +7,7 @@ import { CourseService } from '../../services/course.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 const PAGE_SIZE = 6;
 
@@ -92,7 +93,7 @@ export class Backoffice implements OnInit {
 
   // 🆕 Charge les classes depuis auth-service via gateway
   loadClasses(): void {
-    this.http.get<any[]>('http://localhost:8080/api/classes').pipe(
+    this.http.get<any[]>(`${environment.apiUrl}/api/classes`).pipe(
       catchError(() => of([]))
     ).subscribe(data => {
       this.availableClasses = data;

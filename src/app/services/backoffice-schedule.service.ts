@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface BackofficeSchedule {
   id?: number;
@@ -17,7 +18,7 @@ export interface BackofficeSchedule {
 
 @Injectable({ providedIn: 'root' })
 export class BackofficeScheduleService {
-  private apiUrl = 'http://localhost:8080/api/schedules';
+  private apiUrl = `${environment.apiUrl}/api/schedules`;
 
   private mockCourses = [
     { name: 'Beginner English - Grammar Basics', level: 'Beginner' as const },

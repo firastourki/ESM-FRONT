@@ -2,6 +2,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface UserResponseDto {
   id: string;
@@ -21,6 +22,8 @@ export interface UserResponseDto {
   updatedAt: string;
   lastLoginAt: string | null;
   deletedAt: string | null;
+  walletBalance?: number;
+  parentEmail?: string | null;
 }
 
 export interface PageResponse<T> {
@@ -54,9 +57,18 @@ export interface UserUpdateRequest {
   role?: string;
 }
 
+export interface UserSelfUpdateRequest {
+  cin?: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
+  address?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class UserService {
-  private readonly API = 'http://localhost:8080/api/users';
+  private readonly API = `${environment.apiUrl}/api/users`;
   private http = inject(HttpClient);
 
   listUsers(
@@ -94,5 +106,43 @@ export class UserService {
 
   deleteUser(id: string): Observable<void> {
     return this.http.delete<void>(`${this.API}/${id}`);
+  }
+
+  getCurrentUser(): Observable<UserResponseDto> {
+    return this.http.get<UserResponseDto>(`${this.API}/me`);
+  }
+
+  updateCurrentUser(body: UserSelfUpdateRequest): Observable<UserResponseDto> {
+    return this.http.put<UserResponseDto>(`${this.API}/me`, body);
+  }
+
+  uploadAvatar(file: File): Observable<UserResponseDto> {
+    const form = new FormData();
+    form.append('file', file);
+    return this.http.post<UserResponseDto>(`${this.API}/me/avatar`, form);
+  }
+
+  getUserById(id: string): Observable<UserResponseDto> {
+    return this.http.get<UserResponseDto>(`${this.API}/${id}`);
+  }
+
+  findByEmail(email: string): Observable<PageResponse<UserResponseDto>> {
+    return this.http.get<PageResponse<UserResponseDto>>(`${this.API}?email=${encodeURIComponent(email)}&size=1`);
+  }
+
+  getWallet(id: string): Observable<{ userId: string; walletBalance: number }> {
+    return this.http.get<{ userId: string; walletBalance: number }>(`${this.API}/${id}/wallet`);
+  }
+
+  topupWallet(id: string, amount: number): Observable<UserResponseDto> {
+    return this.http.put<UserResponseDto>(`${this.API}/${id}/wallet/topup`, { amount });
+  }
+
+  deductWallet(id: string, amount: number): Observable<UserResponseDto> {
+    return this.http.put<UserResponseDto>(`${this.API}/${id}/wallet/deduct`, { amount });
+  }
+
+  setParentEmail(id: string, parentEmail: string): Observable<UserResponseDto> {
+    return this.http.put<UserResponseDto>(`${this.API}/${id}/parent-email`, { parentEmail });
   }
 }

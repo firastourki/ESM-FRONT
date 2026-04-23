@@ -1,37 +1,62 @@
 ﻿import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { catchError, of } from 'rxjs';
+import { catchError, forkJoin, of, switchMap } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-student-schedule',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <div>
-      <h1 style="font-size:1.5rem;font-weight:700;color:#1e293b;margin-bottom:1.5rem;">Class Schedule</h1>
-      <div *ngIf="loading" style="text-align:center;padding:3rem;color:#64748b;">Loading...</div>
-      <div *ngIf="!loading && schedules.length === 0" style="text-align:center;padding:3rem;color:#94a3b8;">No schedules.</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;">
-        <div *ngFor="let s of schedules" style="background:white;border-radius:12px;padding:1.25rem;border:1px solid #e2e8f0;border-left:4px solid #6366f1;">
-          <div style="font-weight:700;color:#1e293b;margin-bottom:0.5rem;">{{ s.subject || 'Class' }}</div>
-          <div style="font-size:0.8rem;color:#64748b;">{{ s.dayOfWeek }}</div>
-          <div style="font-size:0.8rem;color:#64748b;">{{ s.startTime }} - {{ s.endTime }}</div>
-          <div style="font-size:0.8rem;color:#64748b;">Room {{ s.room }}</div>
-        </div>
-      </div>
-    </div>
-  `
+  templateUrl: './student-schedule.html'
 })
 export class StudentSchedulePage implements OnInit {
   schedules: any[] = [];
+  courseMap: Record<number, string> = {};
+  className = '';
   loading = true;
-  private api = 'http://localhost:8080';
+
+  readonly days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  readonly dayColors: Record<string, string> = {
+    Monday: '#6366f1', Tuesday: '#0ea5e9', Wednesday: '#10b981',
+    Thursday: '#f59e0b', Friday: '#ef4444', Saturday: '#ec4899', Sunday: '#8b5cf6'
+  };
+
+  private api = environment.apiUrl;
   constructor(private http: HttpClient) {}
+
   ngOnInit() {
-    this.http.get<any[]>(this.api + '/api/schedules').pipe(catchError(() => of([]))).subscribe((d: any) => {
-      this.schedules = d || [];
+    this.http.get<any>(`${this.api}/api/users/me`).pipe(
+      catchError(() => of(null)),
+      switchMap(profile => {
+        this.className = profile?.className || '';
+        const schedules$ = this.className
+          ? this.http.get<any[]>(`${this.api}/api/schedules/class?name=${encodeURIComponent(this.className)}`).pipe(
+              catchError(() => this.http.get<any[]>(`${this.api}/api/schedules`).pipe(catchError(() => of([])))))
+          : this.http.get<any[]>(`${this.api}/api/schedules`).pipe(catchError(() => of([])));
+
+        const courses$ = this.http.get<any>(`${this.api}/api/v1/courses?size=200`).pipe(catchError(() => of([])));
+
+        return forkJoin({ schedules: schedules$, courses: courses$ });
+      })
+    ).subscribe(({ schedules, courses }: any) => {
+      const list: any[] = Array.isArray(courses) ? courses : (courses?.content ?? []);
+      list.forEach((c: any) => { if (c.courseId) this.courseMap[c.courseId] = c.name; });
+      this.schedules = schedules || [];
       this.loading = false;
     });
+  }
+
+  forDay(day: string): any[] {
+    return this.schedules.filter(s => s.dayOfWeek === day);
+  }
+
+  courseName(s: any): string {
+    if (s.courseId && this.courseMap[s.courseId]) return this.courseMap[s.courseId];
+    return s.courseName || s.subject || 'Course';
+  }
+
+  color(day: string): string {
+    return this.dayColors[day] ?? '#6366f1';
   }
 }
