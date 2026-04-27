@@ -81,6 +81,7 @@ export class UserService {
       lastName?: string;
       cin?: string;
       phoneNumber?: string;
+      role?: string;
     }
   ): Observable<PageResponse<UserResponseDto>> {
     let params = new HttpParams()
@@ -93,6 +94,7 @@ export class UserService {
     if (filters.lastName) params = params.set('lastName', filters.lastName);
     if (filters.cin) params = params.set('cin', filters.cin);
     if (filters.phoneNumber) params = params.set('phoneNumber', filters.phoneNumber);
+    if (filters.role) params = params.set('role', filters.role);
 
     return this.http.get<PageResponse<UserResponseDto>>(this.API, { params });
   }

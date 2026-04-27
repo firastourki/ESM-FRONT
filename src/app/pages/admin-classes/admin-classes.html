@@ -155,119 +155,121 @@
 </div>
 
 <!-- ── Manage Class Modal ─────────────────────────────────────────────── -->
-<div *ngIf="showManageModal && managedClass" class="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-  <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto">
-    <div class="flex items-center justify-between mb-5">
+<div *ngIf="showManageModal && managedClass" class="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl flex flex-col" style="max-height:90vh">
+
+    <!-- Header (fixed) -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 shrink-0">
       <div>
         <h2 class="text-lg font-semibold text-gray-900">{{ managedClass.name }}</h2>
         <p class="text-xs text-gray-500">{{ managedClass.level }} · {{ managedClass.specialty }}</p>
       </div>
-      <button type="button" (click)="closeManageModal()" class="text-gray-500 hover:text-gray-700 text-lg">✕</button>
+      <button type="button" (click)="closeManageModal()" class="text-gray-400 hover:text-gray-700 text-xl leading-none">✕</button>
     </div>
 
-    <!-- Tutor Section -->
-    <div class="mb-6">
-      <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-        <span class="bg-purple-100 text-purple-700 rounded px-2 py-0.5 text-xs">TUTOR</span>
-      </h3>
+    <!-- Scrollable body -->
+    <div class="overflow-y-auto flex-1 px-6 py-5">
 
-      <!-- Current Tutor -->
-      <div *ngIf="managedClass.tutorId"
-        class="flex items-center justify-between p-3 bg-purple-50 border border-purple-100 rounded-lg mb-3">
-        <div>
-          <div class="text-sm font-medium text-gray-800">
-            {{ managedClass.tutorFirstName }} {{ managedClass.tutorLastName }}
-          </div>
-          <div class="text-xs text-gray-500">{{ managedClass.tutorEmail }}</div>
+      <!-- ── TUTOR ──────────────────────────────────────────────────────── -->
+      <div class="mb-6">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="bg-purple-100 text-purple-700 rounded px-2 py-0.5 text-xs font-semibold tracking-wide">TUTOR</span>
         </div>
-        <button type="button" (click)="removeTutor()"
-          class="px-2 py-1 text-xs rounded-md border border-red-300 text-red-600 hover:bg-red-50">
-          Remove
-        </button>
-      </div>
-      <p *ngIf="!managedClass.tutorId" class="text-sm text-gray-400 mb-3">No tutor assigned.</p>
 
-      <!-- Search Tutor -->
-      <div class="flex gap-2">
-        <input type="text" [(ngModel)]="tutorSearch" placeholder="Search tutor by email…"
-          (keyup.enter)="searchTutors()"
-          class="flex-1 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
-        <button type="button" (click)="searchTutors()" [disabled]="tutorSearching"
-          class="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50">
-          {{ tutorSearching ? '…' : 'Search' }}
+        <!-- Current tutor -->
+        <div *ngIf="managedClass.tutorId"
+          class="flex items-center justify-between p-3 bg-purple-50 border border-purple-100 rounded-lg mb-3">
+          <div>
+            <div class="text-sm font-medium text-gray-800">{{ managedClass.tutorFirstName }} {{ managedClass.tutorLastName }}</div>
+            <div class="text-xs text-gray-500">{{ managedClass.tutorEmail }}</div>
+          </div>
+          <button type="button" (click)="removeTutor()"
+            class="px-2 py-1 text-xs rounded-md border border-red-300 text-red-600 hover:bg-red-50">Remove</button>
+        </div>
+        <p *ngIf="!managedClass.tutorId" class="text-sm text-gray-400 mb-3">No tutor assigned.</p>
+
+        <!-- Tutor live filter -->
+        <input type="text" [(ngModel)]="tutorQuery" placeholder="Filter tutors by name or email…"
+          class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm mb-2 focus:outline-none focus:ring-1 focus:ring-indigo-400" />
+
+        <!-- Tutor scrollable list (radio-select) -->
+        <div *ngIf="tutorsLoading" class="text-center py-3 text-sm text-gray-400">Loading tutors…</div>
+        <div *ngIf="!tutorsLoading" class="border border-gray-200 rounded-lg overflow-hidden mb-2" style="max-height:168px;overflow-y:auto">
+          <div *ngIf="filteredTutors.length === 0" class="px-3 py-3 text-center text-sm text-gray-400">
+            {{ allTutors.length === 0 ? 'No tutors found in system.' : 'No tutors match filter.' }}
+          </div>
+          <label *ngFor="let u of filteredTutors"
+            class="flex items-center gap-3 px-3 py-2 border-b border-gray-100 last:border-0 cursor-pointer text-sm hover:bg-indigo-50"
+            [class.bg-indigo-50]="selectedTutorId === u.id">
+            <input type="radio" name="tutorRadio" [value]="u.id" [(ngModel)]="selectedTutorId"
+              class="accent-indigo-600" />
+            <div class="flex-1 min-w-0">
+              <span class="font-medium text-gray-800">{{ u.firstName }} {{ u.lastName }}</span>
+              <span class="text-gray-500 ml-2 text-xs">{{ u.email }}</span>
+            </div>
+            <span *ngIf="managedClass.tutorId === u.id"
+              class="text-xs bg-purple-100 text-purple-700 rounded px-1.5 py-0.5 shrink-0">Current</span>
+          </label>
+        </div>
+        <button type="button" (click)="assignSelectedTutor()"
+          [disabled]="!selectedTutorId"
+          class="px-4 py-1.5 text-sm rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-default">
+          Assign Selected Tutor
         </button>
       </div>
-      <div *ngIf="tutorResults.length > 0" class="mt-2 border border-gray-200 rounded-lg overflow-hidden">
-        <div *ngFor="let u of tutorResults"
-          class="flex items-center justify-between px-3 py-2 border-b border-gray-100 last:border-0 hover:bg-gray-50 text-sm">
-          <div>
-            <span class="font-medium text-gray-800">{{ u.firstName }} {{ u.lastName }}</span>
-            <span class="text-gray-500 ml-2 text-xs">{{ u.email }}</span>
-            <span class="ml-2 text-xs bg-gray-100 text-gray-600 rounded px-1">{{ u.role }}</span>
+
+      <hr class="border-gray-200 mb-5" />
+
+      <!-- ── STUDENTS ───────────────────────────────────────────────────── -->
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <span class="bg-blue-100 text-blue-700 rounded px-2 py-0.5 text-xs font-semibold tracking-wide">STUDENTS</span>
+          <span class="text-gray-400 text-xs">({{ managedClass.studentCount }} enrolled)</span>
+        </div>
+
+        <!-- Enrolled students (scrollable) -->
+        <div *ngIf="managedClass.students.length > 0"
+          class="border border-gray-200 rounded-lg overflow-hidden mb-4" style="max-height:160px;overflow-y:auto">
+          <div *ngFor="let s of managedClass.students"
+            class="flex items-center justify-between px-3 py-2 border-b border-gray-100 last:border-0 hover:bg-gray-50 text-sm">
+            <div>
+              <span class="font-medium text-gray-800">{{ s.firstName }} {{ s.lastName }}</span>
+              <span class="text-gray-500 ml-2 text-xs">{{ s.email }}</span>
+            </div>
+            <button type="button" (click)="removeStudent(s.id)"
+              class="px-2 py-0.5 text-xs rounded border border-red-300 text-red-600 hover:bg-red-50">Remove</button>
           </div>
-          <button type="button" (click)="assignTutor(u.id)"
-            class="px-2 py-0.5 text-xs rounded border border-blue-300 text-blue-600 hover:bg-blue-50">
-            Assign
-          </button>
+        </div>
+        <p *ngIf="managedClass.students.length === 0" class="text-sm text-gray-400 mb-4">No students enrolled.</p>
+
+        <!-- Add students section -->
+        <p class="text-xs font-semibold text-gray-600 mb-2">Add students</p>
+
+        <!-- Student live filter -->
+        <input type="text" [(ngModel)]="studentQuery" placeholder="Filter students by name or email…"
+          class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm mb-2 focus:outline-none focus:ring-1 focus:ring-blue-400" />
+
+        <!-- Student scrollable list -->
+        <div *ngIf="studentsLoading" class="text-center py-3 text-sm text-gray-400">Loading students…</div>
+        <div *ngIf="!studentsLoading" class="border border-gray-200 rounded-lg overflow-hidden" style="max-height:220px;overflow-y:auto">
+          <div *ngIf="filteredStudents.length === 0" class="px-3 py-3 text-center text-sm text-gray-400">
+            {{ allStudents.length === 0 ? 'No students found in system.' : 'No available students (all are enrolled in a class or match your filter).' }}
+          </div>
+          <div *ngFor="let u of filteredStudents"
+            class="flex items-center justify-between px-3 py-2 border-b border-gray-100 last:border-0 hover:bg-gray-50 text-sm">
+            <div class="min-w-0">
+              <span class="font-medium text-gray-800">{{ u.firstName }} {{ u.lastName }}</span>
+              <span class="text-gray-500 ml-2 text-xs">{{ u.email }}</span>
+            </div>
+            <button type="button" (click)="assignStudent(u.id)"
+              class="ml-3 shrink-0 px-3 py-0.5 text-xs rounded border border-blue-300 text-blue-600 hover:bg-blue-50">Add</button>
+          </div>
         </div>
       </div>
     </div>
 
-    <hr class="border-gray-200 mb-6" />
-
-    <!-- Students Section -->
-    <div>
-      <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-        <span class="bg-blue-100 text-blue-700 rounded px-2 py-0.5 text-xs">STUDENTS</span>
-        <span class="text-gray-400 text-xs">({{ managedClass.studentCount }})</span>
-      </h3>
-
-      <!-- Current Students -->
-      <div *ngIf="managedClass.students.length === 0" class="text-sm text-gray-400 mb-3">No students enrolled.</div>
-      <div *ngIf="managedClass.students.length > 0"
-        class="border border-gray-200 rounded-lg overflow-hidden mb-4">
-        <div *ngFor="let s of managedClass.students"
-          class="flex items-center justify-between px-3 py-2 border-b border-gray-100 last:border-0 text-sm hover:bg-gray-50">
-          <div>
-            <span class="font-medium text-gray-800">{{ s.firstName }} {{ s.lastName }}</span>
-            <span class="text-gray-500 ml-2 text-xs">{{ s.email }}</span>
-          </div>
-          <button type="button" (click)="removeStudent(s.id)"
-            class="px-2 py-0.5 text-xs rounded border border-red-300 text-red-600 hover:bg-red-50">
-            Remove
-          </button>
-        </div>
-      </div>
-
-      <!-- Search Student -->
-      <div class="flex gap-2">
-        <input type="text" [(ngModel)]="studentSearch" placeholder="Search student by email…"
-          (keyup.enter)="searchStudents()"
-          class="flex-1 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
-        <button type="button" (click)="searchStudents()" [disabled]="studentSearching"
-          class="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50">
-          {{ studentSearching ? '…' : 'Search' }}
-        </button>
-      </div>
-      <div *ngIf="studentResults.length > 0" class="mt-2 border border-gray-200 rounded-lg overflow-hidden">
-        <div *ngFor="let u of studentResults"
-          class="flex items-center justify-between px-3 py-2 border-b border-gray-100 last:border-0 hover:bg-gray-50 text-sm">
-          <div>
-            <span class="font-medium text-gray-800">{{ u.firstName }} {{ u.lastName }}</span>
-            <span class="text-gray-500 ml-2 text-xs">{{ u.email }}</span>
-            <span class="ml-2 text-xs bg-gray-100 text-gray-600 rounded px-1">{{ u.role }}</span>
-          </div>
-          <button type="button" (click)="assignStudent(u.id)"
-            class="px-2 py-0.5 text-xs rounded border border-blue-300 text-blue-600 hover:bg-blue-50">
-            Add
-          </button>
-        </div>
-      </div>
-      <p *ngIf="studentResults.length === 0 && studentSearch && !studentSearching"
-        class="text-xs text-gray-500 mt-2">No results (all matching users may already be in this class).</p>
-    </div>
-
-    <div class="flex justify-end mt-6">
+    <!-- Footer (fixed) -->
+    <div class="flex justify-end px-6 py-3 border-t border-gray-200 shrink-0">
       <button type="button" (click)="closeManageModal()"
         class="px-4 py-1.5 text-sm rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">Done</button>
     </div>

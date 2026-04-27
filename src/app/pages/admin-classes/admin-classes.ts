@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { ClassService, ClassResponse } from '../../core/services/class.service';
@@ -14,9 +14,10 @@ export class AdminClasses implements OnInit {
   private classService = inject(ClassService);
   private userService = inject(UserService);
   private fb = inject(FormBuilder);
+  private cdr = inject(ChangeDetectorRef);
 
   classes: ClassResponse[] = [];
-  loading = false;
+  loading = true;
   errorMessage = '';
 
   // ── Create ──────────────────────────────────────────────────────────────
@@ -38,18 +39,50 @@ export class AdminClasses implements OnInit {
     description: ['']
   });
 
-  // ── Manage (students + tutor) ─────────────────────────────────────────────
+  // ── Manage ────────────────────────────────────────────────────────────────
   showManageModal = false;
   managedClass: ClassResponse | null = null;
-  manageLoading = false;
 
-  tutorSearch = '';
-  tutorResults: UserResponseDto[] = [];
-  tutorSearching = false;
+  // Tutors — radio-select one, then assign
+  allTutors: UserResponseDto[] = [];
+  tutorsLoading = false;
+  tutorQuery = '';
+  selectedTutorId: string | null = null;
 
-  studentSearch = '';
-  studentResults: UserResponseDto[] = [];
-  studentSearching = false;
+  // Students — per-row Add button
+  allStudents: UserResponseDto[] = [];
+  studentsLoading = false;
+  studentQuery = '';
+
+  get filteredTutors(): UserResponseDto[] {
+    const q = this.tutorQuery.toLowerCase().trim();
+    return this.allTutors.filter(u => {
+      if (u.role !== 'TUTOR') return false;
+      if (!q) return true;
+      return (
+        u.email.toLowerCase().includes(q) ||
+        (u.firstName ?? '').toLowerCase().includes(q) ||
+        (u.lastName ?? '').toLowerCase().includes(q)
+      );
+    });
+  }
+
+  get filteredStudents(): UserResponseDto[] {
+    const enrolled = new Set((this.managedClass?.students || []).map(s => s.id));
+    const q = this.studentQuery.toLowerCase().trim();
+    return this.allStudents.filter(u => {
+      if (u.role !== 'STUDENT') return false;
+      if (enrolled.has(u.id)) return false;
+      // exclude students already enrolled in a different class
+      if (u.className) return false;
+      if (!q) return true;
+      return (
+        u.email.toLowerCase().includes(q) ||
+        (u.firstName ?? '').toLowerCase().includes(q) ||
+        (u.lastName ?? '').toLowerCase().includes(q)
+      );
+    });
+  }
 
   ngOnInit(): void {
     this.loadClasses();
@@ -59,8 +92,16 @@ export class AdminClasses implements OnInit {
     this.loading = true;
     this.errorMessage = '';
     this.classService.listClasses().subscribe({
-      next: (data) => { this.classes = data; this.loading = false; },
-      error: (err) => { this.errorMessage = `Failed to load classes: ${err?.message || 'Unknown error'}`; this.loading = false; }
+      next: (data) => {
+        this.classes = data;
+        this.loading = false;
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        this.errorMessage = `Failed to load classes: ${err?.error?.message || err?.message || 'Unknown error'}`;
+        this.loading = false;
+        this.cdr.markForCheck();
+      }
     });
   }
 
@@ -84,7 +125,7 @@ export class AdminClasses implements OnInit {
       description: v.description || null
     }).subscribe({
       next: () => { this.showCreateModal = false; this.loadClasses(); },
-      error: (err) => { this.errorMessage = err?.error?.message || 'Failed to create class'; }
+      error: (err) => { this.errorMessage = err?.error?.message || 'Failed to create class'; this.cdr.markForCheck(); }
     });
   }
 
@@ -114,7 +155,7 @@ export class AdminClasses implements OnInit {
       description: v.description || null
     }).subscribe({
       next: () => { this.showEditModal = false; this.editingId = null; this.loadClasses(); },
-      error: (err) => { this.errorMessage = err?.error?.message || 'Failed to update class'; }
+      error: (err) => { this.errorMessage = err?.error?.message || 'Failed to update class'; this.cdr.markForCheck(); }
     });
   }
 
@@ -123,18 +164,21 @@ export class AdminClasses implements OnInit {
     if (!confirm(`Delete class "${cls.name}"? This cannot be undone.`)) return;
     this.classService.deleteClass(cls.id).subscribe({
       next: () => this.loadClasses(),
-      error: (err) => { this.errorMessage = err?.error?.message || 'Failed to delete class'; }
+      error: (err) => { this.errorMessage = err?.error?.message || 'Failed to delete class'; this.cdr.markForCheck(); }
     });
   }
 
   // ── Manage Modal ──────────────────────────────────────────────────────────
   openManageModal(cls: ClassResponse): void {
     this.managedClass = { ...cls, students: [...cls.students] };
-    this.tutorSearch = '';
-    this.tutorResults = [];
-    this.studentSearch = '';
-    this.studentResults = [];
+    this.tutorQuery = '';
+    this.studentQuery = '';
+    this.selectedTutorId = null;
+    this.allTutors = [];
+    this.allStudents = [];
     this.showManageModal = true;
+    this.loadAllTutors();
+    this.loadAllStudents();
   }
 
   closeManageModal(): void {
@@ -143,30 +187,28 @@ export class AdminClasses implements OnInit {
     this.loadClasses();
   }
 
-  private refreshManagedClass(): void {
-    if (!this.managedClass) return;
-    this.manageLoading = true;
-    this.classService.getClass(this.managedClass.id).subscribe({
-      next: (c) => { this.managedClass = c; this.manageLoading = false; },
-      error: () => { this.manageLoading = false; }
+  private loadAllTutors(): void {
+    this.tutorsLoading = true;
+    this.userService.listUsers(0, 200, { role: 'TUTOR' }).subscribe({
+      next: (p) => { this.allTutors = p.content; this.tutorsLoading = false; this.cdr.markForCheck(); },
+      error: () => { this.tutorsLoading = false; this.cdr.markForCheck(); }
+    });
+  }
+
+  private loadAllStudents(): void {
+    this.studentsLoading = true;
+    this.userService.listUsers(0, 500, { role: 'STUDENT' }).subscribe({
+      next: (p) => { this.allStudents = p.content; this.studentsLoading = false; this.cdr.markForCheck(); },
+      error: () => { this.studentsLoading = false; this.cdr.markForCheck(); }
     });
   }
 
   // ── Tutor ─────────────────────────────────────────────────────────────────
-  searchTutors(): void {
-    if (!this.tutorSearch.trim()) return;
-    this.tutorSearching = true;
-    this.userService.listUsers(0, 10, { email: this.tutorSearch.trim() }).subscribe({
-      next: (p) => { this.tutorResults = p.content; this.tutorSearching = false; },
-      error: () => { this.tutorSearching = false; }
-    });
-  }
-
-  assignTutor(userId: string): void {
-    if (!this.managedClass) return;
-    this.classService.assignTutor(this.managedClass.id, userId).subscribe({
-      next: (c) => { this.managedClass = c; this.tutorResults = []; this.tutorSearch = ''; },
-      error: (err) => { this.errorMessage = err?.error?.message || 'Failed to assign tutor'; }
+  assignSelectedTutor(): void {
+    if (!this.managedClass || !this.selectedTutorId) return;
+    this.classService.assignTutor(this.managedClass.id, this.selectedTutorId).subscribe({
+      next: (c) => { this.managedClass = c; this.selectedTutorId = null; this.tutorQuery = ''; this.cdr.markForCheck(); },
+      error: (err) => { this.errorMessage = err?.error?.message || 'Failed to assign tutor'; this.cdr.markForCheck(); }
     });
   }
 
@@ -174,38 +216,25 @@ export class AdminClasses implements OnInit {
     if (!this.managedClass) return;
     if (!confirm('Remove the current tutor from this class?')) return;
     this.classService.removeTutor(this.managedClass.id).subscribe({
-      next: (c) => { this.managedClass = c; },
-      error: (err) => { this.errorMessage = err?.error?.message || 'Failed to remove tutor'; }
+      next: (c) => { this.managedClass = c; this.cdr.markForCheck(); },
+      error: (err) => { this.errorMessage = err?.error?.message || 'Failed to remove tutor'; this.cdr.markForCheck(); }
     });
   }
 
   // ── Students ──────────────────────────────────────────────────────────────
-  searchStudents(): void {
-    if (!this.studentSearch.trim()) return;
-    this.studentSearching = true;
-    this.userService.listUsers(0, 10, { email: this.studentSearch.trim() }).subscribe({
-      next: (p) => {
-        const existing = new Set((this.managedClass?.students || []).map(s => s.id));
-        this.studentResults = p.content.filter(u => !existing.has(u.id));
-        this.studentSearching = false;
-      },
-      error: () => { this.studentSearching = false; }
-    });
-  }
-
   assignStudent(userId: string): void {
     if (!this.managedClass) return;
     this.classService.assignStudent(this.managedClass.id, userId).subscribe({
-      next: (c) => { this.managedClass = c; this.studentResults = []; this.studentSearch = ''; },
-      error: (err) => { this.errorMessage = err?.error?.message || 'Failed to assign student'; }
+      next: (c) => { this.managedClass = c; this.cdr.markForCheck(); },
+      error: (err) => { this.errorMessage = err?.error?.message || 'Failed to assign student'; this.cdr.markForCheck(); }
     });
   }
 
   removeStudent(userId: string): void {
     if (!this.managedClass) return;
     this.classService.removeStudent(this.managedClass.id, userId).subscribe({
-      next: (c) => { this.managedClass = c; },
-      error: (err) => { this.errorMessage = err?.error?.message || 'Failed to remove student'; }
+      next: (c) => { this.managedClass = c; this.cdr.markForCheck(); },
+      error: (err) => { this.errorMessage = err?.error?.message || 'Failed to remove student'; this.cdr.markForCheck(); }
     });
   }
 

@@ -8,7 +8,8 @@
       "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); proj=list\\(d['projects'].values\\(\\)\\)[0]; build=proj['architect']['build']; print\\(json.dumps\\({k:build['options'].get\\(k\\) for k in ['server','serverRoutesConfig','ssr','prerender']}, indent=2\\)\\)\")",
       "Bash(python -c ' *)",
       "mcp__claude_ai_Notion__notion-search",
-      "mcp__claude_ai_Notion__notion-create-database"
+      "mcp__claude_ai_Notion__notion-create-database",
+      "Bash(grep -E \"\\\\.\\(ts|html\\)$\")"
     ]
   }
 }

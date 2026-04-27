@@ -7,13 +7,16 @@
     </div>
 
     <nav>
-      <a routerLink="/tutor/dashboard"  routerLinkActive="active">
+      <a routerLink="/tutor/dashboard"    routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
         <mat-icon>home</mat-icon><span>Dashboard</span>
       </a>
-      <a routerLink="/tutor/grades"     routerLinkActive="active">
+      <a routerLink="/tutor/assessments" routerLinkActive="active">
+        <mat-icon>assignment</mat-icon><span>Assessments</span>
+      </a>
+      <a routerLink="/tutor/grades"      routerLinkActive="active">
         <mat-icon>grade</mat-icon><span>Grades</span>
       </a>
-      <a routerLink="/tutor/resources"  routerLinkActive="active">
+      <a routerLink="/tutor/resources"   routerLinkActive="active">
         <mat-icon>library_books</mat-icon><span>Resources</span>
       </a>
       <a routerLink="/tutor/reports"    routerLinkActive="active">

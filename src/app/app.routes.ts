@@ -43,6 +43,7 @@ import { AdminUsers } from './pages/users/users';
 import { AdminClasses } from './pages/admin-classes/admin-classes';
 import { AdminParents } from './pages/admin-parents/admin-parents';
 import { TutorDashboard } from './pages/tutor-dashboard/tutor-dashboard';
+import { TutorAssessments } from './pages/tutor-assessments/tutor-assessments';
 
 // ── Student pages ─────────────────────────────────────────────────────────────
 import { StudentCoursesPage } from './pages/student/student-courses/student-courses';
@@ -107,6 +108,8 @@ export const routes: Routes = [
     data: { allowedRoles: ['TUTOR'] },
     children: [
       { path: 'dashboard', component: TutorDashboard },
+      { path: 'assessments', component: TutorAssessments },
+      { path: 'assessment/:id', component: AssessmentDetails },
       { path: 'grades', component: GradesComponent },
       { path: 'resources', component: Resources },
       { path: 'reports', component: Reports },

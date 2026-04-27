@@ -188,88 +188,87 @@
 </div>
 
 <!-- ── Manage Children Modal ──────────────────────────────────────────── -->
-<div *ngIf="showChildrenModal && managedParent" class="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-  <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto">
-    <div class="flex items-center justify-between mb-5">
+<div *ngIf="showChildrenModal && managedParent" class="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl flex flex-col" style="max-height:90vh">
+
+    <!-- Header (fixed) -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 shrink-0">
       <div>
         <h2 class="text-lg font-semibold text-gray-900">
           Children of {{ managedParent.firstName }} {{ managedParent.lastName }}
         </h2>
         <p class="text-xs text-gray-500">{{ managedParent.email }}</p>
       </div>
-      <button type="button" (click)="closeChildrenModal()" class="text-gray-500 hover:text-gray-700 text-lg">✕</button>
+      <button type="button" (click)="closeChildrenModal()" class="text-gray-400 hover:text-gray-700 text-xl leading-none">✕</button>
     </div>
 
-    <!-- Current Children -->
-    <div class="mb-5">
-      <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-        <span class="bg-green-100 text-green-700 rounded px-2 py-0.5 text-xs">LINKED STUDENTS</span>
-        <span class="text-gray-400 text-xs">({{ children.length }})</span>
-      </h3>
+    <!-- Scrollable body -->
+    <div class="overflow-y-auto flex-1 px-6 py-5">
 
-      <div *ngIf="childrenLoading" class="text-sm text-gray-500">Loading...</div>
+      <!-- Linked students -->
+      <div class="mb-5">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="bg-green-100 text-green-700 rounded px-2 py-0.5 text-xs font-semibold tracking-wide">LINKED STUDENTS</span>
+          <span class="text-gray-400 text-xs">({{ children.length }})</span>
+        </div>
 
-      <div *ngIf="!childrenLoading && children.length === 0"
-        class="text-sm text-gray-400">No students linked to this parent.</div>
+        <div *ngIf="childrenLoading" class="text-sm text-gray-400 py-2">Loading…</div>
 
-      <div *ngIf="!childrenLoading && children.length > 0"
-        class="border border-gray-200 rounded-lg overflow-hidden">
-        <div *ngFor="let child of children"
-          class="flex items-center justify-between px-3 py-2 border-b border-gray-100 last:border-0 hover:bg-gray-50 text-sm">
-          <div>
-            <span class="font-medium text-gray-800">{{ child.firstName }} {{ child.lastName }}</span>
-            <span class="text-gray-500 ml-2 text-xs">{{ child.email }}</span>
-            <span *ngIf="child.className" class="ml-2 text-xs bg-blue-50 text-blue-600 rounded px-1">
-              {{ child.className }}
-            </span>
+        <p *ngIf="!childrenLoading && children.length === 0" class="text-sm text-gray-400">
+          No students linked to this parent.
+        </p>
+
+        <div *ngIf="!childrenLoading && children.length > 0"
+          class="border border-gray-200 rounded-lg overflow-hidden" style="max-height:180px;overflow-y:auto">
+          <div *ngFor="let child of children"
+            class="flex items-center justify-between px-3 py-2 border-b border-gray-100 last:border-0 hover:bg-gray-50 text-sm">
+            <div>
+              <span class="font-medium text-gray-800">{{ child.firstName }} {{ child.lastName }}</span>
+              <span class="text-gray-500 ml-2 text-xs">{{ child.email }}</span>
+              <span *ngIf="child.className" class="ml-2 text-xs bg-blue-50 text-blue-600 rounded px-1">
+                {{ child.className }}
+              </span>
+            </div>
+            <button type="button" (click)="removeChild(child.id)"
+              class="px-2 py-0.5 text-xs rounded border border-red-300 text-red-600 hover:bg-red-50">Unlink</button>
           </div>
-          <button type="button" (click)="removeChild(child.id)"
-            class="px-2 py-0.5 text-xs rounded border border-red-300 text-red-600 hover:bg-red-50">
-            Unlink
-          </button>
+        </div>
+      </div>
+
+      <hr class="border-gray-200 mb-5" />
+
+      <!-- Link new student -->
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <span class="bg-blue-100 text-blue-700 rounded px-2 py-0.5 text-xs font-semibold tracking-wide">LINK STUDENT</span>
+        </div>
+
+        <!-- Live filter input -->
+        <input type="text" [(ngModel)]="childQuery" placeholder="Filter students by name or email…"
+          class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm mb-2 focus:outline-none focus:ring-1 focus:ring-blue-400" />
+
+        <!-- Scrollable student list -->
+        <div *ngIf="studentsLoading" class="text-center py-3 text-sm text-gray-400">Loading students…</div>
+        <div *ngIf="!studentsLoading" class="border border-gray-200 rounded-lg overflow-hidden" style="max-height:220px;overflow-y:auto">
+          <div *ngIf="filteredStudents.length === 0" class="px-3 py-3 text-center text-sm text-gray-400">
+            {{ allStudents.length === 0 ? 'No students found in system.' : 'All matching students are already linked.' }}
+          </div>
+          <div *ngFor="let u of filteredStudents"
+            class="flex items-center justify-between px-3 py-2 border-b border-gray-100 last:border-0 hover:bg-gray-50 text-sm">
+            <div>
+              <span class="font-medium text-gray-800">{{ u.firstName }} {{ u.lastName }}</span>
+              <span class="text-gray-500 ml-2 text-xs">{{ u.email }}</span>
+              <span *ngIf="u.className" class="ml-2 text-xs bg-blue-50 text-blue-600 rounded px-1">{{ u.className }}</span>
+            </div>
+            <button type="button" (click)="assignChild(u.id)"
+              class="px-2 py-0.5 text-xs rounded border border-blue-300 text-blue-600 hover:bg-blue-50">Link</button>
+          </div>
         </div>
       </div>
     </div>
 
-    <hr class="border-gray-200 mb-5" />
-
-    <!-- Link New Student -->
-    <div>
-      <h3 class="text-sm font-semibold text-gray-700 mb-3">
-        <span class="bg-blue-100 text-blue-700 rounded px-2 py-0.5 text-xs">LINK STUDENT</span>
-      </h3>
-      <div class="flex gap-2">
-        <input type="text" [(ngModel)]="childSearch" placeholder="Search student by email…"
-          (keyup.enter)="searchChildren()"
-          class="flex-1 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
-        <button type="button" (click)="searchChildren()" [disabled]="childSearching"
-          class="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50">
-          {{ childSearching ? '…' : 'Search' }}
-        </button>
-      </div>
-
-      <div *ngIf="childResults.length > 0" class="mt-2 border border-gray-200 rounded-lg overflow-hidden">
-        <div *ngFor="let u of childResults"
-          class="flex items-center justify-between px-3 py-2 border-b border-gray-100 last:border-0 hover:bg-gray-50 text-sm">
-          <div>
-            <span class="font-medium text-gray-800">{{ u.firstName }} {{ u.lastName }}</span>
-            <span class="text-gray-500 ml-2 text-xs">{{ u.email }}</span>
-            <span class="ml-2 text-xs bg-gray-100 text-gray-600 rounded px-1">{{ u.role }}</span>
-            <span *ngIf="u.className" class="ml-2 text-xs bg-blue-50 text-blue-600 rounded px-1">
-              {{ u.className }}
-            </span>
-          </div>
-          <button type="button" (click)="assignChild(u.id)"
-            class="px-2 py-0.5 text-xs rounded border border-blue-300 text-blue-600 hover:bg-blue-50">
-            Link
-          </button>
-        </div>
-      </div>
-      <p *ngIf="childResults.length === 0 && childSearch && !childSearching"
-        class="text-xs text-gray-500 mt-2">No results (already linked students are hidden).</p>
-    </div>
-
-    <div class="flex justify-end mt-6">
+    <!-- Footer (fixed) -->
+    <div class="flex justify-end px-6 py-3 border-t border-gray-200 shrink-0">
       <button type="button" (click)="closeChildrenModal()"
         class="px-4 py-1.5 text-sm rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">Done</button>
     </div>

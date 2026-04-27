@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { ParentService } from '../../core/services/parent.service';
@@ -14,12 +14,13 @@ export class AdminParents implements OnInit {
   private parentService = inject(ParentService);
   private userService = inject(UserService);
   private fb = inject(FormBuilder);
+  private cdr = inject(ChangeDetectorRef);
 
   parents: UserResponseDto[] = [];
   totalElements = 0;
   pageSize = 10;
   pageIndex = 0;
-  loading = false;
+  loading = true;
   errorMessage = '';
 
   // ── Create ────────────────────────────────────────────────────────────────
@@ -47,9 +48,25 @@ export class AdminParents implements OnInit {
   children: UserResponseDto[] = [];
   childrenLoading = false;
 
-  childSearch = '';
-  childResults: UserResponseDto[] = [];
-  childSearching = false;
+  allStudents: UserResponseDto[] = [];
+  studentsLoading = false;
+  childQuery = '';
+
+  // Live-filtered list: only STUDENT role, exclude already-linked children
+  get filteredStudents(): UserResponseDto[] {
+    const linked = new Set(this.children.map(c => c.id));
+    const q = this.childQuery.toLowerCase().trim();
+    return this.allStudents.filter(u => {
+      if (u.role !== 'STUDENT') return false;
+      if (linked.has(u.id)) return false;
+      if (!q) return true;
+      return (
+        u.email.toLowerCase().includes(q) ||
+        (u.firstName ?? '').toLowerCase().includes(q) ||
+        (u.lastName ?? '').toLowerCase().includes(q)
+      );
+    });
+  }
 
   ngOnInit(): void {
     this.loadParents();
@@ -65,10 +82,12 @@ export class AdminParents implements OnInit {
         this.pageIndex = p.number;
         this.pageSize = p.size;
         this.loading = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
-        this.errorMessage = `Failed to load parents: ${err?.message || 'Unknown error'}`;
+        this.errorMessage = `Failed to load parents: ${err?.error?.message || err?.message || 'Unknown error'}`;
         this.loading = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -100,7 +119,7 @@ export class AdminParents implements OnInit {
       phoneNumber: v.phoneNumber || undefined
     }).subscribe({
       next: () => { this.showCreateModal = false; this.loadParents(0); },
-      error: (err) => { this.errorMessage = err?.error?.message || 'Failed to create parent'; }
+      error: (err) => { this.errorMessage = err?.error?.message || 'Failed to create parent'; this.cdr.markForCheck(); }
     });
   }
 
@@ -130,7 +149,7 @@ export class AdminParents implements OnInit {
       address: v.address || undefined
     }).subscribe({
       next: () => { this.showEditModal = false; this.editingId = null; this.loadParents(this.pageIndex); },
-      error: (err) => { this.errorMessage = err?.error?.message || 'Failed to update parent'; }
+      error: (err) => { this.errorMessage = err?.error?.message || 'Failed to update parent'; this.cdr.markForCheck(); }
     });
   }
 
@@ -139,7 +158,7 @@ export class AdminParents implements OnInit {
     if (!confirm(`Delete parent account for ${parent.email}? All child links will be removed.`)) return;
     this.parentService.deleteParent(parent.id).subscribe({
       next: () => this.loadParents(this.pageIndex),
-      error: (err) => { this.errorMessage = err?.error?.message || 'Failed to delete parent'; }
+      error: (err) => { this.errorMessage = err?.error?.message || 'Failed to delete parent'; this.cdr.markForCheck(); }
     });
   }
 
@@ -147,10 +166,11 @@ export class AdminParents implements OnInit {
   openChildrenModal(parent: UserResponseDto): void {
     this.managedParent = parent;
     this.children = [];
-    this.childSearch = '';
-    this.childResults = [];
+    this.childQuery = '';
+    this.allStudents = [];
     this.showChildrenModal = true;
     this.loadChildren(parent.id);
+    this.loadAllStudents();
   }
 
   closeChildrenModal(): void {
@@ -162,21 +182,16 @@ export class AdminParents implements OnInit {
   loadChildren(parentId: string): void {
     this.childrenLoading = true;
     this.parentService.getChildren(parentId).subscribe({
-      next: (list) => { this.children = list; this.childrenLoading = false; },
-      error: () => { this.childrenLoading = false; }
+      next: (list) => { this.children = list; this.childrenLoading = false; this.cdr.markForCheck(); },
+      error: () => { this.childrenLoading = false; this.cdr.markForCheck(); }
     });
   }
 
-  searchChildren(): void {
-    if (!this.childSearch.trim()) return;
-    this.childSearching = true;
-    this.userService.listUsers(0, 10, { email: this.childSearch.trim() }).subscribe({
-      next: (p) => {
-        const linked = new Set(this.children.map(c => c.id));
-        this.childResults = p.content.filter(u => !linked.has(u.id) && u.role !== 'PARENT');
-        this.childSearching = false;
-      },
-      error: () => { this.childSearching = false; }
+  private loadAllStudents(): void {
+    this.studentsLoading = true;
+    this.userService.listUsers(0, 500, { role: 'STUDENT' }).subscribe({
+      next: (p) => { this.allStudents = p.content; this.studentsLoading = false; this.cdr.markForCheck(); },
+      error: () => { this.studentsLoading = false; this.cdr.markForCheck(); }
     });
   }
 
@@ -184,11 +199,10 @@ export class AdminParents implements OnInit {
     if (!this.managedParent) return;
     this.parentService.assignChild(this.managedParent.id, childId).subscribe({
       next: () => {
-        this.childResults = [];
-        this.childSearch = '';
+        this.childQuery = '';
         this.loadChildren(this.managedParent!.id);
       },
-      error: (err) => { this.errorMessage = err?.error?.message || 'Failed to link child'; }
+      error: (err) => { this.errorMessage = err?.error?.message || 'Failed to link child'; this.cdr.markForCheck(); }
     });
   }
 
@@ -196,7 +210,7 @@ export class AdminParents implements OnInit {
     if (!this.managedParent) return;
     this.parentService.removeChild(this.managedParent.id, childId).subscribe({
       next: () => this.loadChildren(this.managedParent!.id),
-      error: (err) => { this.errorMessage = err?.error?.message || 'Failed to unlink child'; }
+      error: (err) => { this.errorMessage = err?.error?.message || 'Failed to unlink child'; this.cdr.markForCheck(); }
     });
   }
 

@@ -1,58 +1,151 @@
-<div style="min-height:100vh;background:#f8fafc;display:flex;flex-direction:column;">
-
+<div style="min-height: 100vh; background: #f8fafc; display: flex; flex-direction: column">
   <!-- Header -->
-  <div style="background:linear-gradient(135deg,#6366f1,#8b5cf6);padding:3rem 2rem;text-align:center;color:white;">
-    <div style="font-size:2rem;font-weight:800;margin-bottom:0.5rem;">&#127891; Fluencity</div>
-    <div style="font-size:1rem;opacity:0.9;">English School Management</div>
+  <div
+    style="
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      padding: 3rem 2rem;
+      text-align: center;
+      color: white;
+    "
+  >
+    <div style="font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem">&#127891; Fluencity</div>
+    <div style="font-size: 1rem; opacity: 0.9">English School Management</div>
   </div>
 
-  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:2rem;">
-    <div style="background:white;border-radius:16px;padding:2.5rem;width:100%;max-width:420px;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
-
+  <div style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 2rem">
+    <div
+      style="
+        background: white;
+        border-radius: 16px;
+        padding: 2.5rem;
+        width: 100%;
+        max-width: 420px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+      "
+    >
       <!-- ── STEP: Login ─────────────────────────────────────────── -->
       @if (step === 'login') {
-
-        <h2 style="font-size:1.5rem;font-weight:700;color:#1e293b;margin-bottom:0.5rem;text-align:center;">Welcome back</h2>
-        <p style="font-size:0.875rem;color:#64748b;text-align:center;margin-bottom:2rem;">Sign in to your account</p>
+        <h2
+          style="
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            text-align: center;
+          "
+        >
+          Welcome back
+        </h2>
+        <p style="font-size: 0.875rem; color: #64748b; text-align: center; margin-bottom: 2rem">
+          Sign in to your account
+        </p>
 
         @if (error) {
-          <div style="background:#fee2e2;color:#dc2626;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;font-size:0.875rem;">
+          <div
+            style="
+              background: #fee2e2;
+              color: #dc2626;
+              padding: 0.75rem 1rem;
+              border-radius: 8px;
+              margin-bottom: 1.5rem;
+              font-size: 0.875rem;
+            "
+          >
             &#9888; {{ error }}
           </div>
         }
 
         <form (ngSubmit)="login()">
-
-          <div style="margin-bottom:1.25rem;">
-            <label style="display:block;font-size:0.875rem;font-weight:600;color:#374151;margin-bottom:0.5rem;">Email Address</label>
-            <input type="email" name="email" [(ngModel)]="email" placeholder="your@email.com"
-              style="width:100%;border:1.5px solid #e2e8f0;border-radius:10px;padding:0.875rem 1rem;font-size:0.875rem;outline:none;box-sizing:border-box;"
-              (focus)="$event.target.style.borderColor='#6366f1'"
-              (blur)="$event.target.style.borderColor='#e2e8f0'" />
+          <div style="margin-bottom: 1.25rem">
+            <label
+              style="
+                display: block;
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: #374151;
+                margin-bottom: 0.5rem;
+              "
+              >Email Address</label
+            >
+            <input
+              type="email"
+              name="email"
+              [(ngModel)]="email"
+              placeholder="your@email.com"
+              style="
+                width: 100%;
+                border: 1.5px solid #e2e8f0;
+                border-radius: 10px;
+                padding: 0.875rem 1rem;
+                font-size: 0.875rem;
+                outline: none;
+                box-sizing: border-box;
+              "
+              (focus)="$event.target.style.borderColor = '#6366f1'"
+              (blur)="$event.target.style.borderColor = '#e2e8f0'"
+            />
           </div>
 
-          <div style="margin-bottom:0.5rem;">
-            <label style="display:block;font-size:0.875rem;font-weight:600;color:#374151;margin-bottom:0.5rem;">Password</label>
-            <input type="password" name="password" [(ngModel)]="password" placeholder="Enter your password"
-              style="width:100%;border:1.5px solid #e2e8f0;border-radius:10px;padding:0.875rem 1rem;font-size:0.875rem;outline:none;box-sizing:border-box;"
-              (focus)="$event.target.style.borderColor='#6366f1'"
-              (blur)="$event.target.style.borderColor='#e2e8f0'" />
+          <div style="margin-bottom: 0.5rem">
+            <label
+              style="
+                display: block;
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: #374151;
+                margin-bottom: 0.5rem;
+              "
+              >Password</label
+            >
+            <input
+              type="password"
+              name="password"
+              [(ngModel)]="password"
+              placeholder="Enter your password"
+              style="
+                width: 100%;
+                border: 1.5px solid #e2e8f0;
+                border-radius: 10px;
+                padding: 0.875rem 1rem;
+                font-size: 0.875rem;
+                outline: none;
+                box-sizing: border-box;
+              "
+              (focus)="$event.target.style.borderColor = '#6366f1'"
+              (blur)="$event.target.style.borderColor = '#e2e8f0'"
+            />
           </div>
 
-          <div style="text-align:right;margin-bottom:1.5rem;">
-            <a routerLink="/forgot-password" style="font-size:0.8rem;color:#6366f1;font-weight:600;text-decoration:none;">Forgot password?</a>
+          <div style="text-align: right; margin-bottom: 1.5rem">
+            <a
+              routerLink="/forgot-password"
+              style="font-size: 0.8rem; color: #6366f1; font-weight: 600; text-decoration: none"
+              >Forgot password?</a
+            >
           </div>
 
-          <button type="submit" [disabled]="loading"
-            style="width:100%;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;padding:0.875rem;border-radius:10px;font-size:1rem;font-weight:600;border:none;cursor:pointer;"
-            [style.opacity]="loading ? '0.7' : '1'">
+          <button
+            type="submit"
+            [disabled]="loading"
+            style="
+              width: 100%;
+              background: linear-gradient(135deg, #6366f1, #8b5cf6);
+              color: white;
+              padding: 0.875rem;
+              border-radius: 10px;
+              font-size: 1rem;
+              font-weight: 600;
+              border: none;
+              cursor: pointer;
+            "
+            [style.opacity]="loading ? '0.7' : '1'"
+          >
             {{ loading ? 'Signing in…' : 'Sign In' }}
           </button>
-
         </form>
 
         <!-- Divider -->
-        <div style="display:flex;align-items:center;gap:1rem;margin:1.5rem 0;">
+        <!-- <div style="display:flex;align-items:center;gap:1rem;margin:1.5rem 0;">
           <div style="flex:1;height:1px;background:#e2e8f0;"></div>
           <span style="font-size:0.75rem;color:#94a3b8;">Quick Demo Access</span>
           <div style="flex:1;height:1px;background:#e2e8f0;"></div>
@@ -71,82 +164,211 @@
             style="padding:0.75rem;background:#fef3c7;color:#b45309;border-radius:10px;font-size:0.8rem;font-weight:700;border:none;cursor:pointer;">
             &#128106; Parent
           </button>
-        </div>
+        </div> -->
 
-        <div style="text-align:center;margin-top:1.5rem;font-size:0.875rem;color:#64748b;">
+        <div style="text-align: center; margin-top: 1.5rem; font-size: 0.875rem; color: #64748b">
           Don't have an account?
-          <a routerLink="/signup" style="color:#6366f1;font-weight:600;text-decoration:none;">Sign up</a>
+          <a routerLink="/signup" style="color: #6366f1; font-weight: 600; text-decoration: none"
+            >Sign up</a
+          >
         </div>
-
       }
 
       <!-- ── STEP: 2FA ───────────────────────────────────────────── -->
       @if (step === '2fa') {
-
-        <div style="text-align:center;margin-bottom:1.5rem;">
-          <div style="width:56px;height:56px;background:#ede9fe;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.75rem;">&#128274;</div>
-          <h2 style="font-size:1.25rem;font-weight:700;color:#1e293b;margin-bottom:0.5rem;">Two-Factor Authentication</h2>
-          <p style="font-size:0.875rem;color:#64748b;">Enter the 6-digit code sent to <strong>{{ maskedEmail }}</strong></p>
+        <div style="text-align: center; margin-bottom: 1.5rem">
+          <div
+            style="
+              width: 56px;
+              height: 56px;
+              background: #ede9fe;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              margin: 0 auto 1rem;
+              font-size: 1.75rem;
+            "
+          >
+            &#128274;
+          </div>
+          <h2 style="font-size: 1.25rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem">
+            Two-Factor Authentication
+          </h2>
+          <p style="font-size: 0.875rem; color: #64748b">
+            Enter the 6-digit code sent to <strong>{{ maskedEmail }}</strong>
+          </p>
         </div>
 
         @if (error) {
-          <div style="background:#fee2e2;color:#dc2626;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.25rem;font-size:0.875rem;">
+          <div
+            style="
+              background: #fee2e2;
+              color: #dc2626;
+              padding: 0.75rem 1rem;
+              border-radius: 8px;
+              margin-bottom: 1.25rem;
+              font-size: 0.875rem;
+            "
+          >
             &#9888; {{ error }}
           </div>
         }
 
         <form (ngSubmit)="verify2FA()">
-          <div style="margin-bottom:1.5rem;">
-            <input type="text" name="twoFactorCode" [(ngModel)]="twoFactorCode"
-              placeholder="000000" maxlength="6"
-              style="width:100%;border:1.5px solid #e2e8f0;border-radius:10px;padding:0.875rem 1rem;font-size:1.5rem;letter-spacing:0.5rem;text-align:center;outline:none;box-sizing:border-box;"
-              (focus)="$event.target.style.borderColor='#6366f1'"
-              (blur)="$event.target.style.borderColor='#e2e8f0'" />
+          <div style="margin-bottom: 1.5rem">
+            <input
+              type="text"
+              name="twoFactorCode"
+              [(ngModel)]="twoFactorCode"
+              placeholder="000000"
+              maxlength="6"
+              style="
+                width: 100%;
+                border: 1.5px solid #e2e8f0;
+                border-radius: 10px;
+                padding: 0.875rem 1rem;
+                font-size: 1.5rem;
+                letter-spacing: 0.5rem;
+                text-align: center;
+                outline: none;
+                box-sizing: border-box;
+              "
+              (focus)="$event.target.style.borderColor = '#6366f1'"
+              (blur)="$event.target.style.borderColor = '#e2e8f0'"
+            />
           </div>
-          <button type="submit" [disabled]="loading"
-            style="width:100%;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;padding:0.875rem;border-radius:10px;font-size:1rem;font-weight:600;border:none;cursor:pointer;margin-bottom:1rem;"
-            [style.opacity]="loading ? '0.7' : '1'">
+          <button
+            type="submit"
+            [disabled]="loading"
+            style="
+              width: 100%;
+              background: linear-gradient(135deg, #6366f1, #8b5cf6);
+              color: white;
+              padding: 0.875rem;
+              border-radius: 10px;
+              font-size: 1rem;
+              font-weight: 600;
+              border: none;
+              cursor: pointer;
+              margin-bottom: 1rem;
+            "
+            [style.opacity]="loading ? '0.7' : '1'"
+          >
             {{ loading ? 'Verifying…' : 'Verify Code' }}
           </button>
-          <button type="button" (click)="backToLogin()"
-            style="width:100%;background:#f1f5f9;color:#374151;padding:0.75rem;border-radius:10px;font-size:0.875rem;font-weight:600;border:none;cursor:pointer;">
+          <button
+            type="button"
+            (click)="backToLogin()"
+            style="
+              width: 100%;
+              background: #f1f5f9;
+              color: #374151;
+              padding: 0.75rem;
+              border-radius: 10px;
+              font-size: 0.875rem;
+              font-weight: 600;
+              border: none;
+              cursor: pointer;
+            "
+          >
             &#8592; Back to Sign In
           </button>
         </form>
-
       }
 
       <!-- ── STEP: Email not verified ───────────────────────────── -->
       @if (step === 'unverified') {
-
-        <div style="text-align:center;margin-bottom:1.5rem;">
-          <div style="width:56px;height:56px;background:#fef3c7;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.75rem;">&#9993;</div>
-          <h2 style="font-size:1.25rem;font-weight:700;color:#1e293b;margin-bottom:0.5rem;">Verify your email</h2>
-          <p style="font-size:0.875rem;color:#64748b;">Your account email is not yet verified. Please check <strong>{{ email }}</strong> and click the verification link.</p>
+        <div style="text-align: center; margin-bottom: 1.5rem">
+          <div
+            style="
+              width: 56px;
+              height: 56px;
+              background: #fef3c7;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              margin: 0 auto 1rem;
+              font-size: 1.75rem;
+            "
+          >
+            &#9993;
+          </div>
+          <h2 style="font-size: 1.25rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem">
+            Verify your email
+          </h2>
+          <p style="font-size: 0.875rem; color: #64748b">
+            Your account email is not yet verified. Please check <strong>{{ email }}</strong> and
+            click the verification link.
+          </p>
         </div>
 
         @if (error) {
-          <div style="background:#fee2e2;color:#dc2626;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1rem;font-size:0.875rem;">
+          <div
+            style="
+              background: #fee2e2;
+              color: #dc2626;
+              padding: 0.75rem 1rem;
+              border-radius: 8px;
+              margin-bottom: 1rem;
+              font-size: 0.875rem;
+            "
+          >
             &#9888; {{ error }}
           </div>
         }
         @if (infoMessage) {
-          <div style="background:#dcfce7;color:#15803d;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1rem;font-size:0.875rem;">
+          <div
+            style="
+              background: #dcfce7;
+              color: #15803d;
+              padding: 0.75rem 1rem;
+              border-radius: 8px;
+              margin-bottom: 1rem;
+              font-size: 0.875rem;
+            "
+          >
             &#10003; {{ infoMessage }}
           </div>
         }
 
-        <button type="button" (click)="resendVerification()"
-          style="width:100%;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;padding:0.875rem;border-radius:10px;font-size:1rem;font-weight:600;border:none;cursor:pointer;margin-bottom:1rem;">
+        <button
+          type="button"
+          (click)="resendVerification()"
+          style="
+            width: 100%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            padding: 0.875rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 1rem;
+          "
+        >
           Resend Verification Email
         </button>
-        <button type="button" (click)="backToLogin()"
-          style="width:100%;background:#f1f5f9;color:#374151;padding:0.75rem;border-radius:10px;font-size:0.875rem;font-weight:600;border:none;cursor:pointer;">
+        <button
+          type="button"
+          (click)="backToLogin()"
+          style="
+            width: 100%;
+            background: #f1f5f9;
+            color: #374151;
+            padding: 0.75rem;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+          "
+        >
           &#8592; Back to Sign In
         </button>
-
       }
-
     </div>
   </div>
 </div>
