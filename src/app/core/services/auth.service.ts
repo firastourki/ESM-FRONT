@@ -184,4 +184,15 @@ export class AuthService {
       return null;
     }
   }
+
+  getEmail(): string | null {
+    const token = this.getToken();
+    if (!token) return null;
+    try {
+      const decoded = jwtDecode<JwtPayload>(token);
+      return decoded.sub ?? null;
+    } catch {
+      return null;
+    }
+  }
 }

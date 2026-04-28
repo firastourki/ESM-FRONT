@@ -1,13 +1,27 @@
-<div style="min-height:100vh;background:#f8fafc;display:flex;flex-direction:column;">
+<div class="auth-page">
 
-  <!-- Header -->
-  <div style="background:linear-gradient(135deg,#6366f1,#8b5cf6);padding:3rem 2rem;text-align:center;color:white;">
-    <div style="font-size:2rem;font-weight:800;margin-bottom:0.5rem;">&#127891; Fluencity</div>
-    <div style="font-size:1rem;opacity:0.9;">English School Management</div>
+  <!-- Left panel — visible on XL screens only -->
+  <div class="auth-left">
+    <div class="auth-left-bg"></div>
+    <div class="auth-left-overlay"></div>
+    <div class="auth-left-content">
+      <img src="assets/images/logo.png" alt="Fluencity" style="height: 5rem; margin-bottom: 2rem; filter: brightness(0) invert(1); opacity: 0.95;" />
+      <h1 style="color: white; font-size: 2.25rem; font-weight: 800; margin-bottom: 0.75rem; letter-spacing: -0.025em;">Fluencity</h1>
+      <p style="color: rgba(255,255,255,0.75); font-size: 1.05rem; line-height: 1.7; max-width: 280px;">
+        English School Management<br>
+        <span style="color: rgba(255,255,255,0.55); font-size: 0.9rem;">Join thousands of learners today.</span>
+      </p>
+      <!-- Decorative dots -->
+      <div style="display: flex; gap: 0.5rem; margin-top: 3rem;">
+        <div style="width: 0.5rem; height: 0.5rem; border-radius: 50%; background: rgba(255,255,255,0.3);"></div>
+        <div style="width: 0.5rem; height: 0.5rem; border-radius: 50%; background: rgba(255,255,255,0.3);"></div>
+        <div style="width: 0.5rem; height: 0.5rem; border-radius: 50%; background: rgba(255,255,255,0.6);"></div>
+      </div>
+    </div>
   </div>
 
-  <!-- Form -->
-  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:2rem;">
+  <!-- Right panel — form -->
+  <div class="auth-right">
     <div style="background:white;border-radius:16px;padding:2.5rem;width:100%;max-width:520px;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
 
       <h2 style="font-size:1.5rem;font-weight:700;color:#1e293b;margin-bottom:0.5rem;text-align:center;">Create an account</h2>

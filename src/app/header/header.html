@@ -7,33 +7,228 @@
              alt="App Logo"
              class="h-12 w-auto" />
       </div>
-      <!-- Sign In Button (right side on desktop) -->
-      <div class="hidden md:block">
-        <button routerLink="/signin"
-                class="bg-primary text-white px-8 text-lg py-4 cursor-pointer rounded-sm hover:bg-white hover:text-primary hover:border-primary border transition-colors duration-200">
-          Sign In
-        </button>
+
+      <!-- Right side (desktop) -->
+      <div class="hidden md:flex items-center">
+        @if (isLoggedIn) {
+          <!-- Account button + dropdown -->
+          <div style="position: relative;">
+            <button
+              type="button"
+              (click)="toggleDropdown()"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                background: none;
+                border: 1.5px solid #e2e8f0;
+                cursor: pointer;
+                padding: 0.375rem 0.875rem 0.375rem 0.375rem;
+                border-radius: 2rem;
+                transition: border-color 0.2s, box-shadow 0.2s;
+              "
+              onmouseenter="this.style.borderColor='#6366f1';this.style.boxShadow='0 0 0 3px rgba(99,102,241,0.1)'"
+              onmouseleave="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'"
+            >
+              <!-- Avatar circle -->
+              <div
+                style="
+                  width: 2.25rem;
+                  height: 2.25rem;
+                  border-radius: 50%;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  font-size: 0.9rem;
+                  font-weight: 700;
+                  color: white;
+                  flex-shrink: 0;
+                "
+                [style.background]="avatarColor"
+              >{{ userInitial }}</div>
+              <!-- Role label -->
+              <span style="font-size: 0.875rem; font-weight: 600; color: #374151; white-space: nowrap;">
+                {{ roleLabel }}
+              </span>
+              <!-- Chevron -->
+              <svg
+                style="width: 0.875rem; height: 0.875rem; color: #94a3b8; flex-shrink: 0; transition: transform 0.2s;"
+                [style.transform]="dropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)'"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            <!-- Dropdown panel -->
+            @if (dropdownOpen) {
+              <div
+                style="
+                  position: absolute;
+                  right: 0;
+                  top: calc(100% + 0.625rem);
+                  background: white;
+                  border-radius: 0.875rem;
+                  box-shadow: 0 10px 40px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
+                  min-width: 230px;
+                  z-index: 200;
+                  border: 1px solid #f1f5f9;
+                  overflow: hidden;
+                "
+              >
+                <!-- User info header -->
+                <div style="padding: 1rem; background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                  <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <div
+                      style="
+                        width: 2.75rem;
+                        height: 2.75rem;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 1.1rem;
+                        font-weight: 700;
+                        color: white;
+                        flex-shrink: 0;
+                      "
+                      [style.background]="avatarColor"
+                    >{{ userInitial }}</div>
+                    <div style="min-width: 0; flex: 1;">
+                      <div style="font-size: 0.8rem; font-weight: 600; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ userEmail }}</div>
+                      <div
+                        style="
+                          display: inline-flex;
+                          align-items: center;
+                          margin-top: 0.25rem;
+                          font-size: 0.7rem;
+                          font-weight: 600;
+                          padding: 0.125rem 0.5rem;
+                          border-radius: 1rem;
+                          color: white;
+                        "
+                        [style.background]="avatarColor"
+                      >{{ roleLabel }}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Actions -->
+                <div style="padding: 0.375rem;">
+                  <a
+                    [routerLink]="dashboardLink"
+                    (click)="dropdownOpen = false"
+                    style="
+                      display: flex;
+                      align-items: center;
+                      gap: 0.625rem;
+                      padding: 0.625rem 0.75rem;
+                      border-radius: 0.5rem;
+                      font-size: 0.875rem;
+                      font-weight: 500;
+                      color: #374151;
+                      text-decoration: none;
+                      transition: background 0.15s;
+                    "
+                    onmouseenter="this.style.background='#f1f5f9'"
+                    onmouseleave="this.style.background='transparent'"
+                  >
+                    <svg style="width:1rem;height:1rem;flex-shrink:0;" fill="none" viewBox="0 0 24 24" stroke="#6366f1" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    My Dashboard
+                  </a>
+
+                  <div style="height: 1px; background: #f1f5f9; margin: 0.25rem 0;"></div>
+
+                  <button
+                    type="button"
+                    (click)="logout()"
+                    style="
+                      display: flex;
+                      align-items: center;
+                      gap: 0.625rem;
+                      padding: 0.625rem 0.75rem;
+                      border-radius: 0.5rem;
+                      font-size: 0.875rem;
+                      font-weight: 500;
+                      color: #dc2626;
+                      background: none;
+                      border: none;
+                      cursor: pointer;
+                      width: 100%;
+                      text-align: left;
+                      transition: background 0.15s;
+                    "
+                    onmouseenter="this.style.background='#fee2e2'"
+                    onmouseleave="this.style.background='transparent'"
+                  >
+                    <svg style="width:1rem;height:1rem;flex-shrink:0;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Sign Out
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <button
+            routerLink="/signin"
+            class="bg-primary text-white px-8 text-lg py-4 cursor-pointer rounded-sm hover:bg-white hover:text-primary hover:border-primary border transition-colors duration-200"
+          >
+            Sign In
+          </button>
+        }
       </div>
+
       <!-- Mobile menu button -->
       <div class="md:hidden">
-        <button type="button"
-                class="text-content hover:text-primary"
-                id="mobile-menu-button"
-                aria-expanded="false"
-                aria-controls="mobile-menu">
+        <button
+          type="button"
+          class="text-content hover:text-primary"
+          id="mobile-menu-button"
+          aria-expanded="false"
+          aria-controls="mobile-menu"
+        >
           <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
       </div>
     </div>
+
     <!-- Mobile menu -->
     <div class="hidden md:hidden" id="mobile-menu">
       <div class="space-y-1 px-2 pb-3 pt-2">
-        <button routerLink="/signin"
-                class="w-full mt-4 bg-primary text-white px-6 py-2 rounded-md hover:bg-secondary transition-colors duration-200">
-          Sign In
-        </button>
+        @if (isLoggedIn) {
+          <!-- Mobile: user info bar -->
+          <div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;background:#f8fafc;border-radius:0.75rem;margin-bottom:0.5rem;">
+            <div
+              style="width:2.5rem;height:2.5rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;color:white;flex-shrink:0;"
+              [style.background]="avatarColor"
+            >{{ userInitial }}</div>
+            <div style="min-width:0;">
+              <div style="font-size:0.8rem;font-weight:600;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ userEmail }}</div>
+              <div style="font-size:0.7rem;color:#64748b;">{{ roleLabel }}</div>
+            </div>
+          </div>
+          <a
+            [routerLink]="dashboardLink"
+            style="display:block;width:100%;text-align:center;padding:0.625rem;border-radius:0.5rem;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;font-size:0.875rem;font-weight:600;text-decoration:none;"
+          >My Dashboard</a>
+          <button
+            (click)="logout()"
+            style="display:block;width:100%;margin-top:0.375rem;padding:0.625rem;border-radius:0.5rem;background:#fee2e2;color:#dc2626;font-size:0.875rem;font-weight:600;border:none;cursor:pointer;"
+          >Sign Out</button>
+        } @else {
+          <button
+            routerLink="/signin"
+            class="w-full mt-4 bg-primary text-white px-6 py-2 rounded-md hover:bg-secondary transition-colors duration-200"
+          >Sign In</button>
+        }
       </div>
     </div>
   </nav>

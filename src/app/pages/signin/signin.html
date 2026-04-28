@@ -1,18 +1,27 @@
-<div style="min-height: 100vh; background: #f8fafc; display: flex; flex-direction: column">
-  <!-- Header -->
-  <div
-    style="
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      padding: 3rem 2rem;
-      text-align: center;
-      color: white;
-    "
-  >
-    <div style="font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem">&#127891; Fluencity</div>
-    <div style="font-size: 1rem; opacity: 0.9">English School Management</div>
+<div class="auth-page">
+
+  <!-- Left panel — visible on XL screens only -->
+  <div class="auth-left">
+    <div class="auth-left-bg"></div>
+    <div class="auth-left-overlay"></div>
+    <div class="auth-left-content">
+      <img src="assets/images/logo.png" alt="Fluencity" style="height: 5rem; margin-bottom: 2rem; filter: brightness(0) invert(1); opacity: 0.95;" />
+      <h1 style="color: white; font-size: 2.25rem; font-weight: 800; margin-bottom: 0.75rem; letter-spacing: -0.025em;">Fluencity</h1>
+      <p style="color: rgba(255,255,255,0.75); font-size: 1.05rem; line-height: 1.7; max-width: 280px;">
+        English School Management<br>
+        <span style="color: rgba(255,255,255,0.55); font-size: 0.9rem;">Your learning journey starts here.</span>
+      </p>
+      <!-- Decorative dots -->
+      <div style="display: flex; gap: 0.5rem; margin-top: 3rem;">
+        <div style="width: 0.5rem; height: 0.5rem; border-radius: 50%; background: rgba(255,255,255,0.6);"></div>
+        <div style="width: 0.5rem; height: 0.5rem; border-radius: 50%; background: rgba(255,255,255,0.3);"></div>
+        <div style="width: 0.5rem; height: 0.5rem; border-radius: 50%; background: rgba(255,255,255,0.3);"></div>
+      </div>
+    </div>
   </div>
 
-  <div style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 2rem">
+  <!-- Right panel — form -->
+  <div class="auth-right">
     <div
       style="
         background: white;
@@ -143,28 +152,6 @@
             {{ loading ? 'Signing in…' : 'Sign In' }}
           </button>
         </form>
-
-        <!-- Divider -->
-        <!-- <div style="display:flex;align-items:center;gap:1rem;margin:1.5rem 0;">
-          <div style="flex:1;height:1px;background:#e2e8f0;"></div>
-          <span style="font-size:0.75rem;color:#94a3b8;">Quick Demo Access</span>
-          <div style="flex:1;height:1px;background:#e2e8f0;"></div>
-        </div>
-
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;">
-          <button type="button" (click)="quickLogin('ADMIN')"
-            style="padding:0.75rem;background:#ede9fe;color:#6366f1;border-radius:10px;font-size:0.8rem;font-weight:700;border:none;cursor:pointer;">
-            &#128100; Admin
-          </button>
-          <button type="button" (click)="quickLogin('STUDENT')"
-            style="padding:0.75rem;background:#dcfce7;color:#15803d;border-radius:10px;font-size:0.8rem;font-weight:700;border:none;cursor:pointer;">
-            &#127891; Student
-          </button>
-          <button type="button" (click)="quickLogin('PARENT')"
-            style="padding:0.75rem;background:#fef3c7;color:#b45309;border-radius:10px;font-size:0.8rem;font-weight:700;border:none;cursor:pointer;">
-            &#128106; Parent
-          </button>
-        </div> -->
 
         <div style="text-align: center; margin-top: 1.5rem; font-size: 0.875rem; color: #64748b">
           Don't have an account?

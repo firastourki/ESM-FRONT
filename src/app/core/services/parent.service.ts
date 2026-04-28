@@ -47,6 +47,10 @@ export class ParentService {
     return this.http.delete<void>(`${this.API}/${id}`);
   }
 
+  getMyChildren(): Observable<UserResponseDto[]> {
+    return this.http.get<UserResponseDto[]>(`${this.API}/me/children`);
+  }
+
   getChildren(parentId: string): Observable<UserResponseDto[]> {
     return this.http.get<UserResponseDto[]>(`${this.API}/${parentId}/children`);
   }

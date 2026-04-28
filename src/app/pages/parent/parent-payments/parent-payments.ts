@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { catchError, of, switchMap } from 'rxjs';
+import { catchError, of } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 
 @Component({
@@ -12,18 +12,18 @@ import { environment } from '../../../../environments/environment';
   templateUrl: './parent-payments.html'
 })
 export class ParentPaymentsPage implements OnInit {
+  children: any[] = [];
+  selectedChild: any = null;
+  loadingChildren = true;
+
   payments: any[] = [];
-  loading = true;
+  loading = false;
   showForm = false;
   submitting = false;
   successMessage = '';
   errorMessage = '';
 
-  childEmail = '';
-  childId = '';
   walletBalance = 0;
-  loadingWallet = false;
-
   topupAmount: number | null = null;
 
   private api = environment.apiUrl;
@@ -31,39 +31,42 @@ export class ParentPaymentsPage implements OnInit {
   constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
-    this.childEmail = localStorage.getItem('parent_child_email') || '';
-    if (this.childEmail) {
-      this.resolveChildAndLoad();
-    } else {
-      this.loading = false;
-      this.cdr.detectChanges();
-    }
+    this.loadChildren();
   }
 
-  resolveChildAndLoad(): void {
-    this.loadingWallet = true;
-    this.http.get<any>(`${this.api}/api/users?email=${encodeURIComponent(this.childEmail)}&size=1`).pipe(
-      catchError(() => of(null))
-    ).subscribe(page => {
-      const child = page?.content?.[0] || null;
-      if (child?.id) {
-        this.childId = child.id;
-        this.walletBalance = child.walletBalance ?? 0;
-        this.loadPayments(child.id);
-      } else {
-        this.loading = false;
-        this.loadingWallet = false;
-        this.errorMessage = 'Child not found. Please update the email in the dashboard.';
+  loadChildren(): void {
+    this.loadingChildren = true;
+    this.http.get<any[]>(`${this.api}/api/parents/me/children`).pipe(
+      catchError(() => of([]))
+    ).subscribe(data => {
+      this.children = data || [];
+      this.loadingChildren = false;
+      if (this.children.length === 1) {
+        this.selectChild(this.children[0]);
       }
-      this.loadingWallet = false;
       this.cdr.detectChanges();
     });
   }
 
-  loadPayments(studentId: string): void {
+  selectChild(child: any): void {
+    this.selectedChild = child;
+    this.walletBalance = child.walletBalance ?? 0;
+    this.payments = [];
+    this.errorMessage = '';
+    this.loadPayments(child.email);
+    this.cdr.detectChanges();
+  }
+
+  onChildChange(event: Event): void {
+    const id = (event.target as HTMLSelectElement).value;
+    const child = this.children.find(c => c.id === id);
+    if (child) this.selectChild(child);
+  }
+
+  loadPayments(email: string): void {
     this.loading = true;
-    this.http.get<any[]>(`${this.api}/api/payments/by-student/${studentId}`).pipe(
-      catchError(() => this.http.get<any[]>(`${this.api}/api/payments`).pipe(catchError(() => of([]))))
+    this.http.get<any[]>(`${this.api}/api/payments/by-student-email/${encodeURIComponent(email)}`).pipe(
+      catchError(() => of([]))
     ).subscribe(data => {
       this.payments = data || [];
       this.loading = false;
@@ -72,12 +75,13 @@ export class ParentPaymentsPage implements OnInit {
   }
 
   refreshWallet(): void {
-    if (!this.childId) return;
-    this.http.get<any>(`${this.api}/api/users/${this.childId}/wallet`).pipe(
+    if (!this.selectedChild?.id) return;
+    this.http.get<any>(`${this.api}/api/users/${this.selectedChild.id}/wallet`).pipe(
       catchError(() => of(null))
     ).subscribe(w => {
       if (w?.walletBalance !== undefined) {
         this.walletBalance = w.walletBalance;
+        if (this.selectedChild) this.selectedChild.walletBalance = w.walletBalance;
         this.cdr.detectChanges();
       }
     });
@@ -102,8 +106,8 @@ export class ParentPaymentsPage implements OnInit {
       this.cdr.detectChanges();
       return;
     }
-    if (!this.childId) {
-      this.errorMessage = 'Child account not found.';
+    if (!this.selectedChild?.id) {
+      this.errorMessage = 'Please select a child first.';
       this.cdr.detectChanges();
       return;
     }
@@ -112,7 +116,7 @@ export class ParentPaymentsPage implements OnInit {
     this.errorMessage = '';
     this.cdr.detectChanges();
 
-    this.http.put<any>(`${this.api}/api/users/${this.childId}/wallet/topup`, { amount: this.topupAmount }).pipe(
+    this.http.put<any>(`${this.api}/api/users/${this.selectedChild.id}/wallet/topup`, { amount: this.topupAmount }).pipe(
       catchError(err => {
         this.submitting = false;
         this.errorMessage = err?.error?.message || 'Top-up failed. Please try again.';
@@ -122,10 +126,11 @@ export class ParentPaymentsPage implements OnInit {
     ).subscribe(result => {
       if (result !== null) {
         this.walletBalance = result.walletBalance ?? this.walletBalance + (this.topupAmount ?? 0);
+        if (this.selectedChild) this.selectedChild.walletBalance = this.walletBalance;
         this.submitting = false;
         this.showForm = false;
-        this.successMessage = `Successfully added ${this.topupAmount} TND to your child's wallet!`;
-        this.loadPayments(this.childId);
+        this.successMessage = `Successfully added ${this.topupAmount} TND to ${this.selectedChild.firstName}'s wallet!`;
+        this.loadPayments(this.selectedChild.email);
         setTimeout(() => { this.successMessage = ''; this.cdr.detectChanges(); }, 4000);
       }
     });

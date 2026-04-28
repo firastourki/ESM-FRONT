@@ -32,4 +32,8 @@ export class PaymentService {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
 
+  getByStudentEmail(email: string) {
+    return this.http.get<any[]>(`${this.apiUrl}/by-student-email/${encodeURIComponent(email)}`);
+  }
+
 }
