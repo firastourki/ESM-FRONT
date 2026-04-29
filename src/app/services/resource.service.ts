@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { AuthService } from '../core/services/auth.service';
 
 export interface LearningResource {
   id?: number;
@@ -18,16 +17,14 @@ export class ResourcesService {
 
   private api = `${environment.apiUrl}/api/resources`;
 
-  constructor(private http: HttpClient, private auth: AuthService) { }
+  constructor(private http: HttpClient) { }
 
   getByAssessment(assessmentId: number): Observable<LearningResource[]> {
     return this.http.get<LearningResource[]>(`${this.api}/assessment/${assessmentId}`);
   }
 
   upload(formData: FormData): Observable<any> {
-    const token = this.auth.getToken();
-    const headers = new HttpHeaders(token ? { Authorization: `Bearer ${token}` } : {});
-    return this.http.post(`${this.api}/upload`, formData, { headers });
+    return this.http.post(`${this.api}/upload`, formData);
   }
 
   delete(id: number): Observable<any> {
