@@ -9,6 +9,7 @@ import { environment } from '../../../environments/environment';
 interface JwtPayload {
   sub: string;
   userId?: string;
+  email?: string;
   role: string;
   status?: string;
   emailVerified?: boolean;
@@ -190,7 +191,7 @@ export class AuthService {
     if (!token) return null;
     try {
       const decoded = jwtDecode<JwtPayload>(token);
-      return decoded.sub ?? null;
+      return decoded.email ?? decoded.sub ?? null;
     } catch {
       return null;
     }

@@ -60,7 +60,7 @@ export class GradeService {
   }
 
   getByStudent(email: string): Observable<Grade[]> {
-    return this.http.get<Grade[]>(`${this.api}/student/${email}`);
+    return this.http.get<Grade[]>(`${this.api}/student/${encodeURIComponent(email)}`);
   }
 
   getStatsByAssessment(assessmentId: number): Observable<GradeStats> {

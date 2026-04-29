@@ -49,6 +49,7 @@ import { TutorAssessments } from './pages/tutor-assessments/tutor-assessments';
 import { StudentCoursesPage } from './pages/student/student-courses/student-courses';
 import { StudentAttendancePage } from './pages/student/student-attendance/student-attendance';
 import { StudentAssessmentsPage } from './pages/student/student-assessments/student-assessments';
+import { StudentAssessmentDetail } from './pages/student/student-assessment-detail/student-assessment-detail';
 import { StudentSchedulePage } from './pages/student/student-schedule/student-schedule';
 import { StudentCertificatesPage } from './pages/student/student-certificates/student-certificates';
 
@@ -131,6 +132,7 @@ export const routes: Routes = [
       { path: 'attendance', component: StudentAttendancePage },
       { path: 'grades', component: GradesComponent },
       { path: 'assessments', component: StudentAssessmentsPage },
+      { path: 'assessments/:id', component: StudentAssessmentDetail },
       { path: 'leaderboard', component: LeaderboardComponent },
       { path: 'schedule', component: StudentSchedulePage },
       { path: 'certificates', component: StudentCertificatesPage },

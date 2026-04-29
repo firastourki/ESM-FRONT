@@ -1,0 +1,225 @@
+<div style="padding:0;font-family:'DM Sans',ui-sans-serif,sans-serif;max-width:860px;">
+
+  <!-- Back -->
+  <a routerLink="/student/assessments"
+     style="display:inline-flex;align-items:center;gap:6px;font-size:0.82rem;font-weight:600;color:#6366f1;text-decoration:none;margin-bottom:1.5rem;padding:6px 12px;border-radius:8px;background:#ede9fe;transition:background .15s;"
+     (mouseenter)="$event.currentTarget.style.background='#ddd6fe'"
+     (mouseleave)="$event.currentTarget.style.background='#ede9fe'">
+    ← Back to Assessments
+  </a>
+
+  <!-- ── Assessment loading ─────────────────────────────────────────────────── -->
+  @if (loading) {
+    <div style="background:white;border-radius:14px;padding:2rem;border:1px solid #e2e8f0;margin-bottom:1.25rem;animation:pulse 1.5s infinite;">
+      <div style="height:22px;background:#f1f5f9;border-radius:6px;width:55%;margin-bottom:12px;"></div>
+      <div style="height:14px;background:#f1f5f9;border-radius:6px;width:35%;margin-bottom:20px;"></div>
+      <div style="display:flex;gap:8px;">
+        <div style="height:26px;background:#f1f5f9;border-radius:99px;width:70px;"></div>
+        <div style="height:26px;background:#f1f5f9;border-radius:99px;width:90px;"></div>
+      </div>
+    </div>
+  }
+
+  <!-- Error -->
+  @if (error) {
+    <div style="background:#fee2e2;color:#dc2626;padding:1rem 1.25rem;border-radius:12px;font-weight:600;display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;">
+      <span style="font-size:1.2rem;">⚠️</span> {{ error }}
+    </div>
+  }
+
+  <!-- ── Assessment card ────────────────────────────────────────────────────── -->
+  @if (!loading && assessment) {
+    <div style="background:white;border-radius:16px;padding:1.75rem;border:1px solid #e2e8f0;margin-bottom:1.25rem;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+
+      <!-- Header row -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem;">
+        <div style="flex:1;min-width:0;">
+          <h1 style="font-size:1.45rem;font-weight:800;color:#0f172a;margin:0 0 6px;line-height:1.2;">{{ assessment.title }}</h1>
+          <div style="font-size:0.875rem;color:#64748b;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <span>📚 {{ assessment.courseName }}</span>
+            @if (assessment.className) {
+              <span style="background:#e0f2fe;color:#0369a1;border-radius:6px;padding:2px 9px;font-size:0.72rem;font-weight:700;">{{ assessment.className }}</span>
+            }
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;">
+          <span style="padding:5px 14px;border-radius:99px;font-size:0.72rem;font-weight:700;"
+                [style.background]="typeBg(assessment.type)"
+                [style.color]="typeColor(assessment.type)">
+            {{ assessment.type }}
+          </span>
+          <span style="padding:5px 14px;border-radius:99px;font-size:0.72rem;font-weight:700;"
+                [style.background]="statusBg(assessment.status)"
+                [style.color]="statusColor(assessment.status)">
+            {{ assessment.status }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Meta row: dates + duration -->
+      @if (assessment.startDate || assessment.endDate || assessment.duration) {
+        <div style="display:flex;gap:1.5rem;flex-wrap:wrap;font-size:0.8rem;color:#64748b;padding-top:1rem;border-top:1px solid #f1f5f9;">
+          @if (assessment.startDate) {
+            <div style="display:flex;align-items:center;gap:5px;">
+              <span style="font-size:0.9rem;">📅</span>
+              <span><span style="font-weight:600;color:#374151;">Start:</span> {{ assessment.startDate | date:'dd MMM yyyy, HH:mm' }}</span>
+            </div>
+          }
+          @if (assessment.endDate) {
+            <div style="display:flex;align-items:center;gap:5px;">
+              <span style="font-size:0.9rem;">🏁</span>
+              <span><span style="font-weight:600;color:#374151;">End:</span> {{ assessment.endDate | date:'dd MMM yyyy, HH:mm' }}</span>
+            </div>
+          }
+          @if (assessment.duration) {
+            <div style="display:flex;align-items:center;gap:5px;">
+              <span style="font-size:0.9rem;">⏱</span>
+              <span><span style="font-weight:600;color:#374151;">Duration:</span> {{ assessment.duration }} min</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- ── Grade section ──────────────────────────────────────────────────── -->
+    <h2 style="font-size:0.78rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin:0 0 0.75rem;">My Grade</h2>
+
+    @if (loadingGrade) {
+      <div style="background:white;border-radius:14px;padding:1.5rem;border:1px solid #e2e8f0;margin-bottom:1.25rem;display:flex;align-items:center;gap:1.5rem;animation:pulse 1.5s infinite;">
+        <div style="width:64px;height:64px;border-radius:50%;background:#f1f5f9;flex-shrink:0;"></div>
+        <div style="flex:1;">
+          <div style="height:12px;background:#f1f5f9;border-radius:6px;width:80%;margin-bottom:10px;"></div>
+          <div style="height:10px;background:#f1f5f9;border-radius:6px;width:50%;"></div>
+        </div>
+      </div>
+    }
+
+    @if (!loadingGrade && grade) {
+      <div style="background:white;border-radius:16px;padding:1.5rem;border:1px solid #e2e8f0;margin-bottom:1.25rem;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+        <div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;">
+
+          <!-- Score circle -->
+          <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(99,102,241,0.3);">
+            <span style="font-size:1.3rem;font-weight:800;color:white;line-height:1;">{{ grade.score }}</span>
+            <span style="font-size:0.6rem;color:rgba(255,255,255,0.8);font-weight:600;">/ {{ grade.maxScore }}</span>
+          </div>
+
+          <div style="flex:1;min-width:180px;">
+            <!-- Percentage bar -->
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+              <div style="flex:1;height:8px;background:#f1f5f9;border-radius:99px;overflow:hidden;">
+                <div [style.width.%]="grade.percentage ?? 0"
+                     [style.background]="mentionColor(grade.mention ?? '')"
+                     style="height:100%;border-radius:99px;transition:width 0.8s ease;"></div>
+              </div>
+              <span style="font-size:0.875rem;font-weight:700;min-width:40px;text-align:right;"
+                    [style.color]="mentionColor(grade.mention ?? '')">
+                {{ grade.percentage | number:'1.0-1' }}%
+              </span>
+            </div>
+
+            <!-- Mention + graded date -->
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              @if (grade.mention) {
+                <span style="padding:4px 14px;border-radius:99px;font-size:0.75rem;font-weight:700;"
+                      [style.background]="mentionBg(grade.mention)"
+                      [style.color]="mentionColor(grade.mention)">
+                  {{ grade.mention }}
+                </span>
+              }
+              @if (grade.gradedAt) {
+                <span style="font-size:0.72rem;color:#94a3b8;">
+                  Graded {{ grade.gradedAt | date:'dd MMM yyyy' }}
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Tutor comment -->
+        @if (grade.comments) {
+          <div style="margin-top:1rem;padding:1rem;border-radius:10px;background:#f8fafc;border-left:3px solid #6366f1;">
+            <p style="font-size:0.75rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.4px;margin:0 0 4px;">Tutor's feedback</p>
+            <p style="font-size:0.875rem;color:#334155;margin:0;font-style:italic;">"{{ grade.comments }}"</p>
+          </div>
+        }
+      </div>
+    }
+
+    @if (!loadingGrade && !grade) {
+      <div style="background:#f8fafc;border:1.5px dashed #e2e8f0;border-radius:14px;padding:1.75rem;text-align:center;margin-bottom:1.25rem;color:#94a3b8;">
+        <div style="font-size:2rem;margin-bottom:6px;">📋</div>
+        <p style="margin:0;font-size:0.875rem;font-weight:500;">Not yet graded</p>
+      </div>
+    }
+
+    <!-- ── Resources section ──────────────────────────────────────────────── -->
+    <h2 style="font-size:0.78rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin:0 0 0.75rem;">
+      Resources
+      @if (!loadingResources && resources.length > 0) {
+        <span style="background:#ede9fe;color:#6d28d9;border-radius:99px;padding:1px 9px;font-size:0.7rem;margin-left:6px;font-weight:700;">{{ resources.length }}</span>
+      }
+    </h2>
+
+    @if (loadingResources) {
+      <div style="display:flex;flex-direction:column;gap:0.75rem;">
+        @for (_ of [1,2]; track $_) {
+          <div style="background:white;border-radius:12px;padding:1rem 1.25rem;border:1px solid #e2e8f0;display:flex;align-items:center;gap:1rem;animation:pulse 1.5s infinite;">
+            <div style="width:40px;height:40px;border-radius:10px;background:#f1f5f9;flex-shrink:0;"></div>
+            <div style="flex:1;">
+              <div style="height:13px;background:#f1f5f9;border-radius:6px;width:45%;margin-bottom:8px;"></div>
+              <div style="height:10px;background:#f1f5f9;border-radius:6px;width:22%;"></div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    @if (!loadingResources && resources.length === 0) {
+      <div style="background:#f8fafc;border:1.5px dashed #e2e8f0;border-radius:14px;padding:1.75rem;text-align:center;color:#94a3b8;">
+        <div style="font-size:2rem;margin-bottom:6px;">📭</div>
+        <p style="margin:0;font-size:0.875rem;font-weight:500;">No resources available for this assessment.</p>
+      </div>
+    }
+
+    @if (!loadingResources && resources.length > 0) {
+      <div style="display:flex;flex-direction:column;gap:0.75rem;">
+        @for (r of resources; track r.id) {
+          <div style="background:white;border-radius:12px;padding:1rem 1.25rem;border:1px solid #e2e8f0;display:flex;align-items:center;gap:1rem;transition:box-shadow .15s;"
+               (mouseenter)="$event.currentTarget.style.boxShadow='0 2px 12px rgba(0,0,0,0.07)'"
+               (mouseleave)="$event.currentTarget.style.boxShadow='none'">
+
+            <!-- File type icon -->
+            <div style="width:44px;height:44px;border-radius:10px;background:#ede9fe;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;">
+              {{ fileIcon(r.type) }}
+            </div>
+
+            <div style="flex:1;min-width:0;">
+              <p style="font-weight:600;color:#1e293b;margin:0 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:0.9rem;">{{ r.title }}</p>
+              <span style="padding:2px 9px;border-radius:99px;font-size:0.68rem;font-weight:700;background:#ede9fe;color:#6d28d9;">{{ r.type }}</span>
+            </div>
+
+            @if (r.fileUrl) {
+              <button (click)="openFile(r.fileUrl!)"
+                      style="flex-shrink:0;padding:7px 18px;border-radius:8px;background:#6366f1;color:white;border:none;font-size:0.8rem;font-weight:600;cursor:pointer;transition:background .15s;white-space:nowrap;"
+                      (mouseenter)="$event.currentTarget.style.background='#4f46e5'"
+                      (mouseleave)="$event.currentTarget.style.background='#6366f1'">
+                Open ↗
+              </button>
+            }
+          </div>
+        }
+      </div>
+    }
+
+  }
+
+</div>
+
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+</style>
