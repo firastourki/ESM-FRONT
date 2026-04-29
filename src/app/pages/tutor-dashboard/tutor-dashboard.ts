@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
 import { HttpClient } from '@angular/common/http';
 import { AssessmentService, Assessment } from '../../services/assessment.service';
 import { catchError } from 'rxjs/operators';
@@ -15,7 +16,7 @@ interface MyClass {
 @Component({
   selector: 'app-tutor-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, MatIconModule],
   templateUrl: './tutor-dashboard.html',
   styleUrls: ['./tutor-dashboard.css']
 })
@@ -65,4 +66,12 @@ export class TutorDashboard implements OnInit {
 
   statusClass(s: string): string { return ({ PUBLISHED:'badge-published', DRAFT:'badge-draft', CLOSED:'badge-closed' } as any)[s] || 'badge-default'; }
   typeClass(t: string):   string { return ({ EXAM:'badge-exam', QUIZ:'badge-quiz', PROJECT:'badge-project' } as any)[t] || 'badge-default'; }
+
+  private readonly CARD_GRADIENTS = [
+    'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+    'linear-gradient(135deg, #7c3aed 0%, #6366f1 100%)',
+    'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+    'linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%)',
+  ];
+  cardGradient(i: number): string { return this.CARD_GRADIENTS[i % this.CARD_GRADIENTS.length]; }
 }

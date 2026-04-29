@@ -110,6 +110,7 @@ export const routes: Routes = [
       { path: 'dashboard', component: TutorDashboard },
       { path: 'assessments', component: TutorAssessments },
       { path: 'assessment/:id', component: AssessmentDetails },
+      { path: 'planning', component: Planning },
       { path: 'grades', component: GradesComponent },
       { path: 'resources', component: Resources },
       { path: 'reports', component: Reports },

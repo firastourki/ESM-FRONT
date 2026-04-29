@@ -4,10 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AssessmentService, Assessment } from '../../services/assessment.service';
 import { ResourcesService, LearningResource } from '../../services/resource.service';
-import { environment } from '../../../environments/environment';
-
 const PAGE_SIZE = 6;
-const UPLOADS_BASE = environment.apiUrl;
 
 @Component({
   selector: 'app-resources',
@@ -201,7 +198,7 @@ export class ResourcesComponent implements OnInit {
       error: () => {
         this.ngZone.run(() => {
           this.uploading = false;
-          this.uploadError = 'Upload failed. Make sure Resource Service (:8096) is running.';
+          this.uploadError = 'Upload failed. Please check your connection or contact your administrator.';
           this.refresh();
         });
       }
@@ -226,13 +223,12 @@ export class ResourcesComponent implements OnInit {
 
   // ── View & Download ────────────────────────────────────────────────────────
   openFile(fileUrl: string): void {
-    window.open(`${UPLOADS_BASE}/${fileUrl}`, '_blank');
+    window.open(fileUrl, '_blank');
   }
 
   downloadFile(fileUrl: string, title: string): void {
-    const url = `${UPLOADS_BASE}/${fileUrl}`;
     const a = document.createElement('a');
-    a.href = url;
+    a.href = fileUrl;
     a.download = title || 'resource';
     a.target = '_blank';
     document.body.appendChild(a);
