@@ -10,7 +10,10 @@
       "mcp__claude_ai_Notion__notion-search",
       "mcp__claude_ai_Notion__notion-create-database",
       "Bash(grep -E \"\\\\.\\(ts|html\\)$\")",
-      "Bash(grep -E \"\\\\.java$|\\\\.properties$|\\\\.yml$\")"
+      "Bash(grep -E \"\\\\.java$|\\\\.properties$|\\\\.yml$\")",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)"
     ]
   }
 }
