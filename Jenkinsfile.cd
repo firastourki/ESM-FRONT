@@ -17,18 +17,82 @@ pipeline {
           string(credentialsId: 'coolify-app-uuid',  variable: 'APP_UUID')
         ]) {
           sh '''
-            echo "==> Triggering Coolify deployment for app ${APP_UUID}..."
-            HTTP=$(curl -s -o response.json -w "%{http_code}" \
+            echo "==> Triggering Coolify deployment..."
+            HTTP=$(curl -s -o trigger.json -w "%{http_code}" \
               -X GET "${COOLIFY_URL}/api/v1/deploy?uuid=${APP_UUID}&force=false" \
               -H "Authorization: Bearer ${COOLIFY_TOKEN}")
-            echo "HTTP status: $HTTP"
-            cat response.json
-            if [ "$HTTP" = "200" ] || [ "$HTTP" = "201" ]; then
-              echo "==> Deployment triggered successfully."
-            else
-              echo "==> Failed to trigger deployment (HTTP $HTTP)."
+
+            echo "HTTP: $HTTP"
+            cat trigger.json
+
+            if [ "$HTTP" != "200" ] && [ "$HTTP" != "201" ]; then
+              echo "ERROR: Failed to trigger deployment (HTTP $HTTP)"
               exit 1
             fi
+
+            DEPLOYMENT_UUID=$(grep -o '"deployment_uuid":"[^"]*"' trigger.json | cut -d'"' -f4)
+            echo "Deployment UUID: $DEPLOYMENT_UUID"
+            echo "$DEPLOYMENT_UUID" > deployment_uuid.txt
+          '''
+        }
+      }
+    }
+
+    stage('Stream Build Logs') {
+      steps {
+        withCredentials([
+          string(credentialsId: 'coolify-url',       variable: 'COOLIFY_URL'),
+          string(credentialsId: 'coolify-api-token', variable: 'COOLIFY_TOKEN')
+        ]) {
+          sh '''
+            DEPLOYMENT_UUID=$(cat deployment_uuid.txt)
+            echo "==> Polling deployment ${DEPLOYMENT_UUID}..."
+
+            MAX_WAIT=600
+            ELAPSED=0
+            INTERVAL=10
+
+            while [ $ELAPSED -lt $MAX_WAIT ]; do
+              curl -s -o deploy_status.json \
+                "${COOLIFY_URL}/api/v1/deployments/${DEPLOYMENT_UUID}" \
+                -H "Authorization: Bearer ${COOLIFY_TOKEN}"
+
+              STATUS=$(grep -o '"status":"[^"]*"' deploy_status.json | head -1 | cut -d'"' -f4)
+              echo "[${ELAPSED}s] status: ${STATUS}"
+
+              python3 -c "
+import json, os
+try:
+    data = json.load(open('deploy_status.json'))
+    logs = data.get('logs') or ''
+    offset_file = 'log_offset.txt'
+    last = int(open(offset_file).read().strip()) if os.path.exists(offset_file) else 0
+    new = logs[last:]
+    if new:
+        print(new, end='', flush=True)
+    open(offset_file, 'w').write(str(len(logs)))
+except Exception as e:
+    print('(log parse error:', e, ')')
+" 2>/dev/null || true
+
+              if [ "$STATUS" = "finished" ]; then
+                echo ""
+                echo "==> Deployment finished successfully."
+                exit 0
+              fi
+
+              if [ "$STATUS" = "failed" ] || [ "$STATUS" = "error" ] || [ "$STATUS" = "cancelled" ]; then
+                echo ""
+                echo "==> Deployment ${STATUS}."
+                exit 1
+              fi
+
+              sleep $INTERVAL
+              ELAPSED=$((ELAPSED + INTERVAL))
+            done
+
+            echo "==> Timeout: deployment did not finish within ${MAX_WAIT}s."
+            exit 1
           '''
         }
       }
@@ -37,7 +101,7 @@ pipeline {
   }
 
   post {
-    success { echo "Build ${BUILD_NUMBER} — Coolify deployment triggered." }
-    failure { echo "CD pipeline failed — check the stage logs above." }
+    success { echo "Build ${BUILD_NUMBER} deployed successfully." }
+    failure { echo "CD pipeline failed — check logs above." }
   }
 }
