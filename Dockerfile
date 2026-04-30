@@ -26,6 +26,5 @@ COPY --from=build /app/package*.json ./
 RUN npm ci --omit=dev --legacy-peer-deps
 
 EXPOSE 4000
-ENV PORT=4000
 
 CMD ["node", "dist/edutest/server/server.mjs"]
