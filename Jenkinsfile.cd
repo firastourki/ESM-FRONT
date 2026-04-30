@@ -1,11 +1,6 @@
 pipeline {
   agent any
 
-  environment {
-    IMAGE     = 'akremargoubi/fluencity-frontend'
-    IMAGE_TAG = "${env.BUILD_NUMBER}"
-  }
-
   stages {
 
     stage('Checkout') {
@@ -14,40 +9,27 @@ pipeline {
       }
     }
 
-    stage('Build Docker Image') {
+    stage('Trigger Coolify Deploy') {
       steps {
-        withCredentials([string(credentialsId: 'api-url-prod', variable: 'API_URL')]) {
-          sh """
-            docker build \\
-              --build-arg API_URL=\${API_URL} \\
-              -t \${IMAGE}:\${IMAGE_TAG} \\
-              -t \${IMAGE}:latest \\
-              .
-          """
-        }
-      }
-    }
-
-    stage('Push to Docker Hub') {
-      steps {
-        withCredentials([usernamePassword(
-          credentialsId : 'docker-hub-creds',
-          usernameVariable: 'DH_USER',
-          passwordVariable: 'DH_PASS'
-        )]) {
-          sh """
-            echo \$DH_PASS | docker login -u \$DH_USER --password-stdin
-            docker push \${IMAGE}:\${IMAGE_TAG}
-            docker push \${IMAGE}:latest
-          """
-        }
-      }
-    }
-
-    stage('Deploy via Coolify') {
-      steps {
-        withCredentials([string(credentialsId: 'coolify-webhook', variable: 'WEBHOOK')]) {
-          sh "curl -s -X GET \"\${WEBHOOK}\""
+        withCredentials([
+          string(credentialsId: 'coolify-url',       variable: 'COOLIFY_URL'),
+          string(credentialsId: 'coolify-api-token', variable: 'COOLIFY_TOKEN'),
+          string(credentialsId: 'coolify-app-uuid',  variable: 'APP_UUID')
+        ]) {
+          sh '''
+            echo "==> Triggering Coolify deployment for app ${APP_UUID}..."
+            HTTP=$(curl -s -o response.json -w "%{http_code}" \
+              -X GET "${COOLIFY_URL}/api/v1/deploy?uuid=${APP_UUID}&force=false" \
+              -H "Authorization: Bearer ${COOLIFY_TOKEN}")
+            echo "HTTP status: $HTTP"
+            cat response.json
+            if [ "$HTTP" = "200" ] || [ "$HTTP" = "201" ]; then
+              echo "==> Deployment triggered successfully."
+            else
+              echo "==> Failed to trigger deployment (HTTP $HTTP)."
+              exit 1
+            fi
+          '''
         }
       }
     }
@@ -55,8 +37,7 @@ pipeline {
   }
 
   post {
-    always  { sh 'docker logout || true' }
-    success { echo "Build ${IMAGE_TAG} pushed and deployed to Coolify." }
+    success { echo "Build ${BUILD_NUMBER} — Coolify deployment triggered." }
     failure { echo "CD pipeline failed — check the stage logs above." }
   }
 }
