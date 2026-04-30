@@ -3,7 +3,7 @@ FROM node:20-alpine AS build
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci --legacy-peer-deps
+RUN npm install --legacy-peer-deps
 
 COPY . .
 
@@ -23,7 +23,7 @@ COPY --from=build /app/dist/edutest ./dist/edutest
 COPY --from=build /app/package*.json ./
 
 # Install only runtime dependencies — no devDeps, no Angular CLI
-RUN npm ci --omit=dev --legacy-peer-deps
+RUN npm install --omit=dev --legacy-peer-deps
 
 EXPOSE 4000
 
